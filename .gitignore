@@ -39,5 +39,19 @@ node_modules/
 env/
 .env
 
+venv/
+/venv
+
 # Ignorar package-lock.json
 package-lock.json
+
+# Python virtual environments
+env/
+.env
+venv/
+/venv
+
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+
