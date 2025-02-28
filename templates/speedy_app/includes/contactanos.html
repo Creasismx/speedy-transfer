@@ -1,0 +1,38 @@
+{% load static %}
+<section style="background-image: url({% static 'images/Contact-us.png' %}); background-repeat: no-repeat; background-size: cover;">
+    <section class="py-16 mx-16 sm:mx-12 md:mx-24 lg:mx-40 h-full flex items-center">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div class="rounded-lg flex items-center justify-center py-auto">
+          <form class="grid grid-cols-1 md:grid-cols-2 w-full gap-8">
+            <div>
+              <input type="text" id="name" class="w-full px-3 py-2 border-b border-[#F2F2F2] bg-transparent placeholder-[#F2F2F2] text-white focus:outline-none focus:ring-0" placeholder="Your name">
+            </div>
+            <div>
+              <input type="email" id="email" class="w-full px-3 py-2 border-b border-[#F2F2F2] bg-transparent placeholder-[#F2F2F2] text-white focus:outline-none focus:ring-0" placeholder="Your email">
+            </div>
+            <div>
+              <input type="text" id="phone" class="w-full px-3 py-2 border-b border-[#F2F2F2] bg-transparent placeholder-[#F2F2F2] text-white focus:outline-none focus:ring-0" placeholder="Phone number">
+            </div>
+            <div>
+              <input type="text" id="country" class="w-full px-3 py-2 border-b border-[#F2F2F2] bg-transparent placeholder-[#F2F2F2] text-white focus:outline-none focus:ring-0" placeholder="Country">
+            </div>
+            <div>
+              <input type="text" id="company" class="w-full px-3 py-2 border-b border-[#F2F2F2] bg-transparent placeholder-[#F2F2F2] text-white focus:outline-none focus:ring-0" placeholder="Company name">
+            </div>
+            <div>
+              <input type="text" id="interested" class="w-full px-3 py-2 border-b border-[#F2F2F2] bg-transparent placeholder-[#F2F2F2] text-white focus:outline-none focus:ring-0" placeholder="Interested in">
+            </div>
+            <div class="md:col-span-2">
+              <input type="text" id="additional" class="w-full px-3 py-2 border-b border-[#F2F2F2] bg-transparent placeholder-[#F2F2F2] text-white focus:outline-none focus:ring-0" placeholder="Message">
+            </div>
+          </form>
+        </div>
+        <div class="rounded-lg flex flex-col items-center justify-center relative">
+          <p class="font-bold text-white text-[30px] lg:text-[54px] text-left md:text-left">We can also attend special requirements!</p>
+          <img src="{% static 'images/contacto-item.png' %}" alt="" class="mx-auto md:mx-0">
+        </div>
+  
+      </div>
+    </section>
+  </section>
+  
