@@ -4,6 +4,7 @@ charset-normalizer==3.4.1
 Django==3.2.25
 django-3-jet==1.0.8
 django-extensions==3.2.3
+django-livereload-server==0.5.1
 idna==3.10
 mysqlclient==2.2.7
 pathlib==1.0.1
@@ -14,5 +15,6 @@ requests==2.32.3
 six==1.17.0
 sqlparse==0.5.3
 stripe==11.6.0
+tornado==6.4.2
 typing_extensions==4.12.2
 urllib3==2.3.0
