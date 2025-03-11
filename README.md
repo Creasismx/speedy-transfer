@@ -1,67 +1,130 @@
 # Speedy Transfers
 
-## Environment
+# Setting Up a Virtual Environment in Linux and Windows
 
-To start the application it is necessary to include the .env file
+A virtual environment helps keep dependencies isolated for different projects. Below are the steps to create and use a virtual environment named `venv` on Linux and Windows.
 
-## Build
+---
 
-```shell
-docker-compose build
+## Linux (Ubuntu, Fedora, etc.)
+
+### **1. Install Python and Virtual Environment Module**
+Ensure Python is installed:
+```bash
+python3 --version
+```
+If not installed, use:
+```bash
+sudo apt install python3 python3-venv  # Ubuntu/Debian
+sudo dnf install python3 python3-venv  # Fedora
 ```
 
-```shell
-cd templates/assets
-npm install
-npm run watch
+### **2. Create a Virtual Environment**
+Navigate to your project directory and run:
+```bash
+python3 -m venv venv
 ```
 
-## Running the application
+### **3. Activate the Virtual Environment**
+```bash
+source venv/bin/activate
+```
+After activation, you should see `(venv)` in your terminal prompt.
 
-The application is built with Django and already has all environment configured with docker. To start the application you will need `docker` and `docker-compose` installed on the machine. Having that you may run:
-
-```shell
-docker-compose up
+### **4. Install Dependencies**
+```bash
+pip install -r requirements.txt
 ```
 
-And then the application and database will be started:
-
-```shell
-Starting speedy_db ... done
-Starting speedy_app        ... done
+### **5. Deactivate the Virtual Environment**
+To exit, run:
+```bash
+deactivate
 ```
 
-The application will be avaible on _PORT 8000_ by default, but it's configurable via `docker-compose.yml` file as an environment variable.
+---
+
+## Windows
+
+### **1. Install Python and Virtual Environment Module**
+Ensure Python is installed:
+```powershell
+python --version
+```
+If not installed, download it from [Python.org](https://www.python.org/downloads/) and install it, making sure to check "Add Python to PATH" during installation.
+
+### **2. Create a Virtual Environment**
+Navigate to your project directory and run:
+```powershell
+python -m venv venv
+```
+
+### **3. Activate the Virtual Environment**
+Run the following in PowerShell:
+```powershell
+venv\Scripts\Activate
+```
+For **Command Prompt (cmd.exe)**:
+```cmd
+venv\Scripts\activate.bat
+```
+After activation, `(venv)` should appear in the terminal prompt.
+
+### **4. Install Dependencies**
+```powershell
+pip install -r requirements.txt
+```
+
+### **5. Deactivate the Virtual Environment**
+To exit, run:
+```powershell
+deactivate
+```
+
+---
+
+## Ignoring `venv` in Git
+To avoid committing the virtual environment, add this to `.gitignore`:
+```
+venv/
+```
+
+---
+
+Now your virtual environment is set up and ready to use! 🚀
+
+
+
 
 
 ## Running makemigrations
 
 ```shell
-docker exec -ti app python /code/manage.py makemigrations
+python manage.py makemigrations
 ```
 
 ## Running empty makemigrations
 
 ```shell
-docker exec -ti app python /code/manage.py makemigrations app_name --empty
+python manage.py makemigrations app_name --empty
 ```
 
 ## Running the migrations
 
 ```shell
-docker exec -ti app python /code/manage.py migrate
+python manage.py migrate
 ```
 
 ## Use django shell
 
 ```shell
-docker exec -ti app python /code/manage.py shell
+python manage.py shell
 ```
 
 ## Create super user
 
 ```shell
-docker exec -ti app python /code/manage.py createsuperuser
+python manage.py createsuperuser
 ```
 
 ## Create translations
@@ -76,4 +139,9 @@ django-admin makemessages -l en
 ```shell
 django-admin compilemessages --ignore apps
 
+```
+
+## Run de app locally
+```shell
+python manage.py runserver 0.0.0.0:8000
 ```

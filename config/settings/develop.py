@@ -1,7 +1,12 @@
 import os
+from dotenv import load_dotenv
 from .settings import *
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables
+print(BASE_DIR)
+load_dotenv(os.path.join(BASE_DIR, '../.env'))
 
 DEBUG = True
 
@@ -10,12 +15,12 @@ DEBUG = True
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('POSTGRES_DB'),
-        'USER': os.environ.get('POSTGRES_USER'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': os.environ.get('POSTGRES_HOST'),
-        'PORT': os.environ.get('POSTGRES_PORT'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('DB_NAME', 'default_db'),
+        'USER': os.getenv('DB_USER', 'default_user'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'default_password'),
+        'HOST': os.getenv('DB_HOST', '127.0.0.1'),  # Default to local MySQL
+        'PORT': os.getenv('DB_PORT', '3306'),  # Default MySQL port
     }
 }
 

@@ -46,7 +46,7 @@ venv/
 package-lock.json
 
 # Python virtual environments
-env/
+venv/
 .env
 venv/
 /venv
