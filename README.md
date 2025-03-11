@@ -106,7 +106,7 @@ python manage.py makemigrations
 ## Running empty makemigrations
 
 ```shell
-python manage.py makemigrations app_name --empty
+python manage.py makemigrations
 ```
 
 ## Running the migrations
