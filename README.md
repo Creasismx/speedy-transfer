@@ -103,12 +103,6 @@ Now your virtual environment is set up and ready to use! 🚀
 python manage.py makemigrations
 ```
 
-## Running empty makemigrations
-
-```shell
-python manage.py makemigrations
-```
-
 ## Running the migrations
 
 ```shell
