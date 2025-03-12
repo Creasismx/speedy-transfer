@@ -2,6 +2,8 @@ from django.db import models
 
 class Zone(models.Model):
     name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)  # Optional description field
+    image = models.ImageField(upload_to='zones/', blank=True, null=True)  # Optional image field
 
     def __str__(self):
         return self.name
@@ -9,6 +11,8 @@ class Zone(models.Model):
 
 class Hotel(models.Model):
     name = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)  # Optional description field
+    image = models.ImageField(upload_to='hotels/', blank=True, null=True)  # Optional image field
     zone = models.ForeignKey(
         Zone,
         on_delete=models.CASCADE,
@@ -23,6 +27,8 @@ class Hotel(models.Model):
 
 class Car(models.Model):
     name = models.CharField(max_length=50)
+    description = models.TextField(blank=True, null=True)  # Optional description field
+    image = models.ImageField(upload_to='cars/', blank=True, null=True)  # Optional image field
 
     def __str__(self):
         return self.name
@@ -95,3 +101,54 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment {self.id} for Reservation {self.reservation.id} via {self.get_method_display()}: {self.amount}"
+
+
+# New Booking model
+
+class Booking(models.Model):
+    """
+    Represents a booking with travel and client information.
+    """
+    client_id = models.CharField(max_length=100)
+    # Relationship with Hotel model
+    pickup_location1 = models.ForeignKey(
+        Hotel,
+        on_delete=models.SET_NULL,
+        related_name='pickup_location1_bookings',
+        null=True,
+        blank=True
+    )
+    dropoff_location1 = models.ForeignKey(
+        Hotel,
+        on_delete=models.SET_NULL,
+        related_name='dropoff_location1_bookings',
+        null=True,
+        blank=True
+    )
+    pickup_location2 = models.ForeignKey(
+        Hotel,
+        on_delete=models.SET_NULL,
+        related_name='pickup_location2_bookings',
+        null=True,
+        blank=True
+    )
+    dropoff_location2 = models.ForeignKey(
+        Hotel,
+        on_delete=models.SET_NULL,
+        related_name='dropoff_location2_bookings',
+        null=True,
+        blank=True
+    )
+    pickup_date_time = models.DateTimeField()
+    return_date_time = models.DateTimeField()
+    car_type = models.ForeignKey(
+        Car,
+        on_delete=models.CASCADE,
+        related_name='bookings'
+    )
+    date_capture = models.DateTimeField(auto_now_add=True)
+    how_people = models.PositiveIntegerField(default=1)
+    one_way = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Booking {self.id} for Client {self.client_id}"
