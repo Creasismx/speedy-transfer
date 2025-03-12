@@ -29,6 +29,7 @@ class Car(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(blank=True, null=True)  # Optional description field
     image = models.ImageField(upload_to='cars/', blank=True, null=True)  # Optional image field
+    max = models.PositiveIntegerField(default=1)
 
     def __str__(self):
         return self.name
