@@ -28,7 +28,8 @@ DATABASES = {
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 MEDIA_ROOT = str(BASE_DIR / 'media')
-STATIC_ROOT = str(BASE_DIR / 'templates')
+#STATIC_ROOT = str(BASE_DIR / 'templates')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATIC_URL = '/assets/'
 MEDIA_URL = '/media/'
