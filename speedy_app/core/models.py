@@ -153,3 +153,17 @@ class Booking(models.Model):
 
     def __str__(self):
         return f"Booking {self.id} for Client {self.client_id}"
+    
+class Contact(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
+    company = models.CharField(max_length=255, blank=True, null=True)
+    interested_in = models.CharField(max_length=255, blank=True, null=True)
+    message = models.TextField(blank=True, null=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.email}"
+

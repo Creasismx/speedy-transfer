@@ -22,6 +22,15 @@
 <body>
     {#{% include './includes/topbar.html' %}#}
     {% include './includes/navbar.html' %}
+    {% if messages %}
+    <div id="notification-message" class="messages mx-1">
+        {% for message in messages %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
     {% include './includes/hero.html' %}
     
     <main class="container mx-auto px-4 sm:px-6 lg:px-14">
@@ -118,6 +127,23 @@ var swiper4 = new Swiper('.mySwiper4', {
         });
 
         toggleContent();
+
+        setTimeout(function() {
+            var successMessage = document.getElementById("notification-message");
+            if (successMessage) {
+                successMessage.style.transition = "opacity 1s";
+                successMessage.style.opacity = "0";
+                setTimeout(() => successMessage.style.display = "none", 1000);
+            }
+        }, 3000);
+
+        setTimeout(function() {
+            var successMessage = document.getElementById("notification-message");
+            if (successMessage) {
+                successMessage.style.display = "none";
+            }
+        }, 3000); // 3 seconds
+        
 </script>
 
 </html>
