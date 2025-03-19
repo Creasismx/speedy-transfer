@@ -135,6 +135,11 @@ django-admin compilemessages --ignore apps
 
 ```
 
+## Start the livereload serve
+```shell
+python manage.py livereload
+```
+
 ## Run de app locally
 ```shell
 python manage.py runserver 0.0.0.0:8000
