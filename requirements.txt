@@ -22,3 +22,4 @@ tornado==6.4.2
 typing-extensions==4.12.2
 urllib3==2.3.0
 uWSGI==2.0.28
+pytailwindcss==0.1.4
