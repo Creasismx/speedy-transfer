@@ -29,15 +29,18 @@
         {% endfor %}
       </div>
     {% endif %}
-    {% include './includes/hero.html' %}
+    {% if request.resolver_match.url_name != "results_view" %}
+        {% include './includes/hero.html' %}
+    {% endif %}
 
     <main class="container mx-auto px-4 sm:px-6 lg:px-14">
       {% block content %}
 
       {% endblock %}
     </main>
-
-    {% include './includes/contactanos.html' %}
+    {% if request.resolver_match.url_name != "results_view" %}
+      {% include './includes/contactanos.html' %}
+    {% endif %}
     {% include './includes/footer.html' %}
   </body>
 

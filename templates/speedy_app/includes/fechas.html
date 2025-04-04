@@ -17,6 +17,6 @@
       <option >{{ car.name }}</option>
       {% endfor %}
     </select>
-    <button class="btn w-full xl:w-[270px] bg-[#4abbc1] hover:bg-[#047884] rounded-[4px] border-0 text-white text-[24px] sm:w-64 py-3">Book Now</button>
+    <a href="{% url 'core:results_view' %}" class="btn w-full xl:w-[270px] bg-[#4abbc1] hover:bg-[#047884] rounded-[4px] border-0 text-white text-[24px] sm:w-64 py-3">Book Now</a>
   </div>
 </section>
