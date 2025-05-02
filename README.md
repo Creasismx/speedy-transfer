@@ -1,5 +1,25 @@
 # Speedy Transfers
 
+## Environment
+
+To start the application it is necessary to include the .env file
+
+DB_NAME=
+DB_USER=root
+DB_PASSWORD=""
+DB_HOST="localhost"
+DB_PORT=3306
+
+
+## Build
+
+```shell
+cd templates/assets
+npm install
+npm run watch
+```
+
+
 # Setting Up a Virtual Environment in Linux and Windows
 
 A virtual environment helps keep dependencies isolated for different projects. Below are the steps to create and use a virtual environment named `venv` on Linux and Windows.
