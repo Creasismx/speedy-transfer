@@ -1,51 +1,44 @@
 {% load static %}
 <section id="results" class="grid items-center gap-8 py-16">
-  <div class="card bg-base-100 from-base-200 not-prose outline-base-content/5 relative overflow-hidden bg-gradient-to-b font-sans shadow-lg outline -outline-offset-1 md:flex-row-reverse">
-    <figure class="max-md:bg-primary/10 isolate shrink-0 md:w-2/3">
-      <img class="pointer-events-none" alt="daisyUI store" src="http://127.0.0.1:8000/assets/images/testimonio1.jpeg" />
-    </figure>
-    <div class="bg-accent -left-1/5 pointer-events-none absolute bottom-[-50%] aspect-square w-3/4 -translate-x-1/2 rounded-full opacity-20 blur-3xl"></div>
-    <div class="bg-primary pointer-events-none absolute bottom-[-120%] left-1/2 aspect-square w-full -translate-x-1/2 rounded-full opacity-20 blur-3xl"></div>
-    <div class="bg-base-100 pointer-events-none absolute -top-3/4 right-1/4 z-[3] aspect-square w-1/2 rounded-full opacity-60 blur-3xl"></div>
-    <div class="card-body relative isolate z-[3]">
-      <h2 class="card-title text-base-content text-xl contrast-200 [text-wrap:balance] sm:w-[250%] sm:text-2xl md:text-4xl lg:text-3xl xl:text-4xl">
-        <span>
-          <span class="font-black">Private Van</span>
-        </span>
-      </h2>
-      <div class="grow">
-        <h2 class="card-title text-sm font-light sm:w-[250%] sm:text-lg md:text-lg lg:text-lg xl:text-xl">
-          <svg class="inline h-4 w-4 md:h-6 md:w-6" width="32" height="32" viewBox="0 0 415 415" xmlns="http://www.w3.org/2000/svg">
-            <rect x="82.5" y="290" width="250" height="125" rx="62.5" fill="#1AD1A5"></rect>
-            <circle cx="207.5" cy="135" r="125" fill="white"></circle>
-            <circle cx="207.5" cy="135" r="56" fill="#FF9903"></circle>
-          </svg>Max 6 people per vehicle
-        </h2>
+  <article class="prose lg:prose-xl pl-4">
+    <h1 class="text-2xl antialiased md:subpixel-antialiased font-bold">Select transfer for your ARRIVAL</h1>
+  </article>
+
+  <div class="overflow-x-auto">
+    {% for car in cars %} 
+      <div class="card lg:card-side bg-base-100 shadow-sm card-border p-4 mb-2">
+        <figure>
+          <img
+            src="http://127.0.0.1:8000/assets/images/testimonio1.jpeg"
+            alt="Album"  class="rounded-box w-100" max-w-sm rounded-lg shadow-2xl />
+        </figure>
+        <div class="card-body">
+          <h2 class="card-title text-xl font-bold">Private Van</h2>
+          <p>Max 6 people per vehicle</p>
+          <div class="stats stats-vertical lg:stats-horizontal shadow">
+            <div class="stat">
+              <div class="stat-title">Departure date</div>
+              <div class="stat-value">April 2, 2025</div>
+            </div>
+          
+            <div class="stat">
+              <div class="stat-title">Departure time</div>
+              <div class="stat-value">4:51 pm</div>
+            </div>
+          
+            <div class="stat">
+              <div class="stat-title">Per vehicle</div>
+              <div class="stat-value">$131.82 USD</div>
+            </div>
+          </div>
+          <div class="card-actions justify-end">
+            <button class="btn btn-block btn-square btn-soft btn-primary">Select</button>
+          </div>
+        </div>
       </div>
-      <div class="grow">
-        <h2 class="card-title text-sm font-light sm:w-[250%] sm:text-lg md:text-lg lg:text-lg xl:text-xl">
-          <svg class="inline h-4 w-4 md:h-6 md:w-6" width="32" height="32" viewBox="0 0 415 415" xmlns="http://www.w3.org/2000/svg">
-            <rect x="82.5" y="290" width="250" height="125" rx="62.5" fill="#1AD1A5"></rect>
-            <circle cx="207.5" cy="135" r="125" fill="white"></circle>
-            <circle cx="207.5" cy="135" r="56" fill="#FF9903"></circle>
-          </svg>Departure date April 2, 2025 4:51 pm
-        </h2>
-      </div> 
-      <div class="grow">
-        <h2 class="card-title text-sm font-light sm:w-[250%] sm:text-lg md:text-lg lg:text-lg xl:text-xl">
-          <svg class="inline h-4 w-4 md:h-6 md:w-6" width="32" height="32" viewBox="0 0 415 415" xmlns="http://www.w3.org/2000/svg">
-            <rect x="82.5" y="290" width="250" height="125" rx="62.5" fill="#1AD1A5"></rect>
-            <circle cx="207.5" cy="135" r="125" fill="white"></circle>
-            <circle cx="207.5" cy="135" r="56" fill="#FF9903"></circle>
-          </svg> 
-          131.82 USD per vehicle
-        </h2>
-      </div> 
-      <a class="btn btn-block btn-primary group" href="/store">
-        Select<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="hidden h-6 w-6 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1 md:inline-block">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"></path>
-        </svg>
-      </a>
+    {% endfor %}
+    <div class="flex justify-end mt-4">
+      <button class="btn btn-wide btn-outline btn-success sm:btn-block">Book Transfers</button>
     </div>
   </div>
 </section>
