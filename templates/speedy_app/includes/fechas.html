@@ -1,0 +1,49 @@
+<section id="fechas" class="grid items-center gap-8 py-16">
+  <div class="flex flex-col sm:flex-row flex-1 justify-center gap-10">
+    <select id="pickup" name="p1" class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] border-0 py-2 px-4">
+      <option disabled selected>Pickup Location</option>
+      <option value="pvr">Aeropuerto Puerto Vallarta (PVR)</option>
+      <option value="hotel_zone">Hotel Zone Puerto Vallarta</option>
+      <option value="marina">Marina Vallarta</option>
+      <option value="downtown">Centro de Puerto Vallarta</option>
+      <option value="nuevo">Nuevo Vallarta</option>
+      <option value="flamingos">Flamingos</option>
+      <option value="bucerias">Bucerías</option>
+      <option value="la_cruz">La Cruz de Huanacaxtle</option>
+      <option value="punta_mita">Punta Mita</option>
+      <option value="sayulita">Sayulita</option>
+      <option value="san_pancho">San Pancho</option>
+    </select>
+    <input type="date" id="dep-date" name="dep" placeholder="Fecha de ida" class="input w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] border-0 py-2 px-4" />
+    <input type="date" id="ret-date" name="ret" placeholder="Fecha de regreso" class="input w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] border-0 py-2 px-4" />
+  </div>
+
+  <div class="flex flex-col sm:flex-row flex-1 justify-center gap-10">
+    <select id="car-type" name="car" class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] border-0 py-2 px-4">
+      <option disabled selected>Car Type</option>
+      <option value="sedan">Sedán (hasta 3 pasajeros)</option>
+      <option value="suv">SUV (hasta 6 pasajeros)</option>
+      <option value="van">Van (hasta 10 pasajeros)</option>
+      <option value="luxury">Vehículo de Lujo</option>
+    </select>
+    <a href="/book-now/" class="btn w-full xl:w-[270px] bg-[#4abbc1] hover:bg-[#047884] rounded-[4px] border-0 text-white text-[24px] sm:w-64 py-3">Book Now</a>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Configuración básica de fecha
+    const depDate = document.getElementById('dep-date');
+    const retDate = document.getElementById('ret-date');
+    
+    // Establecer fecha mínima como hoy
+    const today = new Date().toISOString().split('T')[0];
+    depDate.min = today;
+    retDate.min = today;
+    
+    // Actualizar fecha mínima de regreso cuando cambia la fecha de ida
+    depDate.addEventListener('change', function() {
+      retDate.min = this.value;
+    });
+  });
+</script>
