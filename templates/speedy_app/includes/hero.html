@@ -1,19 +1,106 @@
 {% load static %}
-<div class="hero min-h-[94vh] bg-center text-white" style="background-image: url({% static 'images/background-hero.jpeg' %});">
-    <div class="hero-content flex-col xl:flex-row gap-x-40">
-        <div class="max-w-xl">
-            <span class="text-xs tracking-[1.92px] normal-nums">TRAVEL THROUGH PUERTO VALLARTA SAFELY AND COMFORTABLY</span>
-            <h1 class="text-5xl leading-[60px] font-bold">Call to action</h1>
-            <p class="text-lg leading-[27px] py-6">
-                 Your trusted private transportation
-                Explore Puerto Vallarta and its surroundings with a premium transportation service. 
-                Safety, punctuality, and comfort on every trip. Book now and travel worry-free!
+<!-- Carga la etiqueta 'static' de Django para referenciar archivos estáticos correctamente -->
+
+<div class="hero min-h-[94vh] bg-center text-white relative" style="background-image: url({% static 'assets/images/background-hero.jpeg' %});">
+    <!-- Contenedor principal con:
+         - 'hero': clase semántica para la sección principal
+         - 'min-h-[94vh]': altura mínima del 94% del alto del viewport
+         - 'bg-center': fondo centrado
+         - 'text-white': texto en blanco por defecto
+         - 'relative': establece el contexto para los elementos posicionados absolutamente -->
+
+    <div class="absolute inset-0 bg-black bg-opacity-20"></div>
+    <!-- Capa negra semitransparente superpuesta al fondo para mejorar la legibilidad del texto -->
+
+    <div class="hero-content flex-col xl:flex-row gap-x-40 z-10">
+        <!-- Contenedor del contenido:
+             - 'flex-col': dirección de los hijos en columna (móvil)
+             - 'xl:flex-row': en pantallas extra grandes, cambia a fila
+             - 'gap-x-40': espacio horizontal entre columnas
+             - 'z-10': coloca este contenido por encima del overlay semitransparente -->
+
+        <div class="max-w-xl backdrop-blur-sm bg-black/40 p-8 rounded-lg shadow-2xl border border-white/10">
+            <!-- Caja de contenido de texto:
+                 - 'max-w-xl': ancho máximo de 36rem
+                 - 'backdrop-blur-sm': aplica desenfoque al fondo detrás del div
+                 - 'bg-black/40': fondo negro con 40% de opacidad
+                 - 'p-8': padding interno
+                 - 'rounded-lg': bordes redondeados
+                 - 'shadow-2xl': sombra profunda
+                 - 'border border-white/10': borde sutil con blanco 10% opacidad -->
+
+            <span class="text-xs tracking-[1.92px] normal-nums font-semibold text-[#F5D112]">
+                <!-- Texto superior con:
+                     - 'text-xs': fuente pequeña
+                     - 'tracking-[1.92px]': espacio entre letras
+                     - 'font-semibold': semi-negrita
+                     - 'text-[#F5D112]': color amarillo personalizado -->
+                TRAVEL THROUGH PUERTO VALLARTA THE RIGHT WAY
+            </span>
+
+            <h1 class="text-5xl leading-[60px] font-bold mt-2 text-shadow-lg">
+                <!-- Título principal con:
+                     - 'text-5xl': fuente grande (~3rem)
+                     - 'leading-[60px]': altura de línea de 60px
+                     - 'font-bold': negrita
+                     - 'mt-2': margen superior
+                     - 'text-shadow-lg': sombra de texto para destacarlo -->
+                Experience Puerto Vallarta in Style
+            </h1>
+
+            <p class="text-lg leading-[27px] py-6 text-shadow">
+                <!-- Párrafo descriptivo con:
+                     - 'text-lg': fuente grande
+                     - 'leading-[27px]': espaciado entre líneas
+                     - 'py-6': padding vertical
+                     - 'text-shadow': sombra ligera para mejorar lectura -->
+                TRAVEL THROUGH PUERTO VALLARTA SAFELY AND COMFORTABLY<br>
+                <span class="font-alt block mt-2 mb-2">Your trusted private transportation.</span>
+                Explore Puerto Vallarta and its surroundings with premium service. 
+                We prioritize safety, punctuality, and comfort on every trip. Book now and travel worry-free!
             </p>
 
-        </div>
-        <div class="relative">
+            <a href="/book-now/" class="btn bg-[#4abbc1] hover:bg-[#047884] border-0 text-white px-8 py-3 text-lg rounded-md transition-all duration-300 shadow-lg hover:shadow-xl">
+                <!-- Botón de llamada a la acción con:
+                     - colores personalizados y transiciones
+                     - sin borde, sombra elegante
+                     - tamaño grande y redondeado -->
+                Book Your Ride Now
+            </a>
 
+            <svg class="hidden lg:block lg:absolute lg:bottom-8 left-70" xmlns="http://www.w3.org/2000/svg" width="130" height="133" viewBox="0 0 130 133" fill="none">
+                <!-- Ícono decorativo SVG visible solo en pantallas grandes -->
+                <path d="..." stroke="#F5D112" stroke-width="5" stroke-linecap="round" />
+            </svg>
         </div>
 
+        <div class="relative hidden xl:block">
+            <!-- Imagen del vehículo decorativa, solo visible en escritorio grande -->
+
+            <img src="{% static 'assets/images/hero-item.png' %}" class="lg:max-w-xl rounded-lg" alt="Transport Vehicle" />
+            <!-- Imagen del transporte -->
+
+            <div class="absolute top-4 right-4 bg-white flex items-center gap-3 p-3 rounded-lg shadow-xl w-[173px]">
+                <!-- Tarjeta superior derecha con ícono de seguridad -->
+                <div class="bg-[#4abbc1]/10 p-2 rounded-full flex items-center justify-center">
+                    <img src="{% static 'assets/images/safety-icon.png' %}" alt="Safety" class="h-8 w-8">
+                </div>
+                <div class="text-black">
+                    <p class="text-base font-bold">Safety First</p>
+                    <p class="text-xs text-gray-600">Your security matters</p>
+                </div>
+            </div>
+
+            <div class="absolute -bottom-12 -left-12 bg-white flex items-center gap-3 p-3 rounded-lg shadow-xl w-[173px]">
+                <!-- Tarjeta inferior izquierda con ícono de trofeo -->
+                <div class="bg-[#4abbc1]/10 p-2 rounded-full flex items-center justify-center">
+                    <img src="{% static 'assets/images/trophy.png' %}" alt="Trophy" class="h-8 w-8">
+                </div>
+                <div class="text-black">
+                    <p class="text-base font-bold">100% Satisfaction</p>
+                    <p class="text-xs text-gray-600">Over 1,000 happy customers</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
