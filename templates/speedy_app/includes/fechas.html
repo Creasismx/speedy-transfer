@@ -1,22 +1,86 @@
-<section id="fechas" class="grid items-center gap-8 py-16">
+<section id="fechas" class="grid items-center gap-8 py-16 bg-[#FBFBFB] shadow-xl">
   <div class="flex flex-col sm:flex-row flex-1 justify-center gap-10">
-    <select class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] border-0 py-2 px-4">
-      <option disabled selected>Pickup Location</option>
-      {% for zone in zones %}
-      <option >{{ zone.name }}</option>
-      {% endfor %}
-    </select>
-    <input type="date" placeholder="Type here" class="input w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] border-0 py-2 px-4" />
-    <input type="date" placeholder="Type here" class="input w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] border-0 py-2 px-4" />
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">PICK UP DATE AND TIME</legend>
+      <input type="datetime-local" class="input" />
+    </fieldset>
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">PICK UP LOCATION</legend>
+      <select class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] py-2 px-4">
+        <option disabled selected>Pickup Location</option>
+        {% for zone in zones %}
+          <option>{{ zone.name }}</option>
+        {% endfor %}
+      </select>
+    </fieldset>
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">DROP OFF LOCATION</legend>
+      <select class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] py-2 px-4">
+        <option disabled selected>Pickup Location</option>
+        {% for zone in zones %}
+          <option>{{ zone.name }}</option>
+        {% endfor %}
+      </select>
+    </fieldset>
+  </div>
+
+  <div class="divider ml-6 mr-6">RETURN</div>
+
+  <div class="flex flex-col sm:flex-row flex-1 justify-center gap-10">
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">RETURN DATE AND TIME</legend>
+      <input type="datetime-local" class="input" />
+    </fieldset>
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">PICK UP LOCATION</legend>
+      <select class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] py-2 px-4">
+        <option disabled selected>Pickup Location</option>
+        {% for zone in zones %}
+          <option>{{ zone.name }}</option>
+        {% endfor %}
+      </select>
+    </fieldset>
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">DROP OFF LOCATION</legend>
+      <select class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] py-2 px-4">
+        <option disabled selected>Pickup Location</option>
+        {% for zone in zones %}
+          <option>{{ zone.name }}</option>
+        {% endfor %}
+      </select>
+    </fieldset>
   </div>
 
   <div class="flex flex-col sm:flex-row flex-1 justify-center gap-10">
-    <select class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] border-0 py-2 px-4">
-      <option disabled selected>Car Type</option>
-      {% for car in cars %}
-      <option >{{ car.name }}</option>
-      {% endfor %}
-    </select>
-    <a href="{% url 'core:results_view' %}" class="btn w-full xl:w-[270px] bg-[#4abbc1] hover:bg-[#047884] rounded-[4px] border-0 text-white text-[24px] sm:w-64 py-3">Find a Transfer</a>
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">HOW MANY PEOPLE (INCLUDING CHILDREN)?</legend>
+      <label class="input validator">
+        <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor">
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </g>
+        </svg>
+        <input type="number" required placeholder="How many people?" minlength="1" maxlength="30" title="HOW MANY PEOPLE (INCLUDING CHILDREN)?" />
+      </label>
+    </fieldset>
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">CAR TYPE</legend>
+      <select class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] py-2 px-4">
+        <option disabled selected>Car Type</option>
+        {% for car in cars %}
+          <option>{{ car.name }}</option>
+        {% endfor %}
+      </select>
+    </fieldset>
+    <fieldset class="fieldset p-4">
+      <legend class="fieldset-legend">TRIP OPTIONS</legend>
+      <label class="label">
+        <input type="radio" name="radio-1" class="radio" checked="checked" />
+        Remember me
+      </label>
+</fieldset>
+      <input type="radio" name="radio-1" class="radio" />
+    <a href="{% url 'core:results_view' %}" class="btn mt-8 w-full xl:w-[270px] bg-[#4abbc1] hover:bg-[#047884] rounded-[4px] border-0 text-white text-[24px] sm:w-64 py-3mt-4">Find a Transfer</a>
   </div>
 </section>
