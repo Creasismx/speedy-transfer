@@ -38,7 +38,9 @@
       </div>
     {% endfor %}
     <div class="flex justify-end mt-4">
-      <button class="btn btn-wide btn-outline btn-success sm:btn-block">Book Transfers</button>
+      <a href="{% url 'core:summary_view' %}" class="btn btn-wide btn-outline btn-success sm:btn-block">
+        Book Transfers
+      </a>
     </div>
   </div>
 </section>

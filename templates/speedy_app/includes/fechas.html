@@ -75,12 +75,15 @@
     </fieldset>
     <fieldset class="fieldset p-4">
       <legend class="fieldset-legend">TRIP OPTIONS</legend>
-      <label class="label">
-        <input type="radio" name="radio-1" class="radio" checked="checked" />
-        Remember me
-      </label>
-</fieldset>
-      <input type="radio" name="radio-1" class="radio" />
+      <div class="flex">
+        <div class="flex-1">
+          <label class="label"><input type="radio" name="radio-1" class="radio" checked="checked" />Roundtrip</label>
+        </div>
+        <div class="flex-1 ml-6">
+          <label class="label"><input type="radio" name="radio-1" class="radio" checked="checked" />One way</label>
+        </div>
+      </div>
+    </fieldset>
     <a href="{% url 'core:results_view' %}" class="btn mt-8 w-full xl:w-[270px] bg-[#4abbc1] hover:bg-[#047884] rounded-[4px] border-0 text-white text-[24px] sm:w-64 py-3mt-4">Find a Transfer</a>
   </div>
 </section>

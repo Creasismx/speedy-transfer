@@ -18,7 +18,15 @@ class ResultsView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['zones'] = Zone.objects.all()
         context['cars'] = Car.objects.all()
-        return context    
+        return context
+
+class SummaryView(TemplateView):
+    template_name = "speedy_app/summary_page.html"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['zones'] = Zone.objects.all()
+        context['cars'] = Car.objects.all()
+        return context        
 
 def contact_form_view(request):
     if request.method == "POST":
