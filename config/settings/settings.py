@@ -116,7 +116,8 @@ USE_L10N = False
 
 USE_TZ = False
 
-
+PAYPAL_CLIENT_ID = 'your_paypal_client_id'
+PAYPAL_SECRET = 'your_paypal_secret'
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 

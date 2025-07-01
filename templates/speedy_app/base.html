@@ -31,7 +31,7 @@
         {% endfor %}
       </div>
     {% endif %}
-    {% if request.resolver_match.url_name != "results_view" and request.resolver_match.url_name != "summary_view" %}
+    {% if request.resolver_match.url_name != "results_view" and request.resolver_match.url_name != "summary_view" and request.resolver_match.url_name != "checkout_view" %}
         {% include './includes/hero.html' %}
     {% endif %}
 
@@ -40,7 +40,7 @@
 
       {% endblock %}
     </main>
-    {% if request.resolver_match.url_name != "results_view" and request.resolver_match.url_name != "summary_view" %}
+    {% if request.resolver_match.url_name != "results_view" and request.resolver_match.url_name != "summary_view"  and request.resolver_match.url_name != "checkout_view"%}
       {% include './includes/contactanos.html' %}
     {% endif %}
     {% include './includes/footer.html' %}
