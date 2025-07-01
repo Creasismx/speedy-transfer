@@ -3,7 +3,7 @@
 from django.urls import path
 
 from .views import LandingView, ResultsView, SummaryView, contact_form_view,\
-      CheckoutView
+      CheckoutView, create_payment, execute_payment, payment_failed
 
 app_name = 'core'
 
@@ -13,6 +13,9 @@ urlpatterns = [
     path('summary/', SummaryView.as_view(), name="summary_view"),
     path('checkout/', CheckoutView.as_view(), name="checkout_view"),
     path('contact/', contact_form_view, name='contact-form'),
+    path('create_payment/', create_payment, name='create_payment'),
+    path('execute_payment/', execute_payment, name='execute_payment'),
+    path('payment_failed/', payment_failed, name='payment_failed')
     #path('paypal/create/', PaypalPaymentView.as_view(), name='ordercreate'),
     #path('paypal/validate/', PaypalValidatePaymentView.as_view(), name='paypalvalidate'),   
 ]

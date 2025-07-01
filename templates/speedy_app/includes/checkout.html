@@ -60,7 +60,10 @@
                     <p class="font-semibold">Total</p>
                     <p class="font-semibold">$69.00</p>
                 </div>
-                <button class="bg-primary text-white border border-primary hover:bg-transparent hover:text-primary py-2 px-4 rounded-full w-full">Proceed to Payment</button>
+                <form action="{% url 'core:create_payment' %}" method="POST">
+                 {% csrf_token %}
+                <button type="submit" class="bg-primary text-white border border-primary hover:bg-transparent hover:text-primary py-2 px-4 rounded-full w-full">Proceed to Payment</button>
+                </form>
             </div>
         </div>
     </div>

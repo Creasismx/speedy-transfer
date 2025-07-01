@@ -1,3 +1,4 @@
+import paypalrestsdk
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views.generic import TemplateView
@@ -9,11 +10,11 @@ from django.conf import settings
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-#paypalrestsdk.configure({
-#    "mode": "sandbox",  # Change to "live" for production
-#    "client_id": settings.PAYPAL_CLIENT_ID,
-#    "client_secret": settings.PAYPAL_SECRET,
-#})
+paypalrestsdk.configure({
+    "mode": "sandbox",  # Change to "live" for production
+    "client_id": settings.PAYPAL_CLIENT_ID,
+    "client_secret": settings.PAYPAL_SECRET,
+})
 
 
 # Optional: define your return/cancel URLs here or in settings
@@ -81,62 +82,45 @@ def contact_form_view(request):
     return HttpResponse("Invalid request", status=400)
 
 
-#class PaypalPaymentView(APIView):
-#    """
-#    Endpoint to create a PayPal payment and return the approval URL
-#    """
-#    permission_classes = [permissions.IsAuthenticated]
+def create_payment(request):
+    payment = paypalrestsdk.Payment({
+        "intent": "sale",
+        "payer": {
+            "payment_method": "paypal",
+        },
+        "redirect_urls": {
+            "return_url": request.build_absolute_uri(reverse('core:execute_payment')),
+            "cancel_url": request.build_absolute_uri(reverse('core:payment_failed')),
+        },
+        "transactions": [
+            {
+                "amount": {
+                    "total": "10.00",  # Total amount in USD
+                    "currency": "USD",
+                },
+                "description": "Payment for Product/Service",
+            }
+        ],
+    })
 
-#    def post(self, request, *args, **kwargs):
-#        amount = 20  # For example: $20
-#        currency = "USD"
+    if payment.create():
+        return redirect(payment.links[1].href)  # Redirect to PayPal for payment
+    else:
+        return render(request, 'speedy_app/payment_failed.html')
 
-        # Create PayPal payment
-#        status, payment_id, approved_url = make_paypal_payment(
-#            amount=amount,
-#            currency=currency,
-#            return_url=PAYPAL_RETURN_URL,
-#            cancel_url=PAYPAL_CANCEL_URL
-#        )#
+def execute_payment(request):
+    payment_id = request.GET.get('paymentId')
+    payer_id = request.GET.get('PayerID')
 
-#        if status:
-#            # Optionally: save payment_id or log it here
-#            return Response({
-#                "success": True,
-#                "msg": "Payment link created successfully",
-#                "approved_url": approved_url
-#            }, status=201)
-#        else:
-#            return Response({
-#                "success": False,
-#                "msg": "Failed to create payment"
-#            }, status=400)
+    payment = paypalrestsdk.Payment.find(payment_id)
 
+    if payment.execute({"payer_id": payer_id}):
+        return render(request, 'speedy_app/payment_success.html')
+    else:
+        return render(request, 'speedy_app/payment_failed.html')
 
-#class PaypalValidatePaymentView(APIView):
-#    """
-#    Endpoint to validate if the PayPal payment was approved
-#    """
-#    permission_classes = [permissions.IsAuthenticated]
+def payment_checkout(request):
+    return render(request, 'speedy_app/checkout.html')
 
-#    def post(self, request, *args, **kwargs):
-#        payment_id = request.data.get("payment_id")
-
-#        if not payment_id:
-#            return Response({
-#                "success": False,
-#                "msg": "Missing payment_id"
-#            }, status=400)
-
-#        payment_status = verify_paypal_payment(payment_id=payment_id)
-
-#        if payment_status:
-#            return Response({
-#                "success": True,
-#                "msg": "Payment approved"
-#            }, status=200)
-#        else:
-#            return Response({
-#                "success": False,
-#                "msg": "Payment failed or was cancelled"
-#            }, status=200)
+def payment_failed(request):
+    return render(request, 'speedy_app/payment_failed.html')

@@ -116,8 +116,8 @@ USE_L10N = False
 
 USE_TZ = False
 
-PAYPAL_CLIENT_ID = 'your_paypal_client_id'
-PAYPAL_SECRET = 'your_paypal_secret'
+PAYPAL_CLIENT_ID = 'AU8Pa2bfXPrlP-WS60LzBxSJiOugG883-DxKny9wfkv-Mgb3K1HJEB3cgxoS9SK723RMhcKAVhcNzzEf'
+PAYPAL_SECRET = 'EFR2p3w3BCvoFlVnsdnqbn8bNurqLkCvgH2jeauEdr_jvVFyw1T51GbqVwibUcBS1mArP0ER11gRoXeY'
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
