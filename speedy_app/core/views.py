@@ -34,10 +34,26 @@ class LandingView(TemplateView):
     
 class ResultsView(TemplateView):
     template_name = "speedy_app/results_page.html"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Always include zones and cars (for dropdowns)
         context['zones'] = Zone.objects.all()
         context['cars'] = Car.objects.all()
+
+        # Extract GET parameters (submitted form data)
+        query = self.request.GET
+        context['pickup_datetime'] = query.get('pickup_datetime', '')
+        context['pickup_location'] = query.get('pickup_location', '')
+        context['dropoff_location'] = query.get('dropoff_location', '')
+        context['return_datetime'] = query.get('return_datetime', '')
+        context['people'] = query.get('people', '')
+        context['car_type'] = query.get('car_type', '')
+        context['trip_type'] = query.get('trip_type', '')
+
+        # Optionally, filter or process results based on these parameters here
+
         return context
 
 class SummaryView(TemplateView):
