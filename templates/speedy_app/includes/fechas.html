@@ -3,23 +3,31 @@
   <div class="flex flex-col sm:flex-row flex-1 justify-center gap-10">
     <fieldset class="fieldset">
       <legend class="fieldset-legend">PICK UP DATE AND TIME</legend>
-      <input type="datetime-local" name="pickup_datetime" class="input" value="{{ pickup_datetime }}" />
+      <input type="datetime-local" name="pickup_datetime" class="input" value="{{ pickup_datetime }}" required />
     </fieldset>
     <fieldset class="fieldset">
       <legend class="fieldset-legend">PICK UP LOCATION</legend>
-      <select name="pickup_location" class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] py-2 px-4">
-        <option disabled selected>Pickup Location</option>
+      <!-- Pickup Location -->
+      <select name="pickup_location" class="select">
+        <option disabled>Pickup Location</option>
         {% for zone in zones %}
-          <option>{{ zone.name }}</option>
+          <option value="{{ zone.id }}"
+            {% if zone.id|stringformat:"s" == pickup_location %}selected{% endif %}>
+            {{ zone.name }}
+          </option>
         {% endfor %}
       </select>
     </fieldset>
     <fieldset class="fieldset">
       <legend class="fieldset-legend">DROP OFF LOCATION</legend>
-      <select name="dropoff_location" class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] py-2 px-4">
-        <option disabled selected>Pickup Location</option>
+      <!-- Dropoff Location -->
+      <select name="dropoff_location" class="select">
+        <option disabled>Dropoff Location</option>
         {% for zone in zones %}
-          <option>{{ zone.name }}</option>
+          <option value="{{ zone.id }}"
+            {% if zone.id|stringformat:"s" == dropoff_location %}selected{% endif %}>
+            {{ zone.name }}
+          </option>
         {% endfor %}
       </select>
     </fieldset>
@@ -63,15 +71,18 @@
             <circle cx="12" cy="7" r="4"></circle>
           </g>
         </svg>
-        <input name="people" type="number" required placeholder="How many people?" minlength="1" maxlength="30" title="HOW MANY PEOPLE (INCLUDING CHILDREN)?" />
+        <input name="people" value="{{ people }}" type="number" required placeholder="How many people?" minlength="1" maxlength="30" title="HOW MANY PEOPLE (INCLUDING CHILDREN)?" />
       </label>
     </fieldset>
     <fieldset class="fieldset">
       <legend class="fieldset-legend">CAR TYPE</legend>
-      <select class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] py-2 px-4">
-        <option disabled selected>Car Type</option>
+      <select name="car_type" class="select">
+        <option disabled>Car Type</option>
         {% for car in cars %}
-          <option>{{ car.name }}</option>
+          <option value="{{ car.id }}"
+            {% if car.id|stringformat:"s" == car_type %}selected{% endif %}>
+            {{ car.name }}
+          </option>
         {% endfor %}
       </select>
     </fieldset>
@@ -80,12 +91,12 @@
       <div class="flex">
         <div class="flex-1">
           <label class="label">
-            <input type="radio" name="trip_type" value="roundtrip" class="radio" /> Roundtrip
+            <input type="radio" name="trip_type" value="roundtrip" class="radio" {% if trip_type == 'roundtrip' %}checked{% endif %} /> Roundtrip
           </label>
         </div>
         <div class="flex-1 ml-6">
           <label class="label">
-            <input type="radio" name="trip_type" value="oneway" class="radio" checked /> One way
+            <input type="radio" name="trip_type" value="oneway" class="radio" {% if trip_type == 'oneway' or not trip_type %}checked{% endif %} /> One way
           </label>
         </div>
       </div>

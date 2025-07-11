@@ -50,7 +50,7 @@ class ResultsView(TemplateView):
         context['return_datetime'] = query.get('return_datetime', '')
         context['people'] = query.get('people', '')
         context['car_type'] = query.get('car_type', '')
-        context['trip_type'] = query.get('trip_type', '')
+        context['trip_type'] = query.get('trip_type', 'oneway')
 
         # Optionally, filter or process results based on these parameters here
 
