@@ -26,30 +26,31 @@
 
   <div class="divider ml-6 mr-6">RETURN</div>
 
-  <div class="flex flex-col sm:flex-row flex-1 justify-center gap-10">
-    <fieldset class="fieldset">
-      <legend class="fieldset-legend">RETURN DATE AND TIME</legend>
-      <input type="datetime-local" class="input" />
-    </fieldset>
-    <fieldset class="fieldset">
-      <legend class="fieldset-legend">PICK UP LOCATION</legend>
-      <select class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] py-2 px-4">
-        <option disabled selected>Pickup Location</option>
-        {% for zone in zones %}
-          <option>{{ zone.name }}</option>
-        {% endfor %}
-      </select>
-    </fieldset>
-    <fieldset class="fieldset">
-      <legend class="fieldset-legend">DROP OFF LOCATION</legend>
-      <select class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] py-2 px-4">
-        <option disabled selected>Pickup Location</option>
-        {% for zone in zones %}
-          <option>{{ zone.name }}</option>
-        {% endfor %}
-      </select>
-    </fieldset>
-  </div>
+  <div id="return-section" class="flex flex-col sm:flex-row flex-1 justify-center gap-10">
+  <fieldset class="fieldset">
+    <legend class="fieldset-legend">RETURN DATE AND TIME</legend>
+    <input type="datetime-local" class="input" />
+  </fieldset>
+  <fieldset class="fieldset">
+    <legend class="fieldset-legend">PICK UP LOCATION</legend>
+    <select class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] py-2 px-4">
+      <option disabled selected>Pickup Location</option>
+      {% for zone in zones %}
+        <option>{{ zone.name }}</option>
+      {% endfor %}
+    </select>
+  </fieldset>
+  <fieldset class="fieldset">
+    <legend class="fieldset-legend">DROP OFF LOCATION</legend>
+    <select class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] py-2 px-4">
+      <option disabled selected>Pickup Location</option>
+      {% for zone in zones %}
+        <option>{{ zone.name }}</option>
+      {% endfor %}
+    </select>
+  </fieldset>
+</div>
+
 
   <div class="flex flex-col sm:flex-row flex-1 justify-center gap-10">
     <fieldset class="fieldset">
@@ -77,13 +78,52 @@
       <legend class="fieldset-legend">TRIP OPTIONS</legend>
       <div class="flex">
         <div class="flex-1">
-          <label class="label"><input type="radio" name="radio-1" class="radio" checked="checked" />Roundtrip</label>
+          <label class="label">
+            <input type="radio" name="trip_type" value="roundtrip" class="radio" /> Roundtrip
+          </label>
         </div>
         <div class="flex-1 ml-6">
-          <label class="label"><input type="radio" name="radio-1" class="radio" checked="checked" />One way</label>
+          <label class="label">
+            <input type="radio" name="trip_type" value="oneway" class="radio" checked /> One way
+          </label>
         </div>
       </div>
+
+      <div id="return-section" class="hidden">
+        <label class="label mt-4">
+          <input type="checkbox" name="return_trip" class="checkbox" /> Return trip
+        </label>
+      </div>
+
     </fieldset>
     <a href="{% url 'core:results_view' %}" class="btn mt-8 w-full xl:w-[270px] bg-[#4abbc1] hover:bg-[#047884] rounded-[4px] border-0 text-white text-[24px] sm:w-64 py-3mt-4">Find a Transfer</a>
   </div>
 </section>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const radios = document.querySelectorAll('input[name="trip_type"]');
+  const returnSection = document.getElementById('return-section');
+
+  function updateReturnSection() {
+    const selected = document.querySelector('input[name="trip_type"]:checked');
+    if (selected.value === 'oneway') {
+      returnSection.style.display = 'none';
+    } else {
+      returnSection.style.display = 'flex'; // Or 'block' if vertical
+    }
+  }
+
+  // Initial check
+  updateReturnSection();
+
+  // Add event listener for change
+  radios.forEach(radio => {
+    radio.addEventListener('change', updateReturnSection);
+  });
+});
+</script>
+<style>
+  #return-section {
+  transition: all 0.3s ease;
+}
+</style>
