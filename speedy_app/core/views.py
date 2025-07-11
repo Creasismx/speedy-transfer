@@ -9,6 +9,8 @@ from .models import Zone, Contact, Car
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.http import JsonResponse
+import stripe  # new
 
 paypalrestsdk.configure({
     "mode": "sandbox",  # Change to "live" for production
@@ -124,3 +126,34 @@ def payment_checkout(request):
 
 def payment_failed(request):
     return render(request, 'speedy_app/payment_failed.html')
+
+from django.shortcuts import redirect
+
+def create_checkout_session(request):
+    if request.method == 'GET':
+        domain_url = 'http://localhost:8000/'
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        try:
+            checkout_session = stripe.checkout.Session.create(
+                success_url=domain_url + 'success?session_id={CHECKOUT_SESSION_ID}',
+                cancel_url=domain_url + 'cancelled/',
+                payment_method_types=['card'],
+                mode='payment',
+                line_items=[
+                    {
+                        'price_data': {
+                            'currency': 'usd',
+                            'unit_amount': 2000,
+                            'product_data': {
+                                'name': 'T-shirt',
+                                'description': 'Comfortable cotton t-shirt'
+                            }
+                        },
+                        'quantity': 1
+                    }
+                ]
+            )
+            return redirect(checkout_session.url)  # ✅ Redirect to Stripe Checkout
+        except Exception as e:
+            return JsonResponse({'error': str(e)})
+

@@ -118,6 +118,8 @@ USE_TZ = False
 
 PAYPAL_CLIENT_ID = 'AU8Pa2bfXPrlP-WS60LzBxSJiOugG883-DxKny9wfkv-Mgb3K1HJEB3cgxoS9SK723RMhcKAVhcNzzEf'
 PAYPAL_SECRET = 'EFR2p3w3BCvoFlVnsdnqbn8bNurqLkCvgH2jeauEdr_jvVFyw1T51GbqVwibUcBS1mArP0ER11gRoXeY'
+STRIPE_PUBLIC_KEY = "pk_test_ViXq3dfT5R9NLIwqgwojPI9m"  # pk_test_hZFYGaBpYdraSagjw5X2RpQC in this example
+STRIPE_SECRET_KEY = "sk_test_dkGVwV72F6Ik8XoV3AghIa9v"
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
