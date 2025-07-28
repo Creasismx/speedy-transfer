@@ -1,0 +1,46 @@
+{% load static %}
+<section id="results" class="grid items-center gap-8 py-16">
+  <article class="prose lg:prose-xl pl-4">
+    <h1 class="text-2xl antialiased md:subpixel-antialiased font-bold">Select transfer for your ARRIVAL</h1>
+  </article>
+
+  <div class="overflow-x-auto">
+    {% for car in cars %} 
+      <div class="card lg:card-side bg-base-100 shadow-sm card-border p-4 mb-2">
+        <figure>
+          <img
+            src="/assets/images/background-hero.jpeg"
+            alt="Album"  class="rounded-box w-100" max-w-sm rounded-lg shadow-2xl />
+        </figure>
+        <div class="card-body">
+          <h2 class="card-title text-xl font-bold">Private Van</h2>
+          <p>Max 6 people per vehicle</p>
+          <div class="stats stats-vertical lg:stats-horizontal shadow">
+            <div class="stat">
+              <div class="stat-title">Departure date</div>
+              <div class="stat-value">April 2, 2025</div>
+            </div>
+          
+            <div class="stat">
+              <div class="stat-title">Departure time</div>
+              <div class="stat-value">4:51 pm</div>
+            </div>
+          
+            <div class="stat">
+              <div class="stat-title">Per vehicle</div>
+              <div class="stat-value">$131.82 USD</div>
+            </div>
+          </div>
+          <div class="card-actions justify-end">
+            <button class="btn btn-block btn-square btn-soft btn-primary">Select</button>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+    <div class="flex justify-end mt-4">
+      <a href="{% url 'core:summary_view' %}" class="btn btn-wide btn-outline btn-success sm:btn-block">
+        Book Transfers
+      </a>
+    </div>
+  </div>
+</section>

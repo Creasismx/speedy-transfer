@@ -1,0 +1,148 @@
+<section id="fechas" class="grid items-center gap-8 py-16 bg-[#FBFBFB] shadow-xl">
+  <form action="{% url 'core:results_view' %}" method="GET" class="w-full">
+  <div class="flex flex-col sm:flex-row flex-1 justify-center gap-10">
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">PICK UP DATE AND TIME</legend>
+      <input type="datetime-local" name="pickup_datetime" class="input" value="{{ pickup_datetime }}" required />
+    </fieldset>
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">PICK UP LOCATION</legend>
+      <!-- Pickup Location -->
+      <select name="pickup_location" class="select">
+        <option disabled>Pickup Location</option>
+        {% for zone in zones %}
+          <option value="{{ zone.id }}"
+            {% if zone.id|stringformat:"s" == pickup_location %}selected{% endif %}>
+            {{ zone.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </fieldset>
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">DROP OFF LOCATION</legend>
+      <!-- Dropoff Location -->
+      <select name="dropoff_location" class="select">
+        <option disabled>Dropoff Location</option>
+        {% for zone in zones %}
+          <option value="{{ zone.id }}"
+            {% if zone.id|stringformat:"s" == dropoff_location %}selected{% endif %}>
+            {{ zone.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </fieldset>
+  </div>
+
+  <div id="return-divider" class="divider ml-6 mr-6">RETURN</div>
+
+  <div id="return-section" class="flex flex-col sm:flex-row flex-1 justify-center gap-10">
+  <fieldset class="fieldset">
+    <legend class="fieldset-legend">RETURN DATE AND TIME</legend>
+    <input type="datetime-local" name="return_datetime" class="input" />
+  </fieldset>
+  <fieldset class="fieldset">
+    <legend class="fieldset-legend">PICK UP LOCATION</legend>
+    <select class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] py-2 px-4">
+      <option disabled selected>Pickup Location</option>
+      {% for zone in zones %}
+        <option>{{ zone.name }}</option>
+      {% endfor %}
+    </select>
+  </fieldset>
+  <fieldset class="fieldset">
+    <legend class="fieldset-legend">DROP OFF LOCATION</legend>
+    <select class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] py-2 px-4">
+      <option disabled selected>Pickup Location</option>
+      {% for zone in zones %}
+        <option>{{ zone.name }}</option>
+      {% endfor %}
+    </select>
+  </fieldset>
+</div>
+
+
+  <div class="flex flex-col sm:flex-row flex-1 justify-center gap-10 mt-4">
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">HOW MANY PEOPLE (INCLUDING CHILDREN)?</legend>
+      <label class="input validator">
+        <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor">
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </g>
+        </svg>
+        <input name="people" value="{{ people }}" type="number" required placeholder="How many people?" minlength="1" maxlength="30" title="HOW MANY PEOPLE (INCLUDING CHILDREN)?" />
+      </label>
+    </fieldset>
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">CAR TYPE</legend>
+      <select name="car_type" class="select">
+        <option disabled>Car Type</option>
+        {% for car in cars %}
+          <option value="{{ car.id }}"
+            {% if car.id|stringformat:"s" == car_type %}selected{% endif %}>
+            {{ car.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </fieldset>
+    <fieldset class="fieldset p-4">
+      <legend class="fieldset-legend">TRIP OPTIONS</legend>
+      <div class="flex">
+        <div class="flex-1">
+          <label class="label">
+            <input type="radio" name="trip_type" value="roundtrip" class="radio" {% if trip_type == 'roundtrip' %}checked{% endif %} /> Roundtrip
+          </label>
+        </div>
+        <div class="flex-1 ml-6">
+          <label class="label">
+            <input type="radio" name="trip_type" value="oneway" class="radio" {% if trip_type == 'oneway' or not trip_type %}checked{% endif %} /> One way
+          </label>
+        </div>
+      </div>
+
+      <div id="return-section" class="hidden">
+        <label class="label mt-4">
+          <input type="checkbox" name="return_trip" class="checkbox" /> Return trip
+        </label>
+      </div>
+
+    </fieldset>
+    <!-- Submit button -->
+    <button type="submit" class="btn mt-8 w-full xl:w-[270px] bg-[#4abbc1] hover:bg-[#047884] rounded-[4px] border-0 text-white text-[24px] sm:w-64 py-3">
+      Find a Transfer
+    </button>
+  </div>
+  </form>
+</section>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const radios = document.querySelectorAll('input[name="trip_type"]');
+  const returnSection = document.getElementById('return-section');
+  const returnDivider = document.getElementById('return-divider');
+
+  function updateReturnSection() {
+    const selected = document.querySelector('input[name="trip_type"]:checked');
+    if (selected.value === 'oneway') {
+      returnSection.style.display = 'none';
+      returnDivider.style.display = 'none';
+    } else {
+      returnSection.style.display = 'flex'; // Or 'block' if vertical
+      returnDivider.style.display = 'flex'; // Show the divider when return trip is selected
+    }
+  }
+
+  // Initial check
+  updateReturnSection();
+
+  // Add event listener for change
+  radios.forEach(radio => {
+    radio.addEventListener('change', updateReturnSection);
+  });
+});
+</script>
+<style>
+  #return-section {
+  transition: all 0.3s ease;
+}
+</style>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light" class="scroll-smooth scroll-pt-20">
+  {% load static %}
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Speedy Transfers | Viajes en Puerto Vallarta</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <meta name="description" content="Speedy Transfers, Viajes en Puerto Vallarta" />
+    <meta name="keywords" content="Speedy Transfers, Viajes, Puerto Vallarta" />
+    <meta name="author" content="beyondteam.mx" />
+
+    <!-- FAVICON -->
+
+    {% block extra_css %}
+
+    {% endblock %}
+  </head>
+
+  <body>
+    {# {% include './includes/topbar.html' %} #}
+    {% include './includes/navbar.html' %}
+    {% if messages %}
+      <div id="notification-message" class="messages mx-1">
+        {% for message in messages %}
+          <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% if request.resolver_match.url_name != "results_view" and request.resolver_match.url_name != "summary_view" and request.resolver_match.url_name != "checkout_view" %}
+        {% include './includes/hero.html' %}
+    {% endif %}
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-14">
+      {% block content %}
+
+      {% endblock %}
+    </main>
+    {% if request.resolver_match.url_name != "results_view" and request.resolver_match.url_name != "summary_view"  and request.resolver_match.url_name != "checkout_view"%}
+      {% include './includes/contactanos.html' %}
+    {% endif %}
+    {% include './includes/footer.html' %}
+  </body>
+
+  {% block extra_js %}
+
+  {% endblock %}
+  <script src=" https://cdn.jsdelivr.net/npm/@tailwindcss/typography@0.5.16/src/index.min.js "></script>
+  <script src="{% static 'swiper-init.js' %}" type="module"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+    var swiper1 = new Swiper('.mySwiper1', {
+      navigation: { nextEl: '.swiper-button-next1', prevEl: '.swiper-button-prev1' },
+      slidesPerView: 1,
+      spaceBetween: 10,
+      loop: true,
+      breakpoints: {
+        620: { slidesPerView: 1, spaceBetween: 20 },
+        680: { slidesPerView: 2, spaceBetween: 40 },
+        920: { slidesPerView: 3, spaceBetween: 40 },
+        1240: { slidesPerView: 4, spaceBetween: 50 }
+      }
+    })
+    var swiper2 = new Swiper('.mySwiper2', {
+      navigation: { nextEl: '.swiper-button-next2', prevEl: '.swiper-button-prev2' },
+      slidesPerView: 1,
+      spaceBetween: 10,
+      loop: true,
+      breakpoints: {
+        620: { slidesPerView: 1, spaceBetween: 20 },
+        680: { slidesPerView: 2, spaceBetween: 40 },
+        920: { slidesPerView: 3, spaceBetween: 40 },
+        1240: { slidesPerView: 4, spaceBetween: 50 }
+      }
+    })
+    var swiper3 = new Swiper('.mySwiper3', {
+      navigation: { nextEl: '.swiper-button-next3', prevEl: '.swiper-button-prev3' },
+      slidesPerView: 1,
+      spaceBetween: 10,
+      loop: true,
+      breakpoints: {
+        620: { slidesPerView: 1, spaceBetween: 20 },
+        680: { slidesPerView: 2, spaceBetween: 40 },
+        920: { slidesPerView: 3, spaceBetween: 40 },
+        1240: { slidesPerView: 4, spaceBetween: 50 }
+      }
+    })
+    var swiper4 = new Swiper('.mySwiper4', {
+      navigation: { nextEl: '.swiper-button-next4', prevEl: '.swiper-button-prev4' },
+      slidesPerView: 1,
+      spaceBetween: 10,
+      loop: true,
+      breakpoints: {
+        620: { slidesPerView: 1, spaceBetween: 20 },
+        680: { slidesPerView: 2, spaceBetween: 40 },
+        920: { slidesPerView: 3, spaceBetween: 40 },
+        1240: { slidesPerView: 4, spaceBetween: 50 }
+      }
+    })
+    var singleCardSwiper = new Swiper('.single-card-swiper', {
+      cssMode: true,
+      navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev'
+      },
+      pagination: {
+        el: '.swiper-pagination'
+      },
+      mousewheel: true,
+      keyboard: true,
+      loop: true
+    })
+    
+    function toggleContent() {
+      const allContents = document.querySelectorAll('[id^="content-"]')
+      allContents.forEach((content) => {
+        content.classList.add('hidden')
+      })
+      const selectedRadio = document.querySelector('input[name="options"]:checked')
+      const contentId = `content-${selectedRadio.id}`
+      const content = document.getElementById(contentId)
+      if (content) {
+        content.classList.remove('hidden')
+        content.classList.add('flex')
+      }
+    }
+    const buttons = document.querySelectorAll('input[name="options"]')
+    buttons.forEach((button) => {
+      button.addEventListener('change', toggleContent)
+    })
+    
+    toggleContent()
+    
+    setTimeout(function () {
+      var successMessage = document.getElementById('notification-message')
+      if (successMessage) {
+        successMessage.style.transition = 'opacity 1s'
+        successMessage.style.opacity = '0'
+        setTimeout(() => (successMessage.style.display = 'none'), 1000)
+      }
+    }, 3000)
+    
+    setTimeout(function () {
+      var successMessage = document.getElementById('notification-message')
+      if (successMessage) {
+        successMessage.style.display = 'none'
+      }
+    }, 3000) // 3 seconds
+  </script>
+</html>
