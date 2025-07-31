@@ -127,6 +127,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 from dotenv import load_dotenv
 load_dotenv()
+# ADD THESE LINES FOR DEBUGGING:
+print(f"DEBUG: DB_NAME from .env: '{os.getenv('DB_NAME')}'")
+print(f"DEBUG: DB_USER from .env: '{os.getenv('DB_USER')}'")# END DEBUGGING LINES
 
 DATABASES = {
     'default': {
