@@ -1,15 +1,19 @@
 <section id="fechas" class="grid items-center gap-8 py-16 bg-[#FBFBFB] shadow-xl">
   <form action="{% url 'core:results_view' %}" method="GET" class="w-full">
   <div class="flex flex-col sm:flex-row flex-1 justify-center gap-10">
+    
     <fieldset class="fieldset">
       <legend class="fieldset-legend">PICK UP DATE AND TIME</legend>
       <input type="datetime-local" name="pickup_datetime" class="input" value="{{ pickup_datetime }}" required />
     </fieldset>
+    
     <fieldset class="fieldset">
       <legend class="fieldset-legend">PICK UP LOCATION</legend>
       <!-- Pickup Location -->
       <select name="pickup_location" class="select">
+
         <option disabled>Pickup Location</option>
+        
         {% for zone in zones %}
           <option value="{{ zone.id }}"
             {% if zone.id|stringformat:"s" == pickup_location %}selected{% endif %}>
@@ -18,6 +22,7 @@
         {% endfor %}
       </select>
     </fieldset>
+    
     <fieldset class="fieldset">
       <legend class="fieldset-legend">DROP OFF LOCATION</legend>
       <!-- Dropoff Location -->
@@ -62,6 +67,7 @@
 
 
   <div class="flex flex-col sm:flex-row flex-1 justify-center gap-10 mt-4">
+    
     <fieldset class="fieldset">
       <legend class="fieldset-legend">HOW MANY PEOPLE (INCLUDING CHILDREN)?</legend>
       <label class="input validator">
@@ -71,9 +77,12 @@
             <circle cx="12" cy="7" r="4"></circle>
           </g>
         </svg>
-        <input name="people" value="{{ people }}" type="number" required placeholder="How many people?" minlength="1" maxlength="30" title="HOW MANY PEOPLE (INCLUDING CHILDREN)?" />
+        <input name="people" value="{{ people }}" min="1" type="number" required placeholder="How many people?" minlength="1" maxlength="30" title="HOW MANY PEOPLE (INCLUDING CHILDREN)?" />
       </label>
     </fieldset>
+
+
+
     <fieldset class="fieldset">
       <legend class="fieldset-legend">CAR TYPE</legend>
       <select name="car_type" class="select">
