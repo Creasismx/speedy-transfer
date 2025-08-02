@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -19,69 +20,67 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-46zd2kvf$xdc)pt#*vz0y49cbnl8$&eg-_2j0w^gzoh&3e9(8n'
+SECRET_KEY = "django-insecure-46zd2kvf$xdc)pt#*vz0y49cbnl8$&eg-_2j0w^gzoh&3e9(8n"
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'jet.dashboard',
-    'jet',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'speedy_app.core',
-    'livereload'
+    "jet.dashboard",
+    "jet",
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "speedy_app.core",
+    "livereload",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'livereload.middleware.LiveReloadScript',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "livereload.middleware.LiveReloadScript",
 ]
 
-TAILWIND_APP_NAME = 'speedy_app.core'
+TAILWIND_APP_NAME = "speedy_app.core"
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = "config.urls"
 
-TEMPLATE_PATH = BASE_DIR / 'templates'
+TEMPLATE_PATH = BASE_DIR / "templates"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [str(TEMPLATE_PATH)],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [str(TEMPLATE_PATH)],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-STATICFILES_DIRS = [
-    str(TEMPLATE_PATH / "assets")
-]
+STATICFILES_DIRS = [str(TEMPLATE_PATH / "assets")]
 
 STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'django.contrib.staticfiles.finders.FileSystemFinder',
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "django.contrib.staticfiles.finders.FileSystemFinder",
 )
 
-WSGI_APPLICATION = 'config.wsgi.application'
+WSGI_APPLICATION = "config.wsgi.application"
 
 
 # Password validation
@@ -89,16 +88,16 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -106,9 +105,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'es-mx'
+LANGUAGE_CODE = "es-mx"
 
-TIME_ZONE = 'America/Mexico_City'
+TIME_ZONE = "America/Mexico_City"
 
 USE_I18N = True
 
@@ -116,28 +115,59 @@ USE_L10N = False
 
 USE_TZ = False
 
-PAYPAL_CLIENT_ID = 'AU8Pa2bfXPrlP-WS60LzBxSJiOugG883-DxKny9wfkv-Mgb3K1HJEB3cgxoS9SK723RMhcKAVhcNzzEf'
-PAYPAL_SECRET = 'EFR2p3w3BCvoFlVnsdnqbn8bNurqLkCvgH2jeauEdr_jvVFyw1T51GbqVwibUcBS1mArP0ER11gRoXeY'
+PAYPAL_CLIENT_ID = (
+    "AU8Pa2bfXPrlP-WS60LzBxSJiOugG883-DxKny9wfkv-Mgb3K1HJEB3cgxoS9SK723RMhcKAVhcNzzEf"
+)
+PAYPAL_SECRET = (
+    "EFR2p3w3BCvoFlVnsdnqbn8bNurqLkCvgH2jeauEdr_jvVFyw1T51GbqVwibUcBS1mArP0ER11gRoXeY"
+)
 STRIPE_PUBLIC_KEY = "pk_test_ViXq3dfT5R9NLIwqgwojPI9m"  # pk_test_hZFYGaBpYdraSagjw5X2RpQC in this example
 STRIPE_SECRET_KEY = "sk_test_dkGVwV72F6Ik8XoV3AghIa9v"
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 from dotenv import load_dotenv
+
 load_dotenv()
 # ADD THESE LINES FOR DEBUGGING:
 print(f"DEBUG: DB_NAME from .env: '{os.getenv('DB_NAME')}'")
-print(f"DEBUG: DB_USER from .env: '{os.getenv('DB_USER')}'")# END DEBUGGING LINES
+print(f"DEBUG: DB_USER from .env: '{os.getenv('DB_USER')}'")  # END DEBUGGING LINES
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv("DB_NAME"),
-        'USER': os.getenv("DB_USER"),
-        'PASSWORD': os.getenv("DB_PASSWORD"),
-        'HOST': os.getenv("DB_HOST"),
-        'PORT': os.getenv("DB_PORT"),
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
     }
 }
+
+# --- Email Configuration ---
+# These settings are based on the data provided for your mail server.
+
+# Specifies the backend for sending emails.
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+# The IP address of the email server.
+EMAIL_HOST = "65.99.252.200"
+
+# The port for the email server. Port 465 is typically used for SSL.
+EMAIL_PORT = 465
+
+# Your full email address for authentication.
+EMAIL_HOST_USER = "soporte@vittapp.com"
+
+# The password for the email account.
+# It is highly recommended to use an environment variable for this.
+EMAIL_HOST_PASSWORD = "[ll!e]E,VFGA4"
+
+# Since MAIL_USE_SSL was True, we set EMAIL_USE_SSL to True.
+# This means we do not use TLS, so EMAIL_USE_TLS is False.
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+
+# The default sender for emails if not specified in send_mail().
+DEFAULT_FROM_EMAIL = "soporte@vittapp.com"

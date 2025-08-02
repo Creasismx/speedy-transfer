@@ -12,6 +12,10 @@ from django.urls import reverse
 from django.http import JsonResponse
 import stripe  # new
 
+#For sending mail uppong form submission
+from django.core.mail import send_mail
+
+
 paypalrestsdk.configure({
     "mode": "sandbox",  # Change to "live" for production
     "client_id": settings.PAYPAL_CLIENT_ID,
@@ -72,8 +76,22 @@ class CheckoutView(TemplateView):
         context['cars'] = Car.objects.all()
         return context     
 
+# speedy_app/core/views.py
+
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.http import HttpResponse
+from django.contrib import messages
+from django.core.mail import send_mail # Make sure this is imported
+
+# ... (other imports and views)
+
 # Contact Form View 
 def contact_form_view(request):
+    """
+    Handles the contact form submission.
+    Saves the form data to the database and sends an email.
+    """
     if request.method == "POST":
         name = request.POST.get("name")
         email = request.POST.get("email")
@@ -84,19 +102,52 @@ def contact_form_view(request):
         message = request.POST.get("additional")
 
         # Save to database
-        Contact.objects.create(
-            name=name,
-            email=email,
-            phone=phone,
-            country=country,
-            company=company,
-            interested_in=interested_in,
-            message=message,
-        )
+        try:
+            Contact.objects.create(
+                name=name,
+                email=email,
+                phone=phone,
+                country=country,
+                company=company,
+                interested_in=interested_in,
+                message=message,
+            )
+        except Exception as e:
+            print(f"Error saving contact form to database: {e}")
+            messages.error(request, "There was an error saving your message. Please try again.")
+            return redirect(reverse('core:home_view'))
 
+        # --- EMAIL SENDING LOGIC ---
+        email_body = f"""
+        New Contact Form Submission from the website:
+
+        Name: {name}
+        Email: {email}
+        Phone: {phone}
+        Country: {country}
+        Company: {company}
+        Interested in: {interested_in}
+        Message: {message}
+        """
+        
+        try:
+            send_mail(
+                subject='New Contact Form Submission',
+                message=email_body,
+                # This line has been updated to use the DEFAULT_FROM_EMAIL from settings.py
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=['cmelendezgp@gmail.com'], # The recipient email
+                fail_silently=False,
+            )
+        except Exception as e:
+            print(f"Error sending contact email: {e}")
+            # The database save was successful, so we'll still show a success message
+            # but you might want to log this error for your own records.
+        
         messages.success(request, "Your message has been submitted successfully!")
-
-        return redirect("/")  # Redirects back to the form page
+        
+        # This line has been updated to use the correct URL name from your urls.py
+        return redirect(reverse('core:home_view'))
 
     return HttpResponse("Invalid request", status=400)
 
