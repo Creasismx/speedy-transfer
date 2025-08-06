@@ -5,37 +5,38 @@
   </article>
 
   <div class="overflow-x-auto">
-    {% for car in cars %} 
-      <div class="card lg:card-side bg-base-100 shadow-sm card-border p-4 mb-2">
-        <figure>
-          <img
-            src="/assets/images/background-hero.jpeg"
-            alt="Album"  class="rounded-box w-100" max-w-sm rounded-lg shadow-2xl />
-        </figure>
-        <div class="card-body">
-          <h2 class="card-title text-xl font-bold">Private Van</h2>
-          <p>Max 6 people per vehicle</p>
-          <div class="stats stats-vertical lg:stats-horizontal shadow">
-            <div class="stat">
-              <div class="stat-title">Departure date</div>
-              <div class="stat-value">April 2, 2025</div>
-            </div>
-          
-            <div class="stat">
-              <div class="stat-title">Departure time</div>
-              <div class="stat-value">4:51 pm</div>
-            </div>
-          
-            <div class="stat">
-              <div class="stat-title">Per vehicle</div>
-              <div class="stat-value">$131.82 USD</div>
-            </div>
+    {% for option in transfer_options %}
+    <div class="transfer-card card lg:card-side bg-base-100 shadow-sm card-border p-4 mb-2 transition-all duration-300 ease-in-out hover:shadow-xl cursor-pointer">
+      <figure>
+        <!-- Using a placeholder image for now -->
+        <img
+          src="https://placehold.co/192x128/4abbc1/ffffff?text={{ option.car_name }}"
+          alt="{{ option.car_name }}" class="rounded-box w-100" max-w-sm rounded-lg shadow-2xl />
+      </figure>
+      <div class="card-body">
+        <h2 class="card-title text-xl font-bold">{{ option.car_name }}</h2>
+        <p>Max {{ option.car_capacity }} people per vehicle</p>
+        <div class="stats stats-vertical lg:stats-horizontal shadow">
+          <div class="stat">
+            <div class="stat-title">Departure date</div>
+            <div class="stat-value">{{ option.departure_date }}</div>
           </div>
-          <div class="card-actions justify-end">
-            <button class="btn btn-block btn-square btn-soft btn-primary">Select</button>
+        
+          <div class="stat">
+            <div class="stat-title">Departure time</div>
+            <div class="stat-value">{{ option.departure_time }}</div>
+          </div>
+        
+          <div class="stat">
+            <div class="stat-title">Per vehicle</div>
+            <div class="stat-value">${{ option.price }} USD</div>
           </div>
         </div>
+        <div class="card-actions justify-end">
+          <button class="select-btn btn btn-block btn-square btn-soft btn-primary">Select</button>
+        </div>
       </div>
+    </div>
     {% endfor %}
     <div class="flex justify-end mt-4">
       <a href="{% url 'core:summary_view' %}" class="btn btn-wide btn-outline btn-success sm:btn-block">
@@ -44,3 +45,27 @@
     </div>
   </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const transferCards = document.querySelectorAll('.transfer-card');
+  transferCards.forEach(card => {
+    card.addEventListener('click', function () {
+      // Remove 'selected' class from all other cards
+      transferCards.forEach(c => {
+        c.classList.remove('selected');
+      });
+      // Add 'selected' class to the clicked card
+      this.classList.add('selected');
+    });
+  });
+});
+</script>
+
+<style>
+.transfer-card.selected {
+  outline: 4px solid #4f46e5; /* Tailwind's indigo-600 */
+  box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.5), 0 4px 6px -2px rgba(79, 70, 229, 0.25);
+  transform: translateY(-4px);
+}
+</style>
