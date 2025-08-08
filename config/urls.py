@@ -18,7 +18,7 @@ from django.urls import path, re_path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    #re_path(r'^jet/', include('jet.urls', 'jet')),  # Django JET URLS
-    #re_path(r'^jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),  # Django JET dashboard URLS
+    re_path(r'^jet/', include('jet.urls', 'jet')),  # Django JET URLS
+    re_path(r'^jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),  # Django JET dashboard URLS
     path('', include('speedy_app.core.urls', namespace='speedy_app')),
 ]
