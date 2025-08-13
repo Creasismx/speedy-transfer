@@ -17,39 +17,28 @@
                               </tr>
                           </thead>
                           <tbody id="cart-items">
-                              <tr class="pb-4 border-b border-gray-line">
-                                  <td class="px-1 py-4">
-                                      <div class="flex items-center flex-col sm:flex-row text-center sm:text-left">
-                                          <img class="h-16 w-16 md:h-24 md:w-24 sm:mr-8 mb-4 sm:mb-0" src="/assets/images/background-hero.jpeg" alt="Product image">
-                                          <p class="text-sm md:text-base md:font-semibold">Private Van</p>
-                                      </div>
-                                  </td>
-                                  <td class="px-1 py-4 text-center">$19.99</td>
-                                  <td class="px-1 py-4 text-center">
-                                      <div class="flex items-center justify-center">
-                                          <button class="cart-decrement border border-primary bg-primary text-white hover:bg-transparent hover:text-primary rounded-full w-10 h-10 flex items-center justify-center">-</button>
-                                          <p class="quantity text-center w-8">1</p>
-                                          <button class="cart-increment border border-primary bg-primary text-white hover:bg-transparent hover:text-primary rounded-full w-10 h-10 flex items-center justify-center">+</button>
-                                      </div>
-                                  </td>
-                                  <td class="px-1 py-4 text-right">$19.99</td>
+                              <tr id="cart-empty-row" class="pb-4 border-b border-gray-line hidden">
+                                  <td colspan="4" class="px-1 py-8 text-center text-gray-500">No selection found. Please go back and select a transfer.</td>
                               </tr>
-                              <tr class="pb-4">
+                              <tr id="cart-item-row" class="pb-4 border-b border-gray-line hidden">
                                   <td class="px-1 py-4">
                                       <div class="flex items-center flex-col sm:flex-row text-center sm:text-left">
-                                          <img class="h-16 w-16 md:h-24 md:w-24 sm:mr-8 mb-4 sm:mb-0" src="/assets/images/background-hero.jpeg" alt="Product image">
-                                          <p class="text-sm md:text-base md:font-semibold">Private Van</p>
+                                          <img id="cart-image" class="h-16 w-16 md:h-24 md:w-24 sm:mr-8 mb-4 sm:mb-0" src="/assets/images/background-hero.jpeg" alt="Product image">
+                                          <div class="text-left">
+                                            <p id="cart-title" class="text-sm md:text-base md:font-semibold">Selected Vehicle</p>
+                                            <p id="cart-subtitle" class="text-xs text-gray-600"></p>
+                                          </div>
                                       </div>
                                   </td>
-                                  <td class="px-1 py-4 text-center">$19.99</td>
+                                  <td class="px-1 py-4 text-center" id="cart-price">$0.00</td>
                                   <td class="px-1 py-4 text-center">
                                       <div class="flex items-center justify-center">
-                                          <button class="cart-decrement border border-primary bg-primary text-white hover:bg-transparent hover:text-primary rounded-full w-10 h-10 flex items-center justify-center">-</button>
-                                          <p class="quantity text-center w-8">1</p>
-                                          <button class="cart-increment border border-primary bg-primary text-white hover:bg-transparent hover:text-primary rounded-full w-10 h-10 flex items-center justify-center">+</button>
+                                          <button id="qty-dec" class="cart-decrement border border-primary bg-primary text-white hover:bg-transparent hover:text-primary rounded-full w-10 h-10 flex items-center justify-center">-</button>
+                                          <p id="cart-qty" class="quantity text-center w-8">1</p>
+                                          <button id="qty-inc" class="cart-increment border border-primary bg-primary text-white hover:bg-transparent hover:text-primary rounded-full w-10 h-10 flex items-center justify-center">+</button>
                                       </div>
                                   </td>
-                                  <td class="px-1 py-4 text-right">$19.99</td>
+                                  <td class="px-1 py-4 text-right" id="cart-total">$0.00</td>
                               </tr>
                           </tbody>
                       </table>
@@ -59,11 +48,31 @@
                               <button class="bg-primary text-white border border-primary hover:bg-transparent hover:text-primary rounded-r-full py-2 px-4">Apply Coupon</button>
                           </div>
                           <div class="mt-4 lg:mt-0 flex space-x-2">
-                              <button class="bg-primary text-white border border-primary hover:bg-transparent hover:text-primary rounded-full py-2 px-4">Empty Cart</button>
-                              <button class="bg-primary text-white border border-primary hover:bg-transparent hover:text-primary rounded-full py-2 px-4">Update Cart</button>
+                              <a href="/" class="bg-primary text-white border border-primary hover:bg-transparent hover:text-primary rounded-full py-2 px-4">Add More</a>
                           </div>
                       </div>
                   </div>
+              </div>
+
+              <div class="bg-white rounded-lg shadow-md p-6 mb-4">
+                <h2 class="text-lg font-semibold mb-4">Fechas & Trip Details</h2>
+                <div id="fechas-details" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p><span class="font-semibold">Pickup:</span> <span id="f-pickup"></span></p>
+                    <p><span class="font-semibold">From:</span> <span id="f-pickup-loc"></span></p>
+                    <p><span class="font-semibold">To:</span> <span id="f-dropoff-loc"></span></p>
+                  </div>
+                  <div>
+                    <p><span class="font-semibold">Return:</span> <span id="f-return"></span></p>
+                    <p><span class="font-semibold">From:</span> <span id="f-return-pickup-loc"></span></p>
+                    <p><span class="font-semibold">To:</span> <span id="f-return-dropoff-loc"></span></p>
+                  </div>
+                  <div>
+                    <p><span class="font-semibold">People:</span> <span id="f-people"></span></p>
+                    <p><span class="font-semibold">Trip Type:</span> <span id="f-trip-type"></span></p>
+                    <p><span class="font-semibold">Car Type:</span> <span id="f-car-type"></span></p>
+                  </div>
+                </div>
               </div>
           </div>
           <div class="md:w-1/4">
@@ -71,23 +80,140 @@
                   <h2 class="text-lg font-semibold mb-4">Summary</h2>
                   <div class="flex justify-between mb-4">
                       <p>Subtotal</p>
-                      <p>$19.99</p>
+                      <p id="s-subtotal">$0.00</p>
                   </div>
                   <div class="flex justify-between mb-4">
                       <p>Taxes</p>
-                      <p>$1.99</p>
+                      <p id="s-taxes">$0.00</p>
                   </div>
                   <div class="flex justify-between mb-4 pb-4 border-b border-gray-line">
                       <p>Shipping</p>
-                      <p>$0.00</p>
+                      <p id="s-shipping">$0.00</p>
                   </div>
                   <div class="flex justify-between mb-2">
                       <p class="font-semibold">Total</p>
-                      <p class="font-semibold">$21.98</p>
+                      <p class="font-semibold" id="s-total">$0.00</p>
                   </div>
-                  <a href="/checkout" class="bg-primary text-white border hover:border-primary hover:bg-transparent hover:text-primary py-2 px-4 rounded-full mt-4 w-full text-center block">Proceed to checkout</a>
+                  <a href="{% url 'core:checkout_view' %}" class="bg-primary text-white border hover:border-primary hover:bg-transparent hover:text-primary py-2 px-4 rounded-full mt-4 w-full text-center block">Proceed to checkout</a>
               </div>
           </div>
       </div>
   </div>
 </section>
+
+<script>
+(function() {
+  function fmtMoney(amount, currency) {
+    const num = isNaN(amount) ? 0 : Number(amount);
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency: currency || 'USD', minimumFractionDigits: 2 }).format(num);
+  }
+
+  function byId(id) { return document.getElementById(id); }
+
+  const selectedTransferRaw = sessionStorage.getItem('selectedTransfer');
+  const fechasDataRaw = sessionStorage.getItem('fechasData');
+
+  let selectedTransfer = null;
+  let fechasData = null;
+
+  try { selectedTransfer = selectedTransferRaw ? JSON.parse(selectedTransferRaw) : null; } catch (e) {}
+  try { fechasData = fechasDataRaw ? JSON.parse(fechasDataRaw) : null; } catch (e) {}
+
+  const emptyRow = byId('cart-empty-row');
+  const itemRow = byId('cart-item-row');
+  const img = byId('cart-image');
+  const title = byId('cart-title');
+  const subtitle = byId('cart-subtitle');
+  const price = byId('cart-price');
+  const qty = byId('cart-qty');
+  const total = byId('cart-total');
+  const dec = byId('qty-dec');
+  const inc = byId('qty-inc');
+
+  // Summary totals
+  const sSubtotal = byId('s-subtotal');
+  const sTaxes = byId('s-taxes');
+  const sShipping = byId('s-shipping');
+  const sTotal = byId('s-total');
+
+  // Fechas fields
+  const fPickup = byId('f-pickup');
+  const fPickupLoc = byId('f-pickup-loc');
+  const fDropoffLoc = byId('f-dropoff-loc');
+  const fReturn = byId('f-return');
+  const fReturnPickupLoc = byId('f-return-pickup-loc');
+  const fReturnDropoffLoc = byId('f-return-dropoff-loc');
+  const fPeople = byId('f-people');
+  const fTripType = byId('f-trip-type');
+  const fCarType = byId('f-car-type');
+
+  if (!selectedTransfer) {
+    emptyRow.classList.remove('hidden');
+    itemRow.classList.add('hidden');
+    return;
+  }
+
+  // Populate item row
+  img.src = selectedTransfer.image_url || img.src;
+  title.textContent = selectedTransfer.name || 'Selected Vehicle';
+  subtitle.textContent = [
+    selectedTransfer.date ? `Date: ${selectedTransfer.date}` : '',
+    selectedTransfer.time ? `Time: ${selectedTransfer.time}` : '',
+    selectedTransfer.car_capacity ? `Capacity: ${selectedTransfer.car_capacity}` : ''
+  ].filter(Boolean).join(' • ');
+
+  const currency = selectedTransfer.currency || 'USD';
+  let quantity = Number(selectedTransfer.quantity || 1);
+  if (!Number.isFinite(quantity) || quantity < 1) quantity = 1;
+
+  function recalc() {
+    const unit = Number(selectedTransfer.price_numeric || 0);
+    const subtotal = unit * quantity;
+    const taxes = 0; // Add logic if needed
+    const shipping = 0;
+    const grand = subtotal + taxes + shipping;
+
+    qty.textContent = String(quantity);
+    price.textContent = fmtMoney(unit, currency);
+    total.textContent = fmtMoney(grand, currency);
+
+    sSubtotal.textContent = fmtMoney(subtotal, currency);
+    sTaxes.textContent = fmtMoney(taxes, currency);
+    sShipping.textContent = fmtMoney(shipping, currency);
+    sTotal.textContent = fmtMoney(grand, currency);
+  }
+
+  dec.addEventListener('click', function(e) {
+    e.preventDefault();
+    if (quantity > 1) {
+      quantity -= 1;
+      recalc();
+    }
+  });
+
+  inc.addEventListener('click', function(e) {
+    e.preventDefault();
+    quantity += 1;
+    recalc();
+  });
+
+  // Populate fechas
+  if (fechasData) {
+    const pickup = fechasData.pickup_datetime ? fechasData.pickup_datetime.replace('T', ' ') : '';
+    const ret = fechasData.return_datetime ? fechasData.return_datetime.replace('T', ' ') : '';
+    fPickup.textContent = pickup;
+    fPickupLoc.textContent = fechasData.pickup_location_name || '';
+    fDropoffLoc.textContent = fechasData.dropoff_location_name || '';
+    fReturn.textContent = ret || '—';
+    fReturnPickupLoc.textContent = fechasData.return_pickup_location_name || '—';
+    fReturnDropoffLoc.textContent = fechasData.return_dropoff_location_name || '—';
+    fPeople.textContent = fechasData.people || '';
+    fTripType.textContent = (fechasData.trip_type || '').toUpperCase();
+    fCarType.textContent = fechasData.car_type_label || fechasData.car_type_value || '';
+  }
+
+  emptyRow.classList.add('hidden');
+  itemRow.classList.remove('hidden');
+  recalc();
+})();
+</script>
