@@ -118,7 +118,7 @@
           </div>
           <div class="card-actions justify-end">
             <button class="select-btn btn btn-block bg-[#4abbc1] border-0 text-white hover:bg-[#3fa8b0]">
-              Select {% if option.unit_number %}Unit #{{ option.unit_number|stringformat:"03d" }}{% endif %}
+              Select {% if option.total_fleet_size > 1 %}Unit #{{ option.unit_number|stringformat:"03d" }}{% endif %}
             </button>
           </div>
         </div>
