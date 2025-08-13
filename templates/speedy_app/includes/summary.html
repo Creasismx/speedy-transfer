@@ -12,13 +12,12 @@
                               <tr>
                                   <th class="text-center md:text-left font-semibold">Product</th>
                                   <th class="text-center font-semibold">Price</th>
-                                  <th class="text-center font-semibold">Quantity</th>
                                   <th class="text-center md:text-right font-semibold">Total</th>
                               </tr>
                           </thead>
                           <tbody id="cart-items">
                               <tr id="cart-empty-row" class="pb-4 border-b border-gray-line hidden">
-                                  <td colspan="4" class="px-1 py-8 text-center text-gray-500">No selection found. Please go back and select a transfer.</td>
+                                  <td colspan="3" class="px-1 py-8 text-center text-gray-500">No selection found. Please go back and select a transfer.</td>
                               </tr>
                               <tr id="cart-item-row" class="pb-4 border-b border-gray-line hidden">
                                   <td class="px-1 py-4">
@@ -31,13 +30,6 @@
                                       </div>
                                   </td>
                                   <td class="px-1 py-4 text-center" id="cart-price">$0.00</td>
-                                  <td class="px-1 py-4 text-center">
-                                      <div class="flex items-center justify-center">
-                                          <button id="qty-dec" class="cart-decrement border border-primary bg-primary text-white hover:bg-transparent hover:text-primary rounded-full w-10 h-10 flex items-center justify-center">-</button>
-                                          <p id="cart-qty" class="quantity text-center w-8">1</p>
-                                          <button id="qty-inc" class="cart-increment border border-primary bg-primary text-white hover:bg-transparent hover:text-primary rounded-full w-10 h-10 flex items-center justify-center">+</button>
-                                      </div>
-                                  </td>
                                   <td class="px-1 py-4 text-right" id="cart-total">$0.00</td>
                               </tr>
                           </tbody>
@@ -45,10 +37,10 @@
                       <div class="px-1 flex flex-col lg:flex-row justify-between items-center mt-10">
                           <div class="flex items-center">
                               <input type="text" placeholder="Coupon code" class="border border-gray-300 rounded-l-full py-2 px-4 focus:outline-none">
-                              <button class="bg-primary text-white border border-primary hover:bg-transparent hover:text-primary rounded-r-full py-2 px-4">Apply Coupon</button>
+                              <button class="bg-[#4abbc1] hover:bg-[#047884] text-white rounded-r-full py-2 px-4 border-0">Apply Coupon</button>
                           </div>
                           <div class="mt-4 lg:mt-0 flex space-x-2">
-                              <a href="/" class="bg-primary text-white border border-primary hover:bg-transparent hover:text-primary rounded-full py-2 px-4">Add More</a>
+                              <a href="{% url 'core:home_view' %}" class="bg-[#4abbc1] hover:bg-[#047884] text-white rounded-full py-2 px-4 border-0">Add More</a>
                           </div>
                       </div>
                   </div>
@@ -94,7 +86,7 @@
                       <p class="font-semibold">Total</p>
                       <p class="font-semibold" id="s-total">$0.00</p>
                   </div>
-                  <a href="{% url 'core:checkout_view' %}" class="bg-primary text-white border hover:border-primary hover:bg-transparent hover:text-primary py-2 px-4 rounded-full mt-4 w-full text-center block">Proceed to checkout</a>
+                  <a href="{% url 'core:checkout_view' %}" class="bg-[#4abbc1] hover:bg-[#047884] text-white border-0 py-2 px-4 rounded-full mt-4 w-full text-center block">Proceed to checkout</a>
               </div>
           </div>
       </div>
@@ -125,10 +117,7 @@
   const title = byId('cart-title');
   const subtitle = byId('cart-subtitle');
   const price = byId('cart-price');
-  const qty = byId('cart-qty');
   const total = byId('cart-total');
-  const dec = byId('qty-dec');
-  const inc = byId('qty-inc');
 
   // Summary totals
   const sSubtotal = byId('s-subtotal');
@@ -163,17 +152,14 @@
   ].filter(Boolean).join(' • ');
 
   const currency = selectedTransfer.currency || 'USD';
-  let quantity = Number(selectedTransfer.quantity || 1);
-  if (!Number.isFinite(quantity) || quantity < 1) quantity = 1;
 
   function recalc() {
     const unit = Number(selectedTransfer.price_numeric || 0);
-    const subtotal = unit * quantity;
+    const subtotal = unit;
     const taxes = 0; // Add logic if needed
     const shipping = 0;
     const grand = subtotal + taxes + shipping;
 
-    qty.textContent = String(quantity);
     price.textContent = fmtMoney(unit, currency);
     total.textContent = fmtMoney(grand, currency);
 
@@ -182,20 +168,6 @@
     sShipping.textContent = fmtMoney(shipping, currency);
     sTotal.textContent = fmtMoney(grand, currency);
   }
-
-  dec.addEventListener('click', function(e) {
-    e.preventDefault();
-    if (quantity > 1) {
-      quantity -= 1;
-      recalc();
-    }
-  });
-
-  inc.addEventListener('click', function(e) {
-    e.preventDefault();
-    quantity += 1;
-    recalc();
-  });
 
   // Populate fechas
   if (fechasData) {
