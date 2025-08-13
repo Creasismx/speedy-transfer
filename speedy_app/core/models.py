@@ -26,13 +26,30 @@ class Hotel(models.Model):
 
 
 class Car(models.Model):
+    CAR_TYPES = [
+        ('SEDAN', 'Sedan'),
+        ('SUV', 'SUV'),
+        ('VAN', 'Van'),
+        ('SPRINTER', 'Sprinter'),
+        ('BUS', 'Bus'),
+    ]
+    
     name = models.CharField(max_length=50)
-    description = models.TextField(blank=True, null=True)  # Optional description field
-    image = models.ImageField(upload_to='cars/', blank=True, null=True)  # Optional image field
+    type = models.CharField(
+        max_length=10,
+        choices=CAR_TYPES,
+        default='VAN'  # <-- Add a default value (e.g., 'VAN')
+    )
+    description = models.TextField(blank=True, null=True)
+    image = models.ImageField(upload_to='cars/', blank=True, null=True)
     max = models.PositiveIntegerField(default=1)
+    quantity = models.PositiveIntegerField(default=1)
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name_plural = "Cars"
 
 
 class Rate(models.Model):

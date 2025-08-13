@@ -3,43 +3,84 @@
   <article class="prose lg:prose-xl pl-4">
     <h1 class="text-2xl antialiased md:subpixel-antialiased font-bold">Select transfer for your ARRIVAL</h1>
   </article>
-
+   
   <div class="overflow-x-auto">
-    {% for option in transfer_options %}
-    <div class="transfer-card card lg:card-side bg-base-100 shadow-sm card-border p-4 mb-2 transition-all duration-300 ease-in-out hover:shadow-xl cursor-pointer">
-      <figure>
-        <!-- Using a placeholder image for now -->
-        <img
-          src="https://placehold.co/192x128/4abbc1/ffffff?text={{ option.car_name }}"
-          alt="{{ option.car_name }}" class="rounded-box w-100" max-w-sm rounded-lg shadow-2xl />
-      </figure>
-      <div class="card-body">
-        <h2 class="card-title text-xl font-bold">{{ option.car_name }}</h2>
-        <p>Max {{ option.car_capacity }} people per vehicle</p>
-        <div class="stats stats-vertical lg:stats-horizontal shadow">
-          <div class="stat">
-            <div class="stat-title">Departure date</div>
-            <div class="stat-value">{{ option.departure_date }}</div>
+    {% if transfer_options %}
+      {% for option in transfer_options %}
+      <div class="transfer-card card lg:card-side bg-base-100 shadow-sm card-border p-4 mb-2 transition-all duration-300 ease-in-out hover:shadow-xl cursor-pointer"
+           data-transfer-id="{{ option.id }}"
+           data-rate-id="{{ option.rate_id }}"
+           data-car-id="{{ option.car_id }}"
+           data-unit-number="{{ option.unit_number }}"
+           data-vehicle-id="{{ option.id }}">
+        <figure>
+          {% if option.image %}
+            <img
+              src="{{ option.image.url }}"
+              alt="{{ option.car_name }}"
+              class="rounded-box w-80 h-60 object-cover rounded-lg shadow-lg"
+              onerror="console.log('Image failed: {{ option.image.url }}'); this.src='https://placehold.co/192x128/4abbc1/ffffff?text={{ option.car_name|urlencode }}'; this.onerror=null;" />
+          {% else %}
+            <img
+              src="https://placehold.co/192x128/4abbc1/ffffff?text={{ option.car_name|urlencode }}"
+              alt="{{ option.car_name }}"
+              class="rounded-box w-100 max-w-sm rounded-lg shadow-2xl" />
+          {% endif %}
+        </figure>
+        <div class="card-body">
+          <h2 class="card-title text-xl font-bold">{{ option.car_name }}</h2>
+          <p>Max {{ option.car_capacity }} people per vehicle</p>
+          {% if option.unit_number > 1 %}
+          <p class="text-sm text-gray-600">Unit #{{ option.unit_number|stringformat:"03d" }} • {{ option.availability_status|title }}</p>
+          {% endif %}
+          <div class="stats stats-vertical lg:stats-horizontal shadow">
+            <div class="stat">
+              <div class="stat-title">Departure date</div>
+              <div class="stat-value">{{ option.departure_date }}</div>
+            </div>
+                     
+            <div class="stat">
+              <div class="stat-title">Departure time</div>
+              <div class="stat-value">{{ option.departure_time }}</div>
+            </div>
+                     
+            <div class="stat">
+              <div class="stat-title">Per vehicle</div>
+              <div class="stat-value price-value">${{ option.price }} USD</div>
+            </div>
           </div>
-        
-          <div class="stat">
-            <div class="stat-title">Departure time</div>
-            <div class="stat-value">{{ option.departure_time }}</div>
+          <div class="card-actions justify-end">
+            <button class="select-btn btn btn-block btn-square btn-soft btn-primary">
+              Select {% if option.unit_number %}Unit #{{ option.unit_number|stringformat:"03d" }}{% endif %}
+            </button>
           </div>
-        
-          <div class="stat">
-            <div class="stat-title">Per vehicle</div>
-            <div class="stat-value">${{ option.price }} USD</div>
-          </div>
-        </div>
-        <div class="card-actions justify-end">
-          <button class="select-btn btn btn-block btn-square btn-soft btn-primary">Select</button>
         </div>
       </div>
-    </div>
-    {% endfor %}
+      {% endfor %}
+    {% else %}
+      <!-- Debug section to show what data is available -->
+      <div class="alert alert-warning">
+        <div>
+          <h3>No transfer options found</h3>
+          <p><strong>Debug Info:</strong></p>
+          <ul>
+            <li>Pickup Location: {{ pickup_location }}</li>
+            <li>Car Type: {{ car_type }}</li>
+            <li>Trip Type: {{ trip_type }}</li>
+            <li>People: {{ people }}</li>
+          </ul>
+          <p>Please check if:</p>
+          <ul>
+            <li>Cars exist in the database with the selected type</li>
+            <li>Rates are configured for the selected zone and car type</li>
+            <li>The pickup location is valid</li>
+          </ul>
+        </div>
+      </div>
+    {% endif %}
+    
     <div class="flex justify-end mt-4">
-      <a href="{% url 'core:summary_view' %}" class="btn btn-wide btn-outline btn-success sm:btn-block">
+      <a href="{% url 'core:summary_view' %}" class="book-btn btn btn-wide btn-outline btn-success sm:btn-block">
         Book Transfers
       </a>
     </div>
@@ -49,23 +90,114 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const transferCards = document.querySelectorAll('.transfer-card');
-  transferCards.forEach(card => {
+  const bookButton = document.querySelector('.book-btn');
+  let selectedTransfer = null;
+
+  console.log('Book button found:', bookButton);
+  console.log('Transfer cards found:', transferCards.length);
+
+  // Initially disable the book button
+  if (bookButton) {
+    bookButton.classList.add('btn-disabled');
+    bookButton.style.pointerEvents = 'none';
+    bookButton.style.opacity = '0.5';
+    bookButton.textContent = 'Select a Vehicle First';
+    
+    // Store original href
+    bookButton.removeAttribute('href');
+    bookButton.setAttribute('data-original-href', bookButton.getAttribute('href') || "{% url 'core:summary_view' %}");
+  }
+
+  transferCards.forEach((card, index) => {
     card.addEventListener('click', function () {
+      console.log('Vehicle card clicked:', index);
+      
       // Remove 'selected' class from all other cards
       transferCards.forEach(c => {
         c.classList.remove('selected');
       });
+      
       // Add 'selected' class to the clicked card
       this.classList.add('selected');
+      
+      // Extract data from the card - updated to handle individual vehicles
+      const cardTitle = this.querySelector('.card-title')?.textContent || 'Unknown Vehicle';
+      const priceElement = this.querySelector('.price-value');
+      const dateElement = this.querySelector('.stat:nth-child(1) .stat-value');
+      const timeElement = this.querySelector('.stat:nth-child(2) .stat-value');
+      
+      // Get individual vehicle data from data attributes
+      const transferId = this.getAttribute('data-transfer-id') || `vehicle_${index}`;
+      const rateId = this.getAttribute('data-rate-id') || transferId;
+      const carId = this.getAttribute('data-car-id') || '';
+      const unitNumber = this.getAttribute('data-unit-number') || '1';
+      
+      // Store selected transfer data with individual vehicle tracking
+      selectedTransfer = {
+        id: transferId,
+        rate_id: rateId,
+        car_id: carId,
+        unit_number: unitNumber,
+        name: cardTitle,
+        price: priceElement ? priceElement.textContent : '$0 USD',
+        date: dateElement ? dateElement.textContent : '',
+        time: timeElement ? timeElement.textContent : '',
+        selection_type: 'individual_vehicle'
+      };
+      
+      console.log('Individual vehicle selected:', selectedTransfer);
+      
+      // Enable the book button with specific messaging
+      if (bookButton) {
+        bookButton.classList.remove('btn-disabled');
+        bookButton.style.pointerEvents = 'auto';
+        bookButton.style.opacity = '1';
+        bookButton.textContent = `Book ${cardTitle}`;
+        
+        // Restore the href
+        const originalHref = bookButton.getAttribute('data-original-href');
+        if (originalHref) {
+          bookButton.setAttribute('href', originalHref);
+        }
+      }
     });
   });
+
+  // Enhanced book button click handler for individual vehicles
+  if (bookButton) {
+    bookButton.addEventListener('click', function(e) {
+      console.log('Book button clicked, selectedTransfer:', selectedTransfer);
+      
+      if (!selectedTransfer || !this.getAttribute('href')) {
+        e.preventDefault();
+        e.stopPropagation();
+        alert('Please select a specific vehicle before proceeding.');
+        return false;
+      }
+      
+      // Store individual vehicle selection data
+      try {
+        // Store in sessionStorage for the booking process
+        sessionStorage.setItem('selectedTransfer', JSON.stringify(selectedTransfer));
+        console.log('Individual vehicle selection saved to sessionStorage');
+        
+        // Store additional booking data for backend processing
+        sessionStorage.setItem('bookingData', JSON.stringify({
+          vehicleType: 'individual',
+          rateId: selectedTransfer.rate_id,
+          carId: selectedTransfer.car_id,
+          unitNumber: selectedTransfer.unit_number,
+          selectionTimestamp: new Date().toISOString(),
+          sessionId: Math.random().toString(36).substr(2, 9)
+        }));
+        
+      } catch (err) {
+        console.warn('Could not save selection to sessionStorage:', err);
+        // Fallback - still allow booking to proceed
+      }
+      
+      return true;
+    });
+  }
 });
 </script>
-
-<style>
-.transfer-card.selected {
-  outline: 4px solid #4f46e5; /* Tailwind's indigo-600 */
-  box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.5), 0 4px 6px -2px rgba(79, 70, 229, 0.25);
-  transform: translateY(-4px);
-}
-</style>

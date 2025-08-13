@@ -1,5 +1,5 @@
 # First, you need to import the Hotel and Car models at the top of your file
-from .models import Zone, Contact, Car, Hotel, Rate # Added Rate for the price lookup
+from .models import Zone, Contact, Car, Hotel, Rate  # Added Rate for the price lookup
 
 import paypalrestsdk
 from django.shortcuts import render, redirect
@@ -31,20 +31,45 @@ paypalrestsdk.configure({
 # Optional: define your return/cancel URLs here or in settings
 #PAYPAL_RETURN_URL = "https://example.com/payment/paypal/success/"
 #PAYPAL_CANCEL_URL = "https://example.com/payment/paypal/cancel/"
+
 class LandingView(TemplateView):
     template_name = "speedy_app/landing_page.html"
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # The 'related_name' in your Hotel model is 'hotels', so we must use that here.
+        
+        # Get zones with hotels for location dropdowns
         context['zones_with_hotels'] = Zone.objects.prefetch_related('hotels').all()
-        context['cars'] = Car.objects.all()
-        # Add a placeholder for a variable that will eventually hold the form data
-        context['pickup_datetime'] = ""
-        context['pickup_location'] = ""
-        context['people'] = ""
-        context['car_type'] = ""
-        context['trip_type'] = "oneway"
+        
+        # FIXED: Get car types as choices for the dropdown
+        # This matches what your template expects: car_types
+        context['car_types'] = Car.CAR_TYPES
+        
+        # Optional: Keep cars_by_type if needed elsewhere
+        cars = Car.objects.all().order_by('type')
+        cars_by_type = {}
+        
+        for car in cars:
+            if car.type not in cars_by_type:
+                cars_by_type[car.type] = []
+            cars_by_type[car.type].append(car)
+        
+        context['cars_by_type'] = cars_by_type
+        
+        # Populate form fields from GET parameters
+        query = self.request.GET
+        context.update({
+            'pickup_datetime': query.get('pickup_datetime', ''),
+            'pickup_location': query.get('pickup_location', ''),
+            'dropoff_location': query.get('dropoff_location', ''),
+            'return_datetime': query.get('return_datetime', ''),
+            'people': query.get('people', ''),
+            'car_type': query.get('car_type', ''),
+            'trip_type': query.get('trip_type', 'oneway')
+        })
+        
         return context
+
 
 class ResultsView(TemplateView):
     template_name = "speedy_app/results_page.html"
@@ -52,19 +77,33 @@ class ResultsView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Always include zones and cars (for dropdowns)
-        context['zones'] = Zone.objects.all()
+        # CRITICAL FIX: Use the same context key as LandingView
+        # Template expects 'zones_with_hotels', not 'zones'
+        context['zones_with_hotels'] = Zone.objects.prefetch_related('hotels').all()
         context['cars'] = Car.objects.all()
-
-        # Extract GET parameters (submitted form data)
+        
+        # Extract GET parameters (submitted form data) - ALL OF THEM
         query = self.request.GET
         pickup_location_id = query.get('pickup_location', '')
+        dropoff_location_id = query.get('dropoff_location', '')
         car_type_id = query.get('car_type', '')
+        
+        # DEBUG: Print what we received
+        print(f"\n=== DEBUG RESULTS VIEW ===")
+        print(f"Query params: {dict(query)}")
+        print(f"Pickup Location ID: {pickup_location_id}")
+        print(f"Car Type ID: {car_type_id}")
+        
+        # CRITICAL FIX: Pass ALL form data to preserve state
         context['pickup_datetime'] = query.get('pickup_datetime', '')
-        context['dropoff_location'] = query.get('dropoff_location', '')
+        context['pickup_location'] = pickup_location_id
+        context['dropoff_location'] = dropoff_location_id
         context['return_datetime'] = query.get('return_datetime', '')
+        context['return_pickup_location'] = query.get('return_pickup_location', '')
+        context['return_dropoff_location'] = query.get('return_dropoff_location', '')
         context['people'] = query.get('people', '')
         context['car_type'] = car_type_id
+        context['trip_type'] = query.get('trip_type', 'oneway')
         
         # Get trip_type from the form and convert it to the database format
         trip_type_form = query.get('trip_type', 'oneway')
@@ -73,47 +112,87 @@ class ResultsView(TemplateView):
         elif trip_type_form == 'roundtrip':
             travel_type_db = 'ROUND_TRIP'
         else:
-            travel_type_db = 'ONE_WAY' # Fallback to ONE_WAY if an unexpected value is received
-        
-        context['trip_type'] = trip_type_form # Keep the original form value for context
+            travel_type_db = 'ONE_WAY'
 
-        # New logic to filter and prepare transfer options
+        # NEW LOGIC: Expand vehicles based on quantity to create individual vehicle options
         transfer_options = []
+        
+        # DEBUG: Check if we have the required parameters
+        if not pickup_location_id:
+            print("ERROR: No pickup_location_id provided")
+        if not car_type_id:
+            print("ERROR: No car_type_id provided")
+            
         if pickup_location_id and car_type_id:
             try:
                 # Get the hotel to find its zone_id
+                print(f"Looking for hotel with ID: {pickup_location_id}")
                 pickup_hotel = Hotel.objects.get(id=pickup_location_id)
                 zone_id = pickup_hotel.zone_id
+                print(f"Found hotel: {pickup_hotel.name}, Zone ID: {zone_id}")
 
                 # Filter Rate based on car_id, zone_id, and the dynamically determined travel_type
+                print(f"Looking for rates with car_id={car_type_id}, zone_id={zone_id}, travel_type={travel_type_db}")
                 rates = Rate.objects.filter(
                     car_id=car_type_id,
                     zone_id=zone_id,
-                    travel_type=travel_type_db # Now uses the dynamic value
+                    travel_type=travel_type_db
                 )
+                print(f"Found {rates.count()} rates")
 
                 # Get the car details for display
+                print(f"Looking for car with ID: {car_type_id}")
                 car = Car.objects.get(id=car_type_id)
+                print(f"Found car: {car.name}, Type: {car.type}, Quantity: {getattr(car, 'quantity', 'N/A')}")
 
-                # Prepare the data to pass to the template
+                # Generate individual vehicle options based on quantity field
                 for rate in rates:
-                    transfer_options.append({
-                        'car_name': car.name,
-                        'car_description': car.description,
-                        'car_capacity': car.max,
-                        'price': rate.price,
-                        'travel_type': rate.travel_type,
-                        'departure_date': context['pickup_datetime'].split('T')[0] if context['pickup_datetime'] else '',
-                        'departure_time': context['pickup_datetime'].split('T')[1] if context['pickup_datetime'] else ''
-                    })
+                    # Better quantity handling with proper validation
+                    vehicle_quantity = car.quantity if hasattr(car, 'quantity') and car.quantity else 1
+                    
+                    print(f"Processing rate {rate.id}: Car={car.name}, Quantity={vehicle_quantity}, Price=${rate.price}")
+                    
+                    # Create individual vehicle options based on quantity
+                    for unit_number in range(1, vehicle_quantity + 1):
+                        # Create unique identifier for each unit
+                        unique_id = f"{rate.id}_{unit_number}" if vehicle_quantity > 1 else str(rate.id)
+                        
+                        # Format vehicle name based on quantity
+                        if vehicle_quantity > 1:
+                            vehicle_name = f"{car.name} #{unit_number:03d}"
+                        else:
+                            vehicle_name = car.name
+                        
+                        transfer_options.append({
+                            'id': unique_id,
+                            'rate_id': rate.id,
+                            'car_id': car.id,
+                            'unit_number': unit_number,
+                            'car_name': vehicle_name,
+                            'car_description': car.description,
+                            'car_capacity': car.max,
+                            'image': car.image,  # This should be the ImageField object
+                            'price': rate.price,
+                            'travel_type': rate.travel_type,
+                            'departure_date': context['pickup_datetime'].split('T')[0] if context['pickup_datetime'] else '',
+                            'departure_time': context['pickup_datetime'].split('T')[1] if context['pickup_datetime'] else '',
+                            'availability_status': 'available',
+                            'total_fleet_size': vehicle_quantity,
+                            'is_fleet_vehicle': vehicle_quantity > 1
+                        })
+                        
+                        print(f"Created transfer option: {unique_id} - {vehicle_name}")
 
             except Hotel.DoesNotExist:
-                print(f"Error: Hotel with ID {pickup_location_id} not found.")
+                print(f"ERROR: Hotel with ID {pickup_location_id} not found.")
             except Car.DoesNotExist:
-                print(f"Error: Car with ID {car_type_id} not found.")
-            except Rate.DoesNotExist:
-                print(f"Error: No rate found for car_id {car_type_id} and zone_id {zone_id} with travel type {travel_type_db}.")
+                print(f"ERROR: Car with ID {car_type_id} not found.")
+            except Exception as e:
+                print(f"ERROR generating transfer options: {e}")
+                import traceback
+                traceback.print_exc()
         
+        print(f"Final transfer_options count: {len(transfer_options)}")
         context['transfer_options'] = transfer_options
         
         return context
@@ -123,16 +202,18 @@ class SummaryView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['zones'] = Zone.objects.all()
-        context['cars'] = Car.objects.all()
-        return context     
+        # FIX: Added cars context for dropdown
+        context['cars'] = Car.objects.all() 
+        return context    
 
 class CheckoutView(TemplateView):
     template_name = "speedy_app/checkout_page.html"
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['zones'] = Zone.objects.all()
+        # FIX: Added cars context for dropdown
         context['cars'] = Car.objects.all()
-        return context     
+        return context    
 
 # speedy_app/core/views.py
 
