@@ -149,16 +149,22 @@ class ResultsView(TemplateView):
                     car = rate.car
                     vehicle_quantity = car.quantity if getattr(car, 'quantity', None) else 1
 
-                    # Resolve image URL: prefer MEDIA file URL; if not available, fall back to static assets path
+                    # Resolve image URL robustly
                     image_url = None
                     try:
-                        if car.image and hasattr(car.image, 'url'):
-                            image_url = car.image.url
+                        # Use MEDIA url only if the underlying file actually exists
+                        if car.image and getattr(car.image, 'name', None):
+                            file_name = car.image.name
+                            try:
+                                if car.image.storage.exists(file_name):
+                                    image_url = car.image.url
+                            except Exception:
+                                image_url = None
                     except Exception:
                         image_url = None
 
                     if not image_url:
-                        # Try to use the raw value if provided as a URL or filename
+                        # Try to use the raw value as absolute URL or as a static filename
                         raw_value = None
                         try:
                             raw_value = car.image.name if car.image else None
@@ -166,35 +172,47 @@ class ResultsView(TemplateView):
                             raw_value = None
                         if raw_value:
                             raw_value = raw_value.strip()
-                            # Absolute URL provided directly
                             if raw_value.lower().startswith(("http://", "https://", "//")):
                                 image_url = raw_value
                             else:
-                                # Ensure there is an extension, default to .jpg
                                 basename = os.path.basename(raw_value)
                                 if "." not in basename:
                                     basename = f"{basename}.jpg"
-                                # URL-encode to handle spaces and special chars like '#'
                                 image_url = static(f"images/cars/{quote(basename)}")
 
-                    # Fallback to a default per car type
+                    # Name-based defaults
+                    if not image_url and car.name:
+                        upper_name = car.name.upper()
+                        if "VAN-DARK" in upper_name:
+                            image_url = static("images/cars/Van_Dark.jpg")
+                        elif "STANDARD-VAN" in upper_name:
+                            image_url = static("images/cars/Standard_Van.jpg")
+                        elif "LUXURY-VAN" in upper_name:
+                            image_url = static("images/cars/Luxury_Van.jpg")
+                        elif upper_name.startswith("HIACE-VAN-"):
+                            # Try to map HIACE-VAN-00X to Hiace_White_00X.jpg
+                            suffix = upper_name.split("HIACE-VAN-")[-1]
+                            candidate = f"Hiace_White_{suffix}.jpg"
+                            image_url = static(f"images/cars/{quote(candidate)}")
+
+                    # Type-based defaults
                     if not image_url:
                         default_per_type = {
                             'VAN': 'Van_Dark.jpg',
                             'SPRINTER': 'Small_Sprinter.jpg',
+                            'SUV': 'Midsize_SUV.jpg',
+                            'BUS': 'Mini_Bus.jpg',
+                            'SEDAN': 'Economy_Sedan.jpg',
                         }
                         default_name = default_per_type.get(car.type)
                         if default_name:
                             image_url = static(f"images/cars/{quote(default_name)}")
-                    
-                    print(f"Processing rate {rate.id}: Car={car.name} (type={car.type}), Quantity={vehicle_quantity}, Price=${rate.price}")
+
+                    print(f"Image resolved for car '{car.name}': {image_url}")
                     
                     # Create individual vehicle options based on quantity
                     for unit_number in range(1, vehicle_quantity + 1):
-                        # Create unique identifier for each unit
                         unique_id = f"{rate.id}_{unit_number}" if vehicle_quantity > 1 else str(rate.id)
-                        
-                        # Format vehicle name based on quantity
                         vehicle_name = f"{car.name} #{unit_number:03d}" if vehicle_quantity > 1 else car.name
                         
                         transfer_options.append({
