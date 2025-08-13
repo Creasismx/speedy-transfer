@@ -81,6 +81,7 @@ class ResultsView(TemplateView):
         # Template expects 'zones_with_hotels', not 'zones'
         context['zones_with_hotels'] = Zone.objects.prefetch_related('hotels').all()
         context['cars'] = Car.objects.all()
+        context['car_types'] = Car.CAR_TYPES
         
         # Extract GET parameters (submitted form data) - ALL OF THEM
         query = self.request.GET
@@ -131,26 +132,21 @@ class ResultsView(TemplateView):
                 zone_id = pickup_hotel.zone_id
                 print(f"Found hotel: {pickup_hotel.name}, Zone ID: {zone_id}")
 
-                # Filter Rate based on car_id, zone_id, and the dynamically determined travel_type
-                print(f"Looking for rates with car_id={car_type_id}, zone_id={zone_id}, travel_type={travel_type_db}")
+                # Filter Rate based on car TYPE, zone_id, and the dynamically determined travel_type
+                print(f"Looking for rates with car_type={car_type_id}, zone_id={zone_id}, travel_type={travel_type_db}")
                 rates = Rate.objects.filter(
-                    car_id=car_type_id,
+                    car__type=car_type_id,
                     zone_id=zone_id,
                     travel_type=travel_type_db
                 )
                 print(f"Found {rates.count()} rates")
 
-                # Get the car details for display
-                print(f"Looking for car with ID: {car_type_id}")
-                car = Car.objects.get(id=car_type_id)
-                print(f"Found car: {car.name}, Type: {car.type}, Quantity: {getattr(car, 'quantity', 'N/A')}")
-
-                # Generate individual vehicle options based on quantity field
+                # Generate individual vehicle options based on quantity field PER CAR in each rate
                 for rate in rates:
-                    # Better quantity handling with proper validation
-                    vehicle_quantity = car.quantity if hasattr(car, 'quantity') and car.quantity else 1
+                    car = rate.car
+                    vehicle_quantity = car.quantity if getattr(car, 'quantity', None) else 1
                     
-                    print(f"Processing rate {rate.id}: Car={car.name}, Quantity={vehicle_quantity}, Price=${rate.price}")
+                    print(f"Processing rate {rate.id}: Car={car.name} (type={car.type}), Quantity={vehicle_quantity}, Price=${rate.price}")
                     
                     # Create individual vehicle options based on quantity
                     for unit_number in range(1, vehicle_quantity + 1):
@@ -158,10 +154,7 @@ class ResultsView(TemplateView):
                         unique_id = f"{rate.id}_{unit_number}" if vehicle_quantity > 1 else str(rate.id)
                         
                         # Format vehicle name based on quantity
-                        if vehicle_quantity > 1:
-                            vehicle_name = f"{car.name} #{unit_number:03d}"
-                        else:
-                            vehicle_name = car.name
+                        vehicle_name = f"{car.name} #{unit_number:03d}" if vehicle_quantity > 1 else car.name
                         
                         transfer_options.append({
                             'id': unique_id,
