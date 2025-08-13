@@ -12,7 +12,13 @@
            data-rate-id="{{ option.rate_id }}"
            data-car-id="{{ option.car_id }}"
            data-unit-number="{{ option.unit_number }}"
-           data-vehicle-id="{{ option.id }}">
+           data-vehicle-id="{{ option.id }}"
+           data-car-capacity="{{ option.car_capacity }}"
+           data-travel-type="{{ option.travel_type }}"
+           data-price="{{ option.price }}"
+           data-image-url="{{ option.image_url }}"
+           data-departure-date="{{ option.departure_date }}"
+           data-departure-time="{{ option.departure_time }}">
         <figure>
           {% if option.image_url %}
             <img
@@ -99,17 +105,62 @@ document.addEventListener('DOMContentLoaded', function () {
   // Initially disable the book button
   if (bookButton) {
     bookButton.classList.add('btn-disabled');
-          bookButton.classList.remove('btn-success');
-      bookButton.classList.add('btn-outline');
-      bookButton.classList.remove('bg-[#4abbc1]');
-      bookButton.classList.remove('border-0');
+    bookButton.classList.remove('btn-success');
+    bookButton.classList.add('btn-outline');
+    bookButton.classList.remove('bg-[#4abbc1]');
+    bookButton.classList.remove('border-0');
     bookButton.style.pointerEvents = 'none';
     bookButton.style.opacity = '0.5';
     bookButton.textContent = 'Select a Vehicle First';
     
-    // Store original href
+    // Store original href safely
+    const currentHref = bookButton.getAttribute('href') || "{% url 'core:summary_view' %}";
+    bookButton.setAttribute('data-original-href', currentHref);
     bookButton.removeAttribute('href');
-    bookButton.setAttribute('data-original-href', bookButton.getAttribute('href') || "{% url 'core:summary_view' %}");
+  }
+
+  function getSelectedOptionText(selectEl) {
+    if (!selectEl) return '';
+    const opt = selectEl.options[selectEl.selectedIndex];
+    return opt ? opt.textContent.trim() : '';
+  }
+
+  function collectFechasData() {
+    const pickupDT = document.querySelector('input[name="pickup_datetime"]');
+    const pickupLoc = document.querySelector('select[name="pickup_location"]');
+    const dropoffLoc = document.querySelector('select[name="dropoff_location"]');
+    const returnDT = document.querySelector('input[name="return_datetime"]');
+    const returnPickupLoc = document.querySelector('select[name="return_pickup_location"]');
+    const returnDropoffLoc = document.querySelector('select[name="return_dropoff_location"]');
+    const people = document.querySelector('input[name="people"]');
+    const carType = document.querySelector('select[name="car_type"]');
+    const tripType = document.querySelector('input[name="trip_type"]:checked');
+
+    const pickupValue = pickupDT?.value || '';
+    const returnValue = returnDT?.value || '';
+
+    const fechasData = {
+      pickup_datetime: pickupValue,
+      pickup_date: pickupValue ? (pickupValue.split('T')[0] || '') : '',
+      pickup_time: pickupValue ? (pickupValue.split('T')[1] || '') : '',
+      pickup_location_id: pickupLoc?.value || '',
+      pickup_location_name: getSelectedOptionText(pickupLoc),
+      dropoff_location_id: dropoffLoc?.value || '',
+      dropoff_location_name: getSelectedOptionText(dropoffLoc),
+      return_datetime: returnValue,
+      return_date: returnValue ? (returnValue.split('T')[0] || '') : '',
+      return_time: returnValue ? (returnValue.split('T')[1] || '') : '',
+      return_pickup_location_id: returnPickupLoc?.value || '',
+      return_pickup_location_name: getSelectedOptionText(returnPickupLoc),
+      return_dropoff_location_id: returnDropoffLoc?.value || '',
+      return_dropoff_location_name: getSelectedOptionText(returnDropoffLoc),
+      people: people?.value || '',
+      car_type_value: carType?.value || '',
+      car_type_label: getSelectedOptionText(carType),
+      trip_type: tripType?.value || 'oneway'
+    };
+
+    return fechasData;
   }
 
   transferCards.forEach((card, index) => {
@@ -130,28 +181,39 @@ document.addEventListener('DOMContentLoaded', function () {
       this.classList.add('ring-offset-2');
       this.classList.add('ring-[#4abbc1]');
       
-      // Extract data from the card - updated to handle individual vehicles
+      // Extract data from attributes
       const cardTitle = this.querySelector('.card-title')?.textContent || 'Unknown Vehicle';
       const priceElement = this.querySelector('.price-value');
-      const dateElement = this.querySelector('.stat:nth-child(1) .stat-value');
-      const timeElement = this.querySelector('.stat:nth-child(2) .stat-value');
-      
-      // Get individual vehicle data from data attributes
+      const priceText = priceElement ? priceElement.textContent : '$0 USD';
+
       const transferId = this.getAttribute('data-transfer-id') || `vehicle_${index}`;
       const rateId = this.getAttribute('data-rate-id') || transferId;
       const carId = this.getAttribute('data-car-id') || '';
       const unitNumber = this.getAttribute('data-unit-number') || '1';
+
+      const imageUrl = this.getAttribute('data-image-url') || this.querySelector('img')?.src || '';
+      const carCapacity = parseInt(this.getAttribute('data-car-capacity') || '0', 10);
+      const travelType = this.getAttribute('data-travel-type') || '';
+      const priceNumeric = parseFloat(this.getAttribute('data-price') || '0');
+      const departureDate = this.getAttribute('data-departure-date') || '';
+      const departureTime = this.getAttribute('data-departure-time') || '';
       
-      // Store selected transfer data with individual vehicle tracking
+      // Store selected transfer data
       selectedTransfer = {
         id: transferId,
         rate_id: rateId,
         car_id: carId,
         unit_number: unitNumber,
         name: cardTitle,
-        price: priceElement ? priceElement.textContent : '$0 USD',
-        date: dateElement ? dateElement.textContent : '',
-        time: timeElement ? timeElement.textContent : '',
+        price_text: priceText,
+        price_numeric: isNaN(priceNumeric) ? 0 : priceNumeric,
+        currency: 'USD',
+        date: departureDate,
+        time: departureTime,
+        image_url: imageUrl,
+        car_capacity: isNaN(carCapacity) ? null : carCapacity,
+        travel_type: travelType,
+        quantity: 1,
         selection_type: 'individual_vehicle'
       };
       
@@ -177,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // Enhanced book button click handler for individual vehicles
+  // Book button click handler
   if (bookButton) {
     bookButton.addEventListener('click', function(e) {
       console.log('Book button clicked, selectedTransfer:', selectedTransfer);
@@ -189,13 +251,14 @@ document.addEventListener('DOMContentLoaded', function () {
         return false;
       }
       
-      // Store individual vehicle selection data
+      // Store selection and fechas data
       try {
-        // Store in sessionStorage for the booking process
+        const fechasData = collectFechasData();
         sessionStorage.setItem('selectedTransfer', JSON.stringify(selectedTransfer));
-        console.log('Individual vehicle selection saved to sessionStorage');
-        
-        // Store additional booking data for backend processing
+        sessionStorage.setItem('fechasData', JSON.stringify(fechasData));
+        console.log('Saved selection and fechasData to sessionStorage', { selectedTransfer, fechasData });
+
+        // Additional booking data (kept for downstream use if needed)
         sessionStorage.setItem('bookingData', JSON.stringify({
           vehicleType: 'individual',
           rateId: selectedTransfer.rate_id,
@@ -204,7 +267,6 @@ document.addEventListener('DOMContentLoaded', function () {
           selectionTimestamp: new Date().toISOString(),
           sessionId: Math.random().toString(36).substr(2, 9)
         }));
-        
       } catch (err) {
         console.warn('Could not save selection to sessionStorage:', err);
         // Fallback - still allow booking to proceed
