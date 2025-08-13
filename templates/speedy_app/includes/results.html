@@ -46,7 +46,7 @@
                      
             <div class="stat">
               <div class="stat-title">Per vehicle</div>
-              <div class="stat-value price-value">${{ option.price }} USD</div>
+              <div class="stat-value price-value text-success">${{ option.price }} USD</div>
             </div>
           </div>
           <div class="card-actions justify-end">
@@ -99,6 +99,8 @@ document.addEventListener('DOMContentLoaded', function () {
   // Initially disable the book button
   if (bookButton) {
     bookButton.classList.add('btn-disabled');
+    bookButton.classList.remove('btn-success');
+    bookButton.classList.add('btn-outline');
     bookButton.style.pointerEvents = 'none';
     bookButton.style.opacity = '0.5';
     bookButton.textContent = 'Select a Vehicle First';
@@ -115,10 +117,14 @@ document.addEventListener('DOMContentLoaded', function () {
       // Remove 'selected' class from all other cards
       transferCards.forEach(c => {
         c.classList.remove('selected');
+        c.classList.remove('ring-2');
+        c.classList.remove('ring-success');
       });
       
       // Add 'selected' class to the clicked card
       this.classList.add('selected');
+      this.classList.add('ring-2');
+      this.classList.add('ring-success');
       
       // Extract data from the card - updated to handle individual vehicles
       const cardTitle = this.querySelector('.card-title')?.textContent || 'Unknown Vehicle';
@@ -150,6 +156,8 @@ document.addEventListener('DOMContentLoaded', function () {
       // Enable the book button with specific messaging
       if (bookButton) {
         bookButton.classList.remove('btn-disabled');
+        bookButton.classList.remove('btn-outline');
+        bookButton.classList.add('btn-success');
         bookButton.style.pointerEvents = 'auto';
         bookButton.style.opacity = '1';
         bookButton.textContent = `Book ${cardTitle}`;
