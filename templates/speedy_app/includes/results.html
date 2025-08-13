@@ -14,12 +14,12 @@
            data-unit-number="{{ option.unit_number }}"
            data-vehicle-id="{{ option.id }}">
         <figure>
-          {% if option.image %}
+          {% if option.image_url %}
             <img
-              src="{{ option.image.url }}"
+              src="{{ option.image_url }}"
               alt="{{ option.car_name }}"
               class="rounded-box w-80 h-60 object-cover rounded-lg shadow-lg"
-              onerror="console.log('Image failed: {{ option.image.url }}'); this.src='https://placehold.co/192x128/4abbc1/ffffff?text={{ option.car_name|urlencode }}'; this.onerror=null;" />
+              onerror="console.log('Image failed: {{ option.image_url }}'); this.src='https://placehold.co/192x128/4abbc1/ffffff?text={{ option.car_name|urlencode }}'; this.onerror=null;" />
           {% else %}
             <img
               src="https://placehold.co/192x128/4abbc1/ffffff?text={{ option.car_name|urlencode }}"

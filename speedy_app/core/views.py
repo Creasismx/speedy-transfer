@@ -13,6 +13,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import JsonResponse
 import stripe  # new
+from django.templatetags.static import static
 
 #For sending mail uppong form submission
 from django.core.mail import send_mail
@@ -145,6 +146,22 @@ class ResultsView(TemplateView):
                 for rate in rates:
                     car = rate.car
                     vehicle_quantity = car.quantity if getattr(car, 'quantity', None) else 1
+
+                    # Resolve image URL: prefer MEDIA file URL; if not available, fall back to static assets path
+                    image_url = None
+                    try:
+                        if car.image and hasattr(car.image, 'url'):
+                            image_url = car.image.url
+                    except Exception:
+                        image_url = None
+                    if not image_url:
+                        filename = None
+                        try:
+                            filename = car.image.name if car.image else None
+                        except Exception:
+                            filename = None
+                        if filename:
+                            image_url = static(f"images/cars/{filename}")
                     
                     print(f"Processing rate {rate.id}: Car={car.name} (type={car.type}), Quantity={vehicle_quantity}, Price=${rate.price}")
                     
@@ -164,7 +181,7 @@ class ResultsView(TemplateView):
                             'car_name': vehicle_name,
                             'car_description': car.description,
                             'car_capacity': car.max,
-                            'image': car.image,  # This should be the ImageField object
+                            'image_url': image_url,
                             'price': rate.price,
                             'travel_type': rate.travel_type,
                             'departure_date': context['pickup_datetime'].split('T')[0] if context['pickup_datetime'] else '',
