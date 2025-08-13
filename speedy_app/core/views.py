@@ -14,6 +14,8 @@ from django.urls import reverse
 from django.http import JsonResponse
 import stripe  # new
 from django.templatetags.static import static
+from urllib.parse import quote
+import os
 
 #For sending mail uppong form submission
 from django.core.mail import send_mail
@@ -154,14 +156,36 @@ class ResultsView(TemplateView):
                             image_url = car.image.url
                     except Exception:
                         image_url = None
+
                     if not image_url:
-                        filename = None
+                        # Try to use the raw value if provided as a URL or filename
+                        raw_value = None
                         try:
-                            filename = car.image.name if car.image else None
+                            raw_value = car.image.name if car.image else None
                         except Exception:
-                            filename = None
-                        if filename:
-                            image_url = static(f"images/cars/{filename}")
+                            raw_value = None
+                        if raw_value:
+                            raw_value = raw_value.strip()
+                            # Absolute URL provided directly
+                            if raw_value.lower().startswith(("http://", "https://", "//")):
+                                image_url = raw_value
+                            else:
+                                # Ensure there is an extension, default to .jpg
+                                basename = os.path.basename(raw_value)
+                                if "." not in basename:
+                                    basename = f"{basename}.jpg"
+                                # URL-encode to handle spaces and special chars like '#'
+                                image_url = static(f"images/cars/{quote(basename)}")
+
+                    # Fallback to a default per car type
+                    if not image_url:
+                        default_per_type = {
+                            'VAN': 'Van_Dark.jpg',
+                            'SPRINTER': 'Small_Sprinter.jpg',
+                        }
+                        default_name = default_per_type.get(car.type)
+                        if default_name:
+                            image_url = static(f"images/cars/{quote(default_name)}")
                     
                     print(f"Processing rate {rate.id}: Car={car.name} (type={car.type}), Quantity={vehicle_quantity}, Price=${rate.price}")
                     

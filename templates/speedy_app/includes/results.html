@@ -99,8 +99,10 @@ document.addEventListener('DOMContentLoaded', function () {
   // Initially disable the book button
   if (bookButton) {
     bookButton.classList.add('btn-disabled');
-    bookButton.classList.remove('btn-success');
-    bookButton.classList.add('btn-outline');
+          bookButton.classList.remove('btn-success');
+      bookButton.classList.add('btn-outline');
+      bookButton.classList.remove('bg-[#4abbc1]');
+      bookButton.classList.remove('border-0');
     bookButton.style.pointerEvents = 'none';
     bookButton.style.opacity = '0.5';
     bookButton.textContent = 'Select a Vehicle First';
@@ -118,13 +120,15 @@ document.addEventListener('DOMContentLoaded', function () {
       transferCards.forEach(c => {
         c.classList.remove('selected');
         c.classList.remove('ring-2');
-        c.classList.remove('ring-success');
+        c.classList.remove('ring-offset-2');
+        c.classList.remove('ring-[#4abbc1]');
       });
       
       // Add 'selected' class to the clicked card
       this.classList.add('selected');
       this.classList.add('ring-2');
-      this.classList.add('ring-success');
+      this.classList.add('ring-offset-2');
+      this.classList.add('ring-[#4abbc1]');
       
       // Extract data from the card - updated to handle individual vehicles
       const cardTitle = this.querySelector('.card-title')?.textContent || 'Unknown Vehicle';
@@ -158,6 +162,8 @@ document.addEventListener('DOMContentLoaded', function () {
         bookButton.classList.remove('btn-disabled');
         bookButton.classList.remove('btn-outline');
         bookButton.classList.add('btn-success');
+        bookButton.classList.add('bg-[#4abbc1]');
+        bookButton.classList.add('border-0');
         bookButton.style.pointerEvents = 'auto';
         bookButton.style.opacity = '1';
         bookButton.textContent = `Book ${cardTitle}`;
