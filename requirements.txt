@@ -22,3 +22,4 @@ tornado==6.4.2
 typing-extensions==4.12.2
 urllib3==2.3.0
 pytailwindcss==0.1.4
+paypalrestsdk==1.13.1
