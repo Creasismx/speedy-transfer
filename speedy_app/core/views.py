@@ -488,6 +488,8 @@ def create_payment(request):
     })
 
     if payment.create():
+        # Store order JSON in session
+        request.session['order_json'] = order_json
         return redirect(payment.links[1].href)  # Redirect to PayPal for payment
     else:
         return render(request, 'speedy_app/payment_failed.html')
@@ -499,6 +501,20 @@ def execute_payment(request):
     payment = paypalrestsdk.Payment.find(payment_id)
 
     if payment.execute({"payer_id": payer_id}):
+        # Retrieve order JSON from session
+        order_json = request.session.get('order_json')
+        if order_json:
+            try:
+                order = json.loads(order_json)
+                # Send booking email to the guest
+                send_booking_email(order, request)
+                # Send booking email to test recipients
+                send_booking_email(order, request, test_recipients=True)
+            except Exception as e:
+                print(f"Error sending booking emails: {e}")
+                import traceback
+                traceback.print_exc()
+
         return render(request, 'speedy_app/payment_success.html')
     else:
         return render(request, 'speedy_app/payment_failed.html')
@@ -510,6 +526,19 @@ def payment_failed(request):
     return render(request, 'speedy_app/payment_failed.html')
 
 def payment_success(request):
+    # On successful payment, attempt to send booking emails using stored order
+    try:
+        order_json = request.session.get('order_json')
+        if order_json:
+            order = json.loads(order_json)
+            send_booking_email(order, request)
+            send_booking_email(order, request, test_recipients=True)
+            try:
+                del request.session['order_json']
+            except Exception:
+                pass
+    except Exception as e:
+        print(f"Error during payment_success email handling: {e}")
     return render(request, 'speedy_app/payment_success.html')
 
 from django.shortcuts import redirect
@@ -526,6 +555,8 @@ def create_checkout_session(request):
             line_items = []
             if order_json:
                 try:
+                    # Persist order for later email sending on success
+                    request.session['order_json'] = order_json
                     order = json.loads(order_json)
                     for item in order.get('items', []):
                         amount_cents = int(round(float(item.get('unit_amount', 0)) * 100))
@@ -572,3 +603,134 @@ def create_checkout_session(request):
             return redirect(checkout_session.url)  # ✅ Redirect to Stripe Checkout
         except Exception as e:
             return JsonResponse({'error': str(e)})
+
+def send_booking_email(order, request, test_recipients=False):
+    """
+    Sends a booking confirmation email to the guest and/or test recipients.
+    """
+    try:
+        # Pull structured fields
+        customer = order.get('customer', {}) or {}
+        guest_name = customer.get('name') or 'Guest'
+        guest_email = customer.get('email') or ''
+        guest_phone = customer.get('phone') or ''
+        guest_address = customer.get('address') or ''
+        guest_city = customer.get('city') or ''
+        guest_zip = customer.get('zip') or ''
+
+        trip_type = (order.get('trip_type') or '').upper()
+        people = order.get('people') or 0
+        pickup = order.get('pickup', {}) or {}
+        dropoff = order.get('dropoff', {}) or {}
+        return_trip = order.get('return_trip') or None
+        car_type_label = order.get('car_type_label') or order.get('car_type_value') or ''
+        items = order.get('items') or []
+        total = order.get('total') or 0
+
+        # Build items rows
+        items_rows_html = ''
+        for it in items:
+            nm = it.get('name', 'Vehicle')
+            dt = it.get('date', '')
+            tm = it.get('time', '')
+            cp = it.get('capacity', '')
+            ua = it.get('unit_amount', 0)
+            curr = it.get('currency', 'USD')
+            items_rows_html += f"<tr><td>{nm}</td><td>{dt} {tm}</td><td>{cp}</td><td>{ua:.2f} {curr}</td></tr>"
+
+        html_body = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {{ font-family: sans-serif; line-height: 1.6; color: #333; }}
+                .container {{ max-width: 700px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }}
+                h2 {{ color: #047884; }}
+                p {{ margin: 0 0 10px; }}
+                strong {{ color: #333; }}
+                .section {{ margin-top: 20px; }}
+                table {{ width: 100%; border-collapse: collapse; }}
+                th, td {{ border: 1px solid #ddd; padding: 10px; text-align: left; }}
+                th {{ background: #f7f7f7; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h2>Booking Confirmation</h2>
+                <div class="section">
+                    <h3>Customer</h3>
+                    <table>
+                        <tr><th>Name</th><td>{guest_name}</td></tr>
+                        <tr><th>Email</th><td>{guest_email}</td></tr>
+                        <tr><th>Phone</th><td>{guest_phone}</td></tr>
+                        <tr><th>Address</th><td>{guest_address}</td></tr>
+                        <tr><th>City</th><td>{guest_city}</td></tr>
+                        <tr><th>ZIP</th><td>{guest_zip}</td></tr>
+                    </table>
+                </div>
+                <div class="section">
+                    <h3>Trip</h3>
+                    <table>
+                        <tr><th>Trip Type</th><td>{trip_type}</td></tr>
+                        <tr><th>People</th><td>{people}</td></tr>
+                        <tr><th>Pickup</th><td>{pickup.get('datetime','')} — {pickup.get('location_name','')}</td></tr>
+                        <tr><th>Dropoff</th><td>{dropoff.get('location_name','')}</td></tr>
+                        {f"<tr><th>Return</th><td>{(return_trip or {}).get('datetime','')} — {(return_trip or {}).get('pickup_location_name','')} → {(return_trip or {}).get('dropoff_location_name','')}</td></tr>" if return_trip else ''}
+                        <tr><th>Car Type</th><td>{car_type_label}</td></tr>
+                    </table>
+                </div>
+                <div class="section">
+                    <h3>Selected Vehicles</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Vehicle</th><th>Date/Time</th><th>Capacity</th><th>Unit Price</th></tr>
+                        </thead>
+                        <tbody>
+                            {items_rows_html}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="section">
+                    <table>
+                        <tr><th>Total</th><td>{total:.2f} USD</td></tr>
+                    </table>
+                </div>
+                <p style="margin-top: 20px; color: #777;">This email was sent automatically from the booking system.</p>
+            </div>
+        </body>
+        </html>
+        """
+        text_body = (
+            "Booking Confirmation\n\n"
+            f"Name: {guest_name}\n"
+            f"Email: {guest_email}\n"
+            f"Phone: {guest_phone}\n"
+            f"Trip Type: {trip_type}\n"
+            f"People: {people}\n"
+            f"Pickup: {pickup.get('datetime','')} — {pickup.get('location_name','')}\n"
+            f"Dropoff: {dropoff.get('location_name','')}\n"
+            + (f"Return: {(return_trip or {}).get('datetime','')} — {(return_trip or {}).get('pickup_location_name','')} → {(return_trip or {}).get('dropoff_location_name','')}\n" if return_trip else "")
+            + f"Car Type: {car_type_label}\n"
+            + f"Total: {total:.2f} USD\n"
+        )
+
+        subject = "Your Booking Confirmation"
+        from_email = settings.DEFAULT_FROM_EMAIL
+
+        if test_recipients:
+            recipient_list = ['cmelendezgp@gmail.com', 'adolfomariscalh@hotmail.com']
+        else:
+            if not guest_email:
+                print("ERROR: Guest email not found in order JSON for booking email.")
+                return
+            recipient_list = [guest_email]
+
+        msg = EmailMultiAlternatives(subject, text_body, from_email, recipient_list)
+        msg.attach_alternative(html_body, "text/html")
+        msg.send()
+        print(f"Booking email sent to {recipient_list}")
+
+    except Exception as e:
+        print(f"Error sending booking email: {e}")
+        import traceback
+        traceback.print_exc()
