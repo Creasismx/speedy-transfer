@@ -32,6 +32,7 @@
                                   <td class="px-1 py-4 text-center" id="cart-price">$0.00</td>
                                   <td class="px-1 py-4 text-right" id="cart-total">$0.00</td>
                               </tr>
+                              <tr id="cart-multi-start" class="hidden"><td colspan="3" class="px-1 py-2 text-gray-500">Selected vehicles</td></tr>
                           </tbody>
                       </table>
                       <div class="px-1 flex flex-col lg:flex-row justify-between items-center mt-10">
@@ -70,6 +71,10 @@
           <div class="md:w-1/4">
               <div class="bg-white rounded-lg shadow-md p-6">
                   <h2 class="text-lg font-semibold mb-4">Summary</h2>
+                  <div class="flex justify-between mb-2 text-sm text-gray-600">
+                    <p>Capacity selected</p>
+                    <p id="s-capacity">0/0</p>
+                  </div>
                   <div class="flex justify-between mb-4">
                       <p>Subtotal</p>
                       <p id="s-subtotal">$0.00</p>
@@ -103,23 +108,24 @@
   function byId(id) { return document.getElementById(id); }
 
   const selectedTransferRaw = sessionStorage.getItem('selectedTransfer');
+  const selectedTransfersRaw = sessionStorage.getItem('selectedTransfers');
   const fechasDataRaw = sessionStorage.getItem('fechasData');
 
-  let selectedTransfer = null;
+  let selectedTransfer = null; // legacy single
+  let selectedTransfers = null; // new multiple
   let fechasData = null;
 
   try { selectedTransfer = selectedTransferRaw ? JSON.parse(selectedTransferRaw) : null; } catch (e) {}
+  try { selectedTransfers = selectedTransfersRaw ? JSON.parse(selectedTransfersRaw) : null; } catch (e) {}
   try { fechasData = fechasDataRaw ? JSON.parse(fechasDataRaw) : null; } catch (e) {}
 
+  const tbody = byId('cart-items');
   const emptyRow = byId('cart-empty-row');
-  const itemRow = byId('cart-item-row');
-  const img = byId('cart-image');
-  const title = byId('cart-title');
-  const subtitle = byId('cart-subtitle');
-  const price = byId('cart-price');
-  const total = byId('cart-total');
+  const templateRow = byId('cart-item-row');
+  const multiStart = byId('cart-multi-start');
 
   // Summary totals
+  const sCapacity = byId('s-capacity');
   const sSubtotal = byId('s-subtotal');
   const sTaxes = byId('s-taxes');
   const sShipping = byId('s-shipping');
@@ -136,33 +142,74 @@
   const fTripType = byId('f-trip-type');
   const fCarType = byId('f-car-type');
 
-  if (!selectedTransfer) {
-    emptyRow.classList.remove('hidden');
-    itemRow.classList.add('hidden');
-    return;
+  function ensureArray(input, legacy) {
+    if (Array.isArray(input)) return input;
+    if (legacy && legacy !== null) return [legacy];
+    return [];
   }
 
-  // Populate item row
-  img.src = selectedTransfer.image_url || img.src;
-  title.textContent = selectedTransfer.name || 'Selected Vehicle';
-  subtitle.textContent = [
-    selectedTransfer.date ? `Date: ${selectedTransfer.date}` : '',
-    selectedTransfer.time ? `Time: ${selectedTransfer.time}` : '',
-    selectedTransfer.car_capacity ? `Capacity: ${selectedTransfer.car_capacity}` : ''
-  ].filter(Boolean).join(' • ');
+  function cloneRow() {
+    const row = templateRow.cloneNode(true);
+    row.id = '';
+    row.classList.remove('hidden');
+    return row;
+  }
 
-  const currency = selectedTransfer.currency || 'USD';
+  function renderCartRows(items) {
+    // Remove any previously inserted dynamic rows
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    rows.forEach(r => {
+      if (r !== templateRow && r !== emptyRow && r !== multiStart) {
+        r.remove();
+      }
+    });
 
-  function recalc() {
-    const unit = Number(selectedTransfer.price_numeric || 0);
-    const subtotal = unit;
-    const taxes = 0; // Add logic if needed
+    if (!items || items.length === 0) {
+      emptyRow.classList.remove('hidden');
+      templateRow.classList.add('hidden');
+      multiStart.classList.add('hidden');
+      return;
+    }
+
+    emptyRow.classList.add('hidden');
+    templateRow.classList.add('hidden');
+    multiStart.classList.remove('hidden');
+
+    items.forEach(it => {
+      const row = cloneRow();
+      const img = row.querySelector('#cart-image');
+      const title = row.querySelector('#cart-title');
+      const subtitle = row.querySelector('#cart-subtitle');
+      const price = row.querySelector('#cart-price');
+      const total = row.querySelector('#cart-total');
+
+      img.src = it.image_url || img.src;
+      title.textContent = it.name || 'Selected Vehicle';
+      subtitle.textContent = [
+        it.date ? `Date: ${it.date}` : '',
+        it.time ? `Time: ${it.time}` : '',
+        it.car_capacity ? `Capacity: ${it.car_capacity}` : ''
+      ].filter(Boolean).join(' • ');
+
+      const currency = it.currency || 'USD';
+      const unit = Number(it.price_numeric || 0);
+      price.textContent = fmtMoney(unit, currency);
+      total.textContent = fmtMoney(unit, currency);
+
+      tbody.appendChild(row);
+    });
+  }
+
+  function recalcTotals(items) {
+    const currency = (items[0] && items[0].currency) || 'USD';
+    const subtotal = items.reduce((sum, it) => sum + Number(it.price_numeric || 0), 0);
+    const taxes = 0;
     const shipping = 0;
     const grand = subtotal + taxes + shipping;
+    const required = Number((fechasData && fechasData.people) || 0) || 0;
+    const capacity = items.reduce((sum, it) => sum + Number(it.car_capacity || 0), 0);
 
-    price.textContent = fmtMoney(unit, currency);
-    total.textContent = fmtMoney(grand, currency);
-
+    sCapacity.textContent = `${capacity}/${required}`;
     sSubtotal.textContent = fmtMoney(subtotal, currency);
     sTaxes.textContent = fmtMoney(taxes, currency);
     sShipping.textContent = fmtMoney(shipping, currency);
@@ -184,8 +231,10 @@
     fCarType.textContent = fechasData.car_type_label || fechasData.car_type_value || '';
   }
 
-  emptyRow.classList.add('hidden');
-  itemRow.classList.remove('hidden');
-  recalc();
+  const items = ensureArray(selectedTransfers, selectedTransfer);
+  renderCartRows(items);
+  if (items.length > 0) {
+    recalcTotals(items);
+  }
 })();
 </script>

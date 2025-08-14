@@ -146,8 +146,11 @@
       </div>
     {% endif %}
     
-    <div class="flex justify-end mt-4">
-      <a href="{% url 'core:summary_view' %}" class="book-btn btn btn-wide btn-outline btn-success sm:btn-block">
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mt-4">
+      <div id="selection-status" class="text-sm text-gray-600">
+        Select vehicles to cover your passengers.
+      </div>
+      <a href="{% url 'core:summary_view' %}" class="book-btn btn btn-wide sm:btn-block rounded-full text-white bg-[#4abbc1] hover:bg-[#047884] border-0 shadow-lg transition-all">
         Book Transfers
       </a>
     </div>
@@ -158,26 +161,14 @@
 document.addEventListener('DOMContentLoaded', function () {
   const transferCards = document.querySelectorAll('.transfer-card');
   const bookButton = document.querySelector('.book-btn');
-  let selectedTransfer = null;
+  const selectionStatus = document.getElementById('selection-status');
 
-  console.log('Book button found:', bookButton);
-  console.log('Transfer cards found:', transferCards.length);
+  let selectedTransfers = [];
 
-  // Initially disable the book button
-  if (bookButton) {
-    bookButton.classList.add('btn-disabled');
-    bookButton.classList.remove('btn-success');
-    bookButton.classList.add('btn-outline');
-    bookButton.classList.remove('bg-[#4abbc1]');
-    bookButton.classList.remove('border-0');
-    bookButton.style.pointerEvents = 'none';
-    bookButton.style.opacity = '0.5';
-    bookButton.textContent = 'Select a Vehicle First';
-    
-    // Store original href safely
-    const currentHref = bookButton.getAttribute('href') || "{% url 'core:summary_view' %}";
-    bookButton.setAttribute('data-original-href', currentHref);
-    bookButton.removeAttribute('href');
+  // Helper to safely parse integers
+  function toInt(value, fallback) {
+    const n = parseInt(value, 10);
+    return isNaN(n) ? (fallback ?? 0) : n;
   }
 
   function getSelectedOptionText(selectEl) {
@@ -224,119 +215,151 @@ document.addEventListener('DOMContentLoaded', function () {
     return fechasData;
   }
 
+  function getRequiredPassengers() {
+    const peopleInput = document.querySelector('input[name="people"]');
+    return toInt(peopleInput?.value || '0', 0);
+  }
+
+  function updateBookButtonState() {
+    const requiredPassengers = getRequiredPassengers();
+    const totalCapacity = selectedTransfers.reduce((sum, t) => sum + (toInt(t.car_capacity, 0)), 0);
+    const totalVehicles = selectedTransfers.length;
+    const covered = requiredPassengers > 0 ? totalCapacity >= requiredPassengers : totalVehicles > 0;
+    const remaining = Math.max(0, requiredPassengers - totalCapacity);
+
+    if (selectionStatus) {
+      if (requiredPassengers > 0) {
+        selectionStatus.textContent = `Capacity selected: ${totalCapacity}/${requiredPassengers}` + (remaining > 0 ? ` • Need ${remaining} more seat${remaining === 1 ? '' : 's'}` : ' • Ready');
+      } else {
+        selectionStatus.textContent = totalVehicles > 0 ? `Selected ${totalVehicles} vehicle${totalVehicles === 1 ? '' : 's'}` : 'Select vehicles to cover your passengers.';
+      }
+    }
+
+    if (!bookButton) return;
+
+    // Preserve original href once
+    const currentHref = bookButton.getAttribute('href') || "{% url 'core:summary_view' %}";
+    if (!bookButton.getAttribute('data-original-href')) {
+      bookButton.setAttribute('data-original-href', currentHref);
+    }
+
+    if (covered) {
+      bookButton.classList.remove('btn-disabled');
+      bookButton.style.pointerEvents = 'auto';
+      bookButton.style.opacity = '1';
+      const vehiclesLabel = `${totalVehicles} vehicle${totalVehicles === 1 ? '' : 's'}`;
+      const paxLabel = requiredPassengers > 0 ? ` • Covers ${requiredPassengers} pax` : '';
+      bookButton.textContent = `Book ${vehiclesLabel}${paxLabel}`;
+      const originalHref = bookButton.getAttribute('data-original-href');
+      if (originalHref) {
+        bookButton.setAttribute('href', originalHref);
+      }
+    } else {
+      bookButton.classList.add('btn-disabled');
+      bookButton.style.pointerEvents = 'none';
+      bookButton.style.opacity = '0.6';
+      if (requiredPassengers > 0) {
+        bookButton.textContent = `Select more vehicles (${totalCapacity}/${requiredPassengers} seats)`;
+      } else {
+        bookButton.textContent = 'Select vehicles first';
+      }
+      bookButton.removeAttribute('href');
+    }
+  }
+
+  // Initialize button state
+  updateBookButtonState();
+
   transferCards.forEach((card, index) => {
     card.addEventListener('click', function () {
-      console.log('Vehicle card clicked:', index);
-      
-      // Remove 'selected' class from all other cards
-      transferCards.forEach(c => {
-        c.classList.remove('selected');
-        c.classList.remove('ring-2');
-        c.classList.remove('ring-4');
-        c.classList.remove('ring-offset-2');
-        c.classList.remove('ring-[#4abbc1]');
-        c.classList.remove('shadow-xl');
-        c.classList.remove('shadow-2xl');
-      });
-      
-      // Add 'selected' class to the clicked card
-      this.classList.add('selected');
-      this.classList.add('ring-4');
-      this.classList.add('ring-offset-2');
-      this.classList.add('ring-[#4abbc1]');
-      this.classList.add('shadow-2xl');
-      
+      // Identify card
+      const transferId = this.getAttribute('data-transfer-id') || `vehicle_${index}`;
+      const existingIndex = selectedTransfers.findIndex(t => t.id === transferId);
+
       // Extract data from attributes
       const cardTitle = this.querySelector('.card-title')?.textContent || 'Unknown Vehicle';
       const priceElement = this.querySelector('.price-value');
       const priceText = priceElement ? priceElement.textContent : '$0 USD';
-
-      const transferId = this.getAttribute('data-transfer-id') || `vehicle_${index}`;
       const rateId = this.getAttribute('data-rate-id') || transferId;
       const carId = this.getAttribute('data-car-id') || '';
       const unitNumber = this.getAttribute('data-unit-number') || '1';
-
       const imageUrl = this.getAttribute('data-image-url') || this.querySelector('img')?.src || '';
-      const carCapacity = parseInt(this.getAttribute('data-car-capacity') || '0', 10);
+      const carCapacity = toInt(this.getAttribute('data-car-capacity') || '0', 0);
       const travelType = this.getAttribute('data-travel-type') || '';
       const priceNumeric = parseFloat(this.getAttribute('data-price') || '0');
       const departureDate = this.getAttribute('data-departure-date') || '';
       const departureTime = this.getAttribute('data-departure-time') || '';
-      
-      // Store selected transfer data
-      selectedTransfer = {
-        id: transferId,
-        rate_id: rateId,
-        car_id: carId,
-        unit_number: unitNumber,
-        name: cardTitle,
-        price_text: priceText,
-        price_numeric: isNaN(priceNumeric) ? 0 : priceNumeric,
-        currency: 'USD',
-        date: departureDate,
-        time: departureTime,
-        image_url: imageUrl,
-        car_capacity: isNaN(carCapacity) ? null : carCapacity,
-        travel_type: travelType,
-        quantity: 1,
-        selection_type: 'individual_vehicle'
-      };
-      
-      console.log('Individual vehicle selected:', selectedTransfer);
-      
-      // Enable the book button with specific messaging
-      if (bookButton) {
-        bookButton.classList.remove('btn-disabled');
-        bookButton.classList.remove('btn-outline');
-        bookButton.classList.add('btn-success');
-        bookButton.classList.add('bg-[#4abbc1]');
-        bookButton.classList.add('border-0');
-        bookButton.style.pointerEvents = 'auto';
-        bookButton.style.opacity = '1';
-        bookButton.textContent = `Book ${cardTitle}`;
-        
-        // Restore the href
-        const originalHref = bookButton.getAttribute('data-original-href');
-        if (originalHref) {
-          bookButton.setAttribute('href', originalHref);
-        }
+
+      if (existingIndex >= 0) {
+        // Deselect: remove selection
+        this.classList.remove('selected', 'ring-4', 'ring-offset-2', 'ring-[#4abbc1]', 'shadow-2xl');
+        selectedTransfers.splice(existingIndex, 1);
+      } else {
+        // Select: add selection
+        this.classList.add('selected', 'ring-4', 'ring-offset-2', 'ring-[#4abbc1]', 'shadow-2xl');
+        selectedTransfers.push({
+          id: transferId,
+          rate_id: rateId,
+          car_id: carId,
+          unit_number: unitNumber,
+          name: cardTitle,
+          price_text: priceText,
+          price_numeric: isNaN(priceNumeric) ? 0 : priceNumeric,
+          currency: 'USD',
+          date: departureDate,
+          time: departureTime,
+          image_url: imageUrl,
+          car_capacity: carCapacity,
+          travel_type: travelType,
+          quantity: 1,
+          selection_type: 'multi_vehicle'
+        });
       }
+
+      updateBookButtonState();
     });
   });
+
+  // Re-evaluate when people input changes
+  const peopleInput = document.querySelector('input[name="people"]');
+  if (peopleInput) {
+    peopleInput.addEventListener('input', updateBookButtonState);
+    peopleInput.addEventListener('change', updateBookButtonState);
+  }
 
   // Book button click handler
   if (bookButton) {
     bookButton.addEventListener('click', function(e) {
-      console.log('Book button clicked, selectedTransfer:', selectedTransfer);
-      
-      if (!selectedTransfer || !this.getAttribute('href')) {
+      const requiredPassengers = getRequiredPassengers();
+      const totalCapacity = selectedTransfers.reduce((sum, t) => sum + (toInt(t.car_capacity, 0)), 0);
+      const covered = requiredPassengers > 0 ? totalCapacity >= requiredPassengers : selectedTransfers.length > 0;
+
+      if (!covered || !this.getAttribute('href')) {
         e.preventDefault();
         e.stopPropagation();
-        alert('Please select a specific vehicle before proceeding.');
+        alert(requiredPassengers > 0 ? 'Please select enough vehicles to cover all passengers.' : 'Please select at least one vehicle.');
         return false;
       }
-      
+
       // Store selection and fechas data
       try {
         const fechasData = collectFechasData();
-        sessionStorage.setItem('selectedTransfer', JSON.stringify(selectedTransfer));
+        sessionStorage.setItem('selectedTransfers', JSON.stringify(selectedTransfers));
+        // Backward compatibility: also store the first selected as selectedTransfer
+        if (selectedTransfers.length > 0) {
+          sessionStorage.setItem('selectedTransfer', JSON.stringify(selectedTransfers[0]));
+        }
         sessionStorage.setItem('fechasData', JSON.stringify(fechasData));
-        console.log('Saved selection and fechasData to sessionStorage', { selectedTransfer, fechasData });
-
-        // Additional booking data (kept for downstream use if needed)
         sessionStorage.setItem('bookingData', JSON.stringify({
-          vehicleType: 'individual',
-          rateId: selectedTransfer.rate_id,
-          carId: selectedTransfer.car_id,
-          unitNumber: selectedTransfer.unit_number,
+          vehicleType: selectedTransfers.length > 1 ? 'multiple' : 'individual',
+          selectedCount: selectedTransfers.length,
           selectionTimestamp: new Date().toISOString(),
           sessionId: Math.random().toString(36).substr(2, 9)
         }));
       } catch (err) {
         console.warn('Could not save selection to sessionStorage:', err);
-        // Fallback - still allow booking to proceed
       }
-      
+
       return true;
     });
   }
