@@ -210,29 +210,30 @@ class ResultsView(TemplateView):
 
                     print(f"Image resolved for car '{car.name}': {image_url}")
                     
-                    # Create a single transfer option per rate (no per-vehicle expansion)
-                    unique_id = str(rate.id)
-                    vehicle_name = car.name
+                    # Expand into per-vehicle unit options based on available quantity
+                    for unit_number in range(1, vehicle_quantity + 1):
+                        unique_id = f"{rate.id}-{unit_number}"
+                        vehicle_name = car.name
 
-                    transfer_options.append({
-                        'id': unique_id,
-                        'rate_id': rate.id,
-                        'car_id': car.id,
-                        'unit_number': 1,
-                        'car_name': vehicle_name,
-                        'car_description': car.description,
-                        'car_capacity': car.max,
-                        'image_url': image_url,
-                        'price': rate.price,
-                        'travel_type': rate.travel_type,
-                        'departure_date': context['pickup_datetime'].split('T')[0] if context['pickup_datetime'] else '',
-                        'departure_time': context['pickup_datetime'].split('T')[1] if context['pickup_datetime'] else '',
-                        'availability_status': 'available',
-                        'total_fleet_size': vehicle_quantity,
-                        'is_fleet_vehicle': vehicle_quantity > 1
-                    })
+                        transfer_options.append({
+                            'id': unique_id,
+                            'rate_id': rate.id,
+                            'car_id': car.id,
+                            'unit_number': unit_number,
+                            'car_name': vehicle_name,
+                            'car_description': car.description,
+                            'car_capacity': car.max,
+                            'image_url': image_url,
+                            'price': rate.price,
+                            'travel_type': rate.travel_type,
+                            'departure_date': context['pickup_datetime'].split('T')[0] if context['pickup_datetime'] else '',
+                            'departure_time': context['pickup_datetime'].split('T')[1] if context['pickup_datetime'] else '',
+                            'availability_status': 'available',
+                            'total_fleet_size': vehicle_quantity,
+                            'is_fleet_vehicle': vehicle_quantity > 1
+                        })
 
-                    print(f"Created transfer option: {unique_id} - {vehicle_name}")
+                        print(f"Created transfer option: {unique_id} - {vehicle_name} (Unit #{unit_number:03d})")
 
             except Hotel.DoesNotExist:
                 print(f"ERROR: Hotel with ID {pickup_location_id} not found.")
