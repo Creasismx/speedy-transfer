@@ -231,9 +231,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function isSingleSelectionRequired() {
     const requiredPassengers = getRequiredPassengers();
-    const maxCapacity = getMaxVehicleCapacity();
-    // Enforce single selection only when we know passengers fit in one vehicle
-    return requiredPassengers > 0 && maxCapacity > 0 && requiredPassengers <= maxCapacity;
+    if (selectedTransfers.length === 0) return false;
+    const firstCapacity = toInt(selectedTransfers[0].car_capacity, 0);
+    // Enforce single selection when the currently selected single vehicle can cover all passengers
+    return requiredPassengers > 0 && firstCapacity > 0 && requiredPassengers <= firstCapacity;
   }
 
   function updateBookButtonState() {
