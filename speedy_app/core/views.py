@@ -193,6 +193,60 @@ class ResultsView(TemplateView):
                             suffix = upper_name.split("HIACE-VAN-")[-1]
                             candidate = f"Hiace_White_{suffix}.jpg"
                             image_url = static(f"images/cars/{quote(candidate)}")
+                        elif "ECONOMY-SEDAN" in upper_name:
+                            image_url = static("images/cars/Economy_Sedan.jpg")
+                        elif "PREMIUM-SEDAN" in upper_name:
+                            image_url = static("images/cars/Premium_Sedan.jpg")
+                        elif "COMPACT-SUV" in upper_name:
+                            image_url = static("images/cars/Compact_SUV.jpg")
+                        elif "MIDSIZE-SUV" in upper_name:
+                            image_url = static("images/cars/Midsize_SUV.jpg")
+                        elif "LUXURY-SUV" in upper_name:
+                            image_url = static("images/cars/Luxury_SUV.jpg")
+                        elif "MINI-SPRINTER" in upper_name:
+                            image_url = static("images/cars/Mini_Sprinter.jpg")
+                        elif "STANDARD-SPRINTER" in upper_name:
+                            image_url = static("images/cars/Standard_Sprinter.jpg")
+                        elif "LUXURY-SPRINTER" in upper_name:
+                            image_url = static("images/cars/Luxury_Sprinter.jpg")
+                        elif "EXECUTIVE-SPRINTER" in upper_name:
+                            image_url = static("images/cars/Executive_Sprinter.jpg")
+                        elif "MINI-BUS" in upper_name:
+                            image_url = static("images/cars/Mini_Bus.jpg")
+                        elif "LUXURY-MINI-BUS" in upper_name:
+                            image_url = static("images/cars/Luxury_Mini_Bus.jpg")
+                        elif "PARTY-BUS" in upper_name:
+                            image_url = static("images/cars/Party_Bus.jpg")
+                        elif "TOUR-BUS" in upper_name:
+                            image_url = static("images/cars/Tour_Bus.jpg")
+                        elif "CHARTER-BUS" in upper_name:
+                            image_url = static("images/cars/Charter_Bus.jpg")
+                        elif "LIMOUSINE" in upper_name:
+                            if "STRETCH" in upper_name:
+                                image_url = static("images/cars/Stretch_Limousine.jpg")
+                            else:
+                                image_url = static("images/cars/Luxury_Limousine.jpg")
+                        elif "HUMMER-LIMO" in upper_name:
+                            image_url = static("images/cars/Hummer_Limo.jpg")
+                        elif upper_name.startswith("SPRINTER-MB-"):
+                            suffix = upper_name.split("SPRINTER-MB-")[-1]
+                            candidate = f"Mercedes_Sprinter_{suffix}.jpg"
+                            image_url = static(f"images/cars/{quote(candidate)}")
+                        elif upper_name.startswith("PILOT-HP-"):
+                            suffix = upper_name.split("PILOT-HP-")[-1]
+                            candidate = f"Honda_Pilot_{suffix}.jpg"
+                            image_url = static(f"images/cars/{quote(candidate)}")
+                        elif upper_name.startswith("TRANSIT-FT-"):
+                            suffix = upper_name.split("TRANSIT-FT-")[-1]
+                            candidate = f"Ford_Transit_{suffix}.jpg"
+                            image_url = static(f"images/cars/{quote(candidate)}")
+                        elif upper_name.startswith("SUBURBAN-"):
+                            suffix = upper_name.split("SUBURBAN-")[-1]
+                            if suffix in ("101", "102"):
+                                candidate = f"Suburban_Black_{suffix}.jpg"
+                            else:
+                                candidate = f"Suburban_White_{suffix}.jpg"
+                            image_url = static(f"images/cars/{quote(candidate)}")
 
                     # Type-based defaults
                     if not image_url:
