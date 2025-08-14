@@ -55,7 +55,7 @@
       <fieldset class="fieldset">
         <legend class="fieldset-legend">PICK UP LOCATION</legend>
         <select name="return_pickup_location" class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] py-2 px-4">
-          <option disabled {% if not request.GET.return_pickup_location %}selected{% endif %}>Pickup Location</option>
+          <option value="" disabled {% if not request.GET.return_pickup_location %}selected{% endif %}>Pickup Location</option>
           {% for zone in zones_with_hotels %}
             <optgroup label="{{ zone.name }}">
               {% for hotel in zone.hotels.all %}
@@ -71,7 +71,7 @@
       <fieldset class="fieldset">
         <legend class="fieldset-legend">DROP OFF LOCATION</legend>
         <select name="return_dropoff_location" class="select w-full xl:w-[220px] sm:text-center bg-[#FBFBFB] rounded-[4px] py-2 px-4">
-          <option disabled {% if not request.GET.return_dropoff_location %}selected{% endif %}>Dropoff Location</option>
+          <option value="" disabled {% if not request.GET.return_dropoff_location %}selected{% endif %}>Dropoff Location</option>
           {% for zone in zones_with_hotels %}
             <optgroup label="{{ zone.name }}">
               {% for hotel in zone.hotels.all %}
@@ -129,7 +129,7 @@
             </label>
           </div>
         </div>
-        <div id="return-section" class="hidden">
+        <div id="return-trip-toggle" class="hidden">
           <label class="label mt-4">
             <input type="checkbox" name="return_trip" class="checkbox" /> Return trip
           </label>
@@ -148,15 +148,36 @@ document.addEventListener('DOMContentLoaded', function () {
   const radios = document.querySelectorAll('input[name="trip_type"]');
   const returnSection = document.getElementById('return-section');
   const returnDivider = document.getElementById('return-divider');
+  const form = document.querySelector('#fechas form');
+
+  const returnDT = document.querySelector('input[name="return_datetime"]');
+  const returnPickup = document.querySelector('select[name="return_pickup_location"]');
+  const returnDropoff = document.querySelector('select[name="return_dropoff_location"]');
+
+  function setReturnRequired(isRequired) {
+    const fields = [returnDT, returnPickup, returnDropoff];
+    fields.forEach(function(el){
+      if (!el) return;
+      if (isRequired) {
+        el.setAttribute('required', 'required');
+        el.setAttribute('aria-required', 'true');
+      } else {
+        el.removeAttribute('required');
+        el.removeAttribute('aria-required');
+      }
+    });
+  }
 
   function updateReturnSection() {
     const selected = document.querySelector('input[name="trip_type"]:checked');
     if (selected?.value === 'oneway') {
       returnSection.style.display = 'none';
       returnDivider.style.display = 'none';
+      setReturnRequired(false);
     } else {
       returnSection.style.display = 'flex';
       returnDivider.style.display = 'flex';
+      setReturnRequired(true);
     }
   }
 
@@ -164,9 +185,25 @@ document.addEventListener('DOMContentLoaded', function () {
   updateReturnSection();
 
   // Event listener
-  radios.forEach(radio => {
+  radios.forEach(function(radio){
     radio.addEventListener('change', updateReturnSection);
   });
+
+  // Form level guard
+  if (form) {
+    form.addEventListener('submit', function(e){
+      const selected = document.querySelector('input[name="trip_type"]:checked');
+      if (selected && selected.value === 'roundtrip') {
+        if (!returnDT.value || !returnPickup.value || !returnDropoff.value) {
+          e.preventDefault();
+          e.stopPropagation();
+          alert('Please complete the Return date/time, pickup and dropoff for a roundtrip.');
+          return false;
+        }
+      }
+      return true;
+    });
+  }
 });
 </script>
 

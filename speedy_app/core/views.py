@@ -16,6 +16,7 @@ import stripe  # new
 from django.templatetags.static import static
 from urllib.parse import quote
 import os
+import json
 
 #For sending mail uppong form submission
 from django.core.mail import send_mail
@@ -407,36 +408,32 @@ def contact_form_view(request):
                             <td>{company}</td>
                         </tr>
                         <tr>
-                            <th>Interested in:</th>
+                            <th>Interested In:</th>
                             <td>{interested_in}</td>
                         </tr>
+                        <tr>
+                            <th>Message:</th>
+                            <td>{message}</td>
+                        </tr>
                     </table>
-
-                    <p><strong>Message:</strong></p>
-                    <p>{message}</p>
                     
-                    <div class="footer">
-                        <p>This is an automated message. Please do not reply.</p>
-                    </div>
+                    <p class="footer">This email was sent automatically from the website contact form.</p>
                 </div>
             </body>
             </html>
             """
-            
-            # Create a plain text version as a fallback for email clients that don't support HTML
             text_body = f"""
-            New Contact Form Submission from the website:
-
+            New Contact Form Submission\n\n
             Name: {name}
             Email: {email}
             Phone: {phone}
             Country: {country}
             Company: {company}
-            Interested in: {interested_in}
+            Interested In: {interested_in}
             Message: {message}
             """
-            
-            subject = 'New Contact Form Submission'
+
+            subject = "New Contact Form Submission"
             from_email = settings.DEFAULT_FROM_EMAIL
             recipient_list = ['cmelendezgp@gmail.com']
 
@@ -457,6 +454,19 @@ def contact_form_view(request):
 
 
 def create_payment(request):
+    # Accept an optional order_json to set amount and description for testing
+    order_json = request.POST.get('order_json')
+    amount_total = "10.00"
+    description = "Payment for Product/Service"
+    if order_json:
+        try:
+            order = json.loads(order_json)
+            total = float(order.get('total', 0))
+            amount_total = f"{total:.2f}"
+            description = f"Transfer booking ({order.get('trip_type', 'oneway')})"
+        except Exception:
+            pass
+
     payment = paypalrestsdk.Payment({
         "intent": "sale",
         "payer": {
@@ -469,10 +479,10 @@ def create_payment(request):
         "transactions": [
             {
                 "amount": {
-                    "total": "10.00",  # Total amount in USD
+                    "total": amount_total,  # Total amount in USD
                     "currency": "USD",
                 },
-                "description": "Payment for Product/Service",
+                "description": description,
             }
         ],
     })
@@ -499,31 +509,65 @@ def payment_checkout(request):
 def payment_failed(request):
     return render(request, 'speedy_app/payment_failed.html')
 
+def payment_success(request):
+    return render(request, 'speedy_app/payment_success.html')
+
 from django.shortcuts import redirect
 
 def create_checkout_session(request):
     if request.method == 'GET':
-        domain_url = 'http://localhost:8000/'
+        # Use the current domain for redirects
+        success_absolute = request.build_absolute_uri(reverse('core:payment_success'))
+        cancel_absolute = request.build_absolute_uri(reverse('core:payment_failed'))
         stripe.api_key = settings.STRIPE_SECRET_KEY
         try:
-            checkout_session = stripe.checkout.Session.create(
-                success_url=domain_url + 'success?session_id={CHECKOUT_SESSION_ID}',
-                cancel_url=domain_url + 'cancelled/',
-                payment_method_types=['card'],
-                mode='payment',
-                line_items=[
+            # Build line_items from optional order_json
+            order_json = request.GET.get('order_json')
+            line_items = []
+            if order_json:
+                try:
+                    order = json.loads(order_json)
+                    for item in order.get('items', []):
+                        amount_cents = int(round(float(item.get('unit_amount', 0)) * 100))
+                        name = item.get('name', 'Transfer')
+                        desc_date = item.get('date', '')
+                        desc_time = item.get('time', '')
+                        description = f"{desc_date} {desc_time}".strip()
+                        line_items.append({
+                            'price_data': {
+                                'currency': 'usd',
+                                'unit_amount': amount_cents,
+                                'product_data': {
+                                    'name': name,
+                                    'description': description or name,
+                                }
+                            },
+                            'quantity': 1
+                        })
+                except Exception:
+                    line_items = []
+
+            if not line_items:
+                # fallback demo item
+                line_items = [
                     {
                         'price_data': {
                             'currency': 'usd',
                             'unit_amount': 2000,
                             'product_data': {
-                                'name': 'T-shirt',
-                                'description': 'Comfortable cotton t-shirt'
+                                'name': 'Transfer',
+                                'description': 'Test checkout session'
                             }
                         },
                         'quantity': 1
                     }
                 ]
+            checkout_session = stripe.checkout.Session.create(
+                success_url=f"{success_absolute}?session_id={{CHECKOUT_SESSION_ID}}",
+                cancel_url=cancel_absolute,
+                payment_method_types=['card'],
+                mode='payment',
+                line_items=line_items
             )
             return redirect(checkout_session.url)  # ✅ Redirect to Stripe Checkout
         except Exception as e:

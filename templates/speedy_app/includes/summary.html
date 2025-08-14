@@ -79,19 +79,11 @@
                       <p>Subtotal</p>
                       <p id="s-subtotal">$0.00</p>
                   </div>
-                  <div class="flex justify-between mb-4">
-                      <p>Taxes</p>
-                      <p id="s-taxes">$0.00</p>
-                  </div>
-                  <div class="flex justify-between mb-4 pb-4 border-b border-gray-line">
-                      <p>Shipping</p>
-                      <p id="s-shipping">$0.00</p>
-                  </div>
                   <div class="flex justify-between mb-2">
                       <p class="font-semibold">Total</p>
                       <p class="font-semibold" id="s-total">$0.00</p>
                   </div>
-                  <a href="{% url 'core:checkout_view' %}" class="bg-[#4abbc1] hover:bg-[#047884] text-white border-0 py-2 px-4 rounded-full mt-4 w-full text-center block">Proceed to checkout</a>
+                  <a href="{% url 'core:checkout_view' %}" class="bg-[#4abbc1] hover:bg-[#047884] text-white border-0 py-2 px-4 rounded-full mt-4 w-full text-center block">Proceed to Checkout</a>
               </div>
           </div>
       </div>
@@ -127,8 +119,6 @@
   // Summary totals
   const sCapacity = byId('s-capacity');
   const sSubtotal = byId('s-subtotal');
-  const sTaxes = byId('s-taxes');
-  const sShipping = byId('s-shipping');
   const sTotal = byId('s-total');
 
   // Fechas fields
@@ -203,16 +193,12 @@
   function recalcTotals(items) {
     const currency = (items[0] && items[0].currency) || 'USD';
     const subtotal = items.reduce((sum, it) => sum + Number(it.price_numeric || 0), 0);
-    const taxes = 0;
-    const shipping = 0;
-    const grand = subtotal + taxes + shipping;
+    const grand = subtotal;
     const required = Number((fechasData && fechasData.people) || 0) || 0;
     const capacity = items.reduce((sum, it) => sum + Number(it.car_capacity || 0), 0);
 
     sCapacity.textContent = `${capacity}/${required}`;
     sSubtotal.textContent = fmtMoney(subtotal, currency);
-    sTaxes.textContent = fmtMoney(taxes, currency);
-    sShipping.textContent = fmtMoney(shipping, currency);
     sTotal.textContent = fmtMoney(grand, currency);
   }
 
