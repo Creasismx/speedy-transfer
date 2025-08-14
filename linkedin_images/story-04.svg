@@ -16,7 +16,7 @@
   <rect width="1200" height="628" fill="url(#bg)"/>
   <rect width="1200" height="628" fill="url(#grid)" opacity="0.16"/>
   <rect x="60" y="60" width="1080" height="4" fill="url(#accent)"/>
-  <text x="60" y="140" fill="#E6F1FF" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="46" font-weight="700">Frictionless UX & dynamic filters</text>
+  <text x="60" y="140" fill="#E6F1FF" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="46" font-weight="700">Frictionless UX &amp; dynamic filters</text>
   <text x="60" y="190" fill="#9FB3C8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="24">CBVs • Tailwind • State</text>
   <g transform="translate(60,230)">
     <circle cx="12" cy="12" r="5" fill="url(#accent)"/>
