@@ -5,19 +5,9 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-urlpatterns = []
-
-# Include JET only if installed (avoid import error in tests)
-if 'jet' in settings.INSTALLED_APPS or 'jet.dashboard' in settings.INSTALLED_APPS:
-	urlpatterns += [
-		path('jet/', include('jet.urls', 'jet')),
-		path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),
-	]
-
-# Standard Django Admin URLs
-urlpatterns += [
-	path('admin/', admin.site.urls),
-	path('', include('speedy_app.core.urls', namespace='core')),
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('speedy_app.core.urls', namespace='core')),
 ]
 
 # Serve static and media files during development

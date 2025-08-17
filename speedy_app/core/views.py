@@ -503,19 +503,35 @@ def execute_payment(request):
     if payment.execute({"payer_id": payer_id}):
         # Retrieve order JSON from session
         order_json = request.session.get('order_json')
+        # Get order data for display and create booking
+        order_data = None
+        booking_id = None
+        
         if order_json:
             try:
                 order = json.loads(order_json)
+                order_data = order
+                # Add payment method information
+                order['payment_method'] = 'PayPal'
+                # Create booking record in database
+                booking = create_booking_record(order, request)
+                if booking:
+                    booking_id = booking.id
                 # Send booking email to the guest
                 send_booking_email(order, request)
                 # Send booking email to test recipients
                 send_booking_email(order, request, test_recipients=True)
             except Exception as e:
-                print(f"Error sending booking emails: {e}")
+                print(f"Error processing successful PayPal payment: {e}")
                 import traceback
                 traceback.print_exc()
-
-        return render(request, 'speedy_app/payment_success.html')
+        
+        context = {
+            'order_data': order_data,
+            'booking_id': booking_id,
+        }
+        
+        return render(request, 'speedy_app/payment_success.html', context)
     else:
         return render(request, 'speedy_app/payment_failed.html')
 
@@ -527,19 +543,42 @@ def payment_failed(request):
 
 def payment_success(request):
     # On successful payment, attempt to send booking emails using stored order
+    order_data = None
+    booking_id = None
+    
     try:
         order_json = request.session.get('order_json')
         if order_json:
             order = json.loads(order_json)
+            order_data = order
+            # Add payment method information
+            order['payment_method'] = 'Stripe'
+            # Create booking record in database
+            booking = create_booking_record(order, request)
+            if booking:
+                booking_id = booking.id
+            # Send booking emails
             send_booking_email(order, request)
             send_booking_email(order, request, test_recipients=True)
-            try:
-                del request.session['order_json']
-            except Exception:
-                pass
+            # Don't delete session data yet - we need it for display
     except Exception as e:
-        print(f"Error during payment_success email handling: {e}")
-    return render(request, 'speedy_app/payment_success.html')
+        print(f"Error during payment_success handling: {e}")
+        import traceback
+        traceback.print_exc()
+    
+    # Clear session data after processing
+    try:
+        if 'order_json' in request.session:
+            del request.session['order_json']
+    except Exception:
+        pass
+    
+    context = {
+        'order_data': order_data,
+        'booking_id': booking_id,
+    }
+    
+    return render(request, 'speedy_app/payment_success.html', context)
 
 from django.shortcuts import redirect
 
@@ -603,6 +642,122 @@ def create_checkout_session(request):
             return redirect(checkout_session.url)  # ✅ Redirect to Stripe Checkout
         except Exception as e:
             return JsonResponse({'error': str(e)})
+
+def create_booking_record(order, request):
+    """
+    Creates a booking record in the database from the order data.
+    """
+    try:
+        from .models import Booking, Hotel, Car
+        from datetime import datetime, timedelta
+        
+        # Parse datetime strings
+        pickup_datetime = None
+        return_datetime = None
+        
+        if order.get('pickup', {}).get('datetime'):
+            try:
+                pickup_datetime = datetime.fromisoformat(order['pickup']['datetime'].replace('Z', '+00:00'))
+            except:
+                pickup_datetime = datetime.now()
+        
+        if order.get('return_trip') and order.get('return_trip', {}).get('datetime'):
+            try:
+                return_datetime = datetime.fromisoformat(order['return_trip']['datetime'].replace('Z', '+00:00'))
+            except:
+                return_datetime = datetime.now()
+        else:
+            # For one-way trips, set return time to pickup time + 2 hours
+            return_datetime = pickup_datetime + timedelta(hours=2) if pickup_datetime else datetime.now()
+        
+        # Get or create customer ID (using email as unique identifier)
+        customer_email = order.get('customer', {}).get('email', '')
+        if not customer_email:
+            customer_email = f"guest_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        
+        # Try to find hotels by name if location_id is not available
+        pickup_location1 = None
+        dropoff_location1 = None
+        pickup_location2 = None
+        dropoff_location2 = None
+        
+        try:
+            if order.get('pickup', {}).get('location_id'):
+                pickup_location1 = Hotel.objects.get(id=order['pickup']['location_id'])
+            elif order.get('pickup', {}).get('location_name'):
+                pickup_location1 = Hotel.objects.filter(name__icontains=order['pickup']['location_name']).first()
+            
+            if order.get('dropoff', {}).get('location_id'):
+                dropoff_location1 = Hotel.objects.get(id=order['dropoff']['location_id'])
+            elif order.get('dropoff', {}).get('location_name'):
+                dropoff_location1 = Hotel.objects.filter(name__icontains=order['dropoff']['location_name']).first()
+            
+            if order.get('return_trip'):
+                if order['return_trip'].get('pickup_location_id'):
+                    pickup_location2 = Hotel.objects.get(id=order['return_trip']['pickup_location_id'])
+                elif order['return_trip'].get('pickup_location_name'):
+                    pickup_location2 = Hotel.objects.filter(name__icontains=order['return_trip']['pickup_location_name']).first()
+                
+                if order['return_trip'].get('dropoff_location_id'):
+                    dropoff_location2 = Hotel.objects.get(id=order['return_trip']['dropoff_location_id'])
+                elif order['return_trip'].get('dropoff_location_name'):
+                    dropoff_location2 = Hotel.objects.filter(name__icontains=order['return_trip']['dropoff_location_name']).first()
+        except Exception as e:
+            print(f"Error finding hotel locations: {e}")
+        
+        # Try to find car by type
+        car_type = None
+        try:
+            if order.get('items') and len(order['items']) > 0:
+                car_id = order['items'][0].get('car_id')
+                if car_id:
+                    car_type = Car.objects.get(id=car_id)
+                else:
+                    # Fallback to first available car
+                    car_type = Car.objects.first()
+        except Exception as e:
+            print(f"Error finding car: {e}")
+            car_type = Car.objects.first()
+        
+        # Create the booking record
+        booking = Booking.objects.create(
+            # Customer Information
+            client_id=customer_email,
+            customer_name=order.get('customer', {}).get('name', ''),
+            customer_phone=order.get('customer', {}).get('phone', ''),
+            customer_address=order.get('customer', {}).get('address', ''),
+            customer_city=order.get('customer', {}).get('city', ''),
+            customer_zip=order.get('customer', {}).get('zip', ''),
+            customer_country=order.get('customer', {}).get('country', ''),
+            customer_company=order.get('customer', {}).get('company', ''),
+            
+            # Trip Information
+            pickup_location1_id=pickup_location1.id if pickup_location1 else None,
+            dropoff_location1_id=dropoff_location1.id if dropoff_location1 else None,
+            pickup_location2_id=pickup_location2.id if pickup_location2 else None,
+            dropoff_location2_id=dropoff_location2.id if dropoff_location2 else None,
+            pickup_date_time=pickup_datetime or datetime.now(),
+            return_date_time=return_datetime or datetime.now(),
+            car_id=car_type,
+            how_people=order.get('people', 1),
+            one_way=order.get('trip_type') != 'roundtrip',
+            
+            # Payment Information
+            total_amount=order.get('total', 0),
+            currency=order.get('currency', 'USD'),
+            payment_method=order.get('payment_method', ''),
+            trip_type=order.get('trip_type', 'oneway')
+        )
+        
+        print(f"Booking record created successfully: {booking}")
+        return booking
+        
+    except Exception as e:
+        print(f"Error creating booking record: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+
 
 def send_booking_email(order, request, test_recipients=False):
     """

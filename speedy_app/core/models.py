@@ -126,8 +126,17 @@ class Booking(models.Model):
     """
     Represents a booking with travel and client information.
     """
-    client_id = models.CharField(max_length=100)
-    # Relationship with Hotel model
+    # Customer Information
+    client_id = models.CharField(max_length=100)  # Email as unique identifier
+    customer_name = models.CharField(max_length=200, blank=True, null=True)
+    customer_phone = models.CharField(max_length=20, blank=True, null=True)
+    customer_address = models.TextField(blank=True, null=True)
+    customer_city = models.CharField(max_length=100, blank=True, null=True)
+    customer_zip = models.CharField(max_length=20, blank=True, null=True)
+    customer_country = models.CharField(max_length=100, blank=True, null=True)
+    customer_company = models.CharField(max_length=200, blank=True, null=True)
+    
+    # Trip Information
     pickup_location1 = models.ForeignKey(
         Hotel,
         on_delete=models.SET_NULL,
@@ -158,14 +167,21 @@ class Booking(models.Model):
     )
     pickup_date_time = models.DateTimeField()
     return_date_time = models.DateTimeField()
-    car_type = models.ForeignKey(
+    car_id = models.ForeignKey(
         Car,
         on_delete=models.CASCADE,
-        related_name='bookings'
+        related_name='bookings',
+        db_column='car_id'
     )
     date_capture = models.DateTimeField(auto_now_add=True)
     how_people = models.PositiveIntegerField(default=1)
     one_way = models.BooleanField(default=False)
+    
+    # Payment Information
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    currency = models.CharField(max_length=3, default='USD')
+    payment_method = models.CharField(max_length=20, blank=True, null=True)
+    trip_type = models.CharField(max_length=20, blank=True, null=True)  # oneway/roundtrip
 
     def __str__(self):
         return f"Booking {self.id} for Client {self.client_id}"
