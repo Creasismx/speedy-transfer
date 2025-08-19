@@ -45,6 +45,9 @@ class LandingView(TemplateView):
         # Get zones with hotels for location dropdowns
         context['zones_with_hotels'] = Zone.objects.prefetch_related('hotels').all()
         
+        # Get hotels without zones (where zone_id is NULL)
+        context['hotels_without_zone'] = Hotel.objects.filter(zone__isnull=True)
+        
         # FIXED: Get car types as choices for the dropdown
         # This matches what your template expects: car_types
         context['car_types'] = Car.CAR_TYPES
@@ -84,6 +87,10 @@ class ResultsView(TemplateView):
         # CRITICAL FIX: Use the same context key as LandingView
         # Template expects 'zones_with_hotels', not 'zones'
         context['zones_with_hotels'] = Zone.objects.prefetch_related('hotels').all()
+        
+        # Get hotels without zones (where zone_id is NULL)
+        context['hotels_without_zone'] = Hotel.objects.filter(zone__isnull=True)
+        
         context['cars'] = Car.objects.all()
         context['car_types'] = Car.CAR_TYPES
         
@@ -120,7 +127,7 @@ class ResultsView(TemplateView):
             travel_type_db = 'ONE_WAY'
 
         # LOGIC: Each Car row represents one unit; create one option per rate/car
-        transfer_options = []
+        transfer_options = []  # Always initialize as empty list
         
         # DEBUG: Check if we have the required parameters
         if not pickup_location_id:
@@ -138,11 +145,23 @@ class ResultsView(TemplateView):
 
                 # Filter Rate based on car TYPE, zone_id, and the dynamically determined travel_type
                 print(f"Looking for rates with car_type={car_type_id}, zone_id={zone_id}, travel_type={travel_type_db}")
-                rates = Rate.objects.filter(
-                    car__type=car_type_id,
-                    zone_id=zone_id,
-                    travel_type=travel_type_db
-                )
+                
+                # Handle hotels without zones (zone_id is None)
+                if zone_id is None:
+                    print("Hotel has no zone assigned - no rates available")
+                    # For hotels without zones, we could either:
+                    # 1. Use a default zone for pricing
+                    # 2. Show a message that rates are not available
+                    # 3. Use the nearest zone
+                    # For now, we'll show no rates and let the user know
+                    rates = Rate.objects.none()
+                else:
+                    rates = Rate.objects.filter(
+                        car__type=car_type_id,
+                        zone_id=zone_id,
+                        travel_type=travel_type_db
+                    )
+                
                 print(f"Found {rates.count()} rates")
 
                 # Generate one vehicle option per rate (since each Car row is a single unit)
@@ -298,7 +317,24 @@ class ResultsView(TemplateView):
                 traceback.print_exc()
         
         print(f"Final transfer_options count: {len(transfer_options)}")
+        print(f"Transfer options type: {type(transfer_options)}")
+        print(f"Transfer options content: {transfer_options}")
+        
+        # Ensure transfer_options is always a list
+        if transfer_options is None:
+            transfer_options = []
+            print("WARNING: transfer_options was None, setting to empty list")
+        
         context['transfer_options'] = transfer_options
+        
+        # Add message for hotels without zones if no rates found
+        if pickup_location_id and car_type_id:
+            try:
+                pickup_hotel = Hotel.objects.get(id=pickup_location_id)
+                if pickup_hotel.zone_id is None and len(transfer_options) == 0:
+                    context['no_rates_message'] = f"No rates available for {pickup_hotel.name}. This location is not currently assigned to a pricing zone. Please contact us for pricing information."
+            except Hotel.DoesNotExist:
+                pass
         
         return context
 

@@ -129,19 +129,24 @@
       <div class="alert alert-warning">
         <div>
           <h3>No transfer options found</h3>
-          <p><strong>Debug Info:</strong></p>
-          <ul>
-            <li>Pickup Location: {{ pickup_location }}</li>
-            <li>Car Type: {{ car_type }}</li>
-            <li>Trip Type: {{ trip_type }}</li>
-            <li>People: {{ people }}</li>
-          </ul>
-          <p>Please check if:</p>
-          <ul>
-            <li>Cars exist in the database with the selected type</li>
-            <li>Rates are configured for the selected zone and car type</li>
-            <li>The pickup location is valid</li>
-          </ul>
+          
+          {% if no_rates_message %}
+            <p class="text-red-600 font-semibold">{{ no_rates_message }}</p>
+          {% else %}
+            <p><strong>Debug Info:</strong></p>
+            <ul>
+              <li>Pickup Location: {{ pickup_location }}</li>
+              <li>Car Type: {{ car_type }}</li>
+              <li>Trip Type: {{ trip_type }}</li>
+              <li>People: {{ people }}</li>
+            </ul>
+            <p>Please check if:</p>
+            <ul>
+              <li>Cars exist in the database with the selected type</li>
+              <li>Rates are configured for the selected zone and car type</li>
+              <li>The pickup location is valid</li>
+            </ul>
+          {% endif %}
         </div>
       </div>
     {% endif %}

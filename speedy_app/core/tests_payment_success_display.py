@@ -224,3 +224,4 @@ class PaymentSuccessDisplayTestCase(TestCase):
         # Check that order data is cleared
         session = self.client.session
         self.assertIsNone(session.get('order_json'))
+
