@@ -1,3 +1,24 @@
+from .settings import *  # noqa
+
+# Use in-memory SQLite DB for tests
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": ":memory:",
+    }
+}
+
+# Fast email backend for tests
+EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+
+# Ensure allowed hosts for test client
+ALLOWED_HOSTS = ["*"]
+
+# Avoid external live reload during tests
+MIDDLEWARE = [mw for mw in MIDDLEWARE if mw != "livereload.middleware.LiveReloadScript"]
+
+# Minimal static settings to satisfy templates during tests
+STATIC_URL = "/static/"
 import os
 from .settings import *
 

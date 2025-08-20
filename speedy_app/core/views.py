@@ -126,7 +126,7 @@ class ResultsView(TemplateView):
         else:
             travel_type_db = 'ONE_WAY'
 
-        # LOGIC: Each Car row represents one unit; create one option per rate/car
+        # LOGIC: Create one or more options per rate depending on passengers
         transfer_options = []  # Always initialize as empty list
         
         # DEBUG: Check if we have the required parameters
@@ -164,9 +164,19 @@ class ResultsView(TemplateView):
                 
                 print(f"Found {rates.count()} rates")
 
-                # Generate one vehicle option per rate (since each Car row is a single unit)
+                # Generate one or more vehicle options per rate
+                from math import ceil
                 for rate in rates:
                     car = rate.car
+                    # Determine how many units may be needed given requested people
+                    try:
+                        people_count = int(context.get('people') or 0)
+                    except Exception:
+                        people_count = 0
+                    vehicle_capacity = getattr(car, 'max', 0) or 0
+                    units_needed = 1
+                    if people_count and vehicle_capacity:
+                        units_needed = max(1, ceil(people_count / vehicle_capacity))
 
                     # Resolve image URL robustly
                     image_url = None
@@ -283,29 +293,29 @@ class ResultsView(TemplateView):
 
                     print(f"Image resolved for car '{car.name}': {image_url}")
                     
-                    # One option per vehicle unit
-                    unique_id = f"{rate.id}"
+                    # Create as many clickable cards as potentially needed
                     vehicle_name = car.name
-
-                    transfer_options.append({
-                        'id': unique_id,
-                        'rate_id': rate.id,
-                        'car_id': car.id,
-                        'unit_number': 1,
-                        'car_name': vehicle_name,
-                        'car_description': car.description,
-                        'car_capacity': car.max,
-                        'image_url': image_url,
-                        'price': rate.price,
-                        'travel_type': rate.travel_type,
-                        'departure_date': context['pickup_datetime'].split('T')[0] if context['pickup_datetime'] else '',
-                        'departure_time': context['pickup_datetime'].split('T')[1] if context['pickup_datetime'] else '',
-                        'availability_status': 'available',
-                        'total_fleet_size': 1,
-                        'is_fleet_vehicle': False,
-                    })
-
-                    print(f"Created transfer option: {unique_id} - {vehicle_name}")
+                    total_cards = max(1, units_needed)
+                    for idx in range(total_cards):
+                        unique_id = f"{rate.id}-{idx+1}" if total_cards > 1 else f"{rate.id}"
+                        transfer_options.append({
+                            'id': unique_id,
+                            'rate_id': rate.id,
+                            'car_id': car.id,
+                            'unit_number': idx + 1,
+                            'car_name': vehicle_name,
+                            'car_description': car.description,
+                            'car_capacity': car.max,
+                            'image_url': image_url,
+                            'price': rate.price,
+                            'travel_type': rate.travel_type,
+                            'departure_date': context['pickup_datetime'].split('T')[0] if context['pickup_datetime'] else '',
+                            'departure_time': context['pickup_datetime'].split('T')[1] if context['pickup_datetime'] else '',
+                            'availability_status': 'available',
+                            'total_fleet_size': total_cards,
+                            'is_fleet_vehicle': total_cards > 1,
+                        })
+                        print(f"Created transfer option: {unique_id} - {vehicle_name} (unit {idx+1}/{total_cards})")
 
             except Hotel.DoesNotExist:
                 print(f"ERROR: Hotel with ID {pickup_location_id} not found.")

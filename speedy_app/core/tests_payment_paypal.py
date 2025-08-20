@@ -7,7 +7,7 @@ from django.core import mail
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory
 from django.conf import settings
-from .models import Zone, Hotel, Car, Rate
+from .models import Zone, Hotel, Car, Rate, Booking
 from .views import create_payment, execute_payment
 
 
@@ -111,8 +111,10 @@ class PayPalPaymentTestCase(TestCase):
         # Verify PayPal payment was created with correct parameters
         mock_payment.create.assert_called_once()
         
-        # Verify payment configuration
-        payment_config = mock_payment._mock_call_args[0][0]
+        # Verify payment configuration from constructor call
+        PaymentClass = self.mock_paypal_payment
+        self.assertTrue(PaymentClass.called)
+        payment_config = PaymentClass.call_args[0][0]
         self.assertEqual(payment_config['intent'], 'sale')
         self.assertEqual(payment_config['transactions'][0]['amount']['total'], '150.00')
         self.assertEqual(payment_config['transactions'][0]['amount']['currency'], 'USD')
@@ -142,7 +144,8 @@ class PayPalPaymentTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         
         # Verify fallback values were used
-        payment_config = mock_payment._mock_call_args[0][0]
+        PaymentClass = self.mock_paypal_payment
+        payment_config = PaymentClass.call_args[0][0]
         self.assertEqual(payment_config['transactions'][0]['amount']['total'], '10.00')
         self.assertEqual(payment_config['transactions'][0]['description'], 'Payment for Product/Service')
     
@@ -280,7 +283,8 @@ class PayPalPaymentTestCase(TestCase):
         response = create_payment(request)
         
         # Verify PayPal was called with correct amount
-        payment_config = mock_payment._mock_call_args[0][0]
+        PaymentClass = self.mock_paypal_payment
+        payment_config = PaymentClass.call_args[0][0]
         self.assertEqual(payment_config['transactions'][0]['amount']['total'], '125.50')
     
     def test_paypal_payment_redirect_urls(self):
@@ -302,7 +306,8 @@ class PayPalPaymentTestCase(TestCase):
         response = create_payment(request)
         
         # Verify redirect URLs were configured
-        payment_config = mock_payment._mock_call_args[0][0]
+        PaymentClass = self.mock_paypal_payment
+        payment_config = PaymentClass.call_args[0][0]
         self.assertIn('return_url', payment_config['redirect_urls'])
         self.assertIn('cancel_url', payment_config['redirect_urls'])
         
@@ -350,3 +355,59 @@ class PayPalPaymentTestCase(TestCase):
         stored_order = json.loads(request.session['order_json'])
         self.assertEqual(stored_order['total'], 150.00)
         self.assertEqual(stored_order['customer']['email'], 'test@example.com')
+
+    def test_paypal_checkout_with_hotel_without_zone(self):
+        """PayPal checkout should work when pickup is a hotel without zone (HOTEL SIN ZONA)."""
+        # Mock successful PayPal payment creation
+        mock_payment = Mock()
+        mock_payment.create.return_value = True
+        mock_payment.links = [
+            Mock(href='http://cancel.url'),
+            Mock(href='https://www.sandbox.paypal.com/checkoutnow?token=test_token')
+        ]
+        self.mock_paypal_payment.return_value = mock_payment
+
+        hotel_no_zone = Hotel.objects.create(name="HOTEL SIN ZONA", zone=None)
+
+        order = self.sample_order.copy()
+        order['pickup'] = {
+            'datetime': '2025-08-10 10:00',
+            'location_id': str(hotel_no_zone.id),
+            'location_name': 'HOTEL SIN ZONA'
+        }
+
+        request = self.create_request_with_session()
+        request.POST = {'order_json': json.dumps(order)}
+
+        response = create_payment(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('sandbox.paypal.com', response['Location'])
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+    def test_paypal_execute_creates_booking_for_hotel_without_zone(self):
+        """Successful PayPal execute should create a Booking even if hotel has no zone."""
+        hotel_no_zone = Hotel.objects.create(name="HOTEL SIN ZONA", zone=None)
+
+        order = self.sample_order.copy()
+        order['pickup'] = {
+            'datetime': '2025-08-10 10:00',
+            'location_id': str(hotel_no_zone.id),
+            'location_name': 'HOTEL SIN ZONA'
+        }
+
+        # Mock successful execution
+        mock_payment = Mock()
+        mock_payment.execute.return_value = True
+        mock_payment.find.return_value = mock_payment
+        with patch('paypalrestsdk.Payment.find', return_value=mock_payment):
+            request = self.create_request_with_session()
+            request.session['order_json'] = json.dumps(order)
+            request.GET = {'paymentId': 'pid', 'PayerID': 'payer'}
+
+            response = execute_payment(request)
+            self.assertEqual(response.status_code, 200)
+
+            # Booking created with correct pickup and PayPal method
+            booking = Booking.objects.latest('id')
+            self.assertEqual(booking.pickup_location1_id, hotel_no_zone.id)
+            self.assertEqual(booking.payment_method, 'PayPal')

@@ -7,7 +7,7 @@ from django.core import mail
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory
 from django.conf import settings
-from .models import Zone, Hotel, Car, Rate
+from .models import Zone, Hotel, Car, Rate, Booking
 from .views import create_checkout_session, payment_success
 
 
@@ -191,8 +191,9 @@ class StripePaymentTestCase(TestCase):
     def test_stripe_checkout_session_currency_handling(self):
         """Test Stripe checkout handles different currencies correctly"""
         # Test order with different currency
-        order_with_eur = self.sample_order.copy()
+        order_with_eur = json.loads(json.dumps(self.sample_order))
         order_with_eur['items'][0]['currency'] = 'EUR'
+        order_with_eur['items'][0]['unit_amount'] = 125.50
         order_with_eur['total'] = 125.50
         
         # Mock successful Stripe response
@@ -294,3 +295,61 @@ class StripePaymentTestCase(TestCase):
         # This should work without errors
         response = create_checkout_session(request)
         self.assertEqual(response.status_code, 302)
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+    def test_stripe_checkout_with_hotel_without_zone(self):
+        """Stripe checkout should work when pickup is a hotel without zone (HOTEL SIN ZONA)."""
+        # Create a hotel without zone
+        hotel_no_zone = Hotel.objects.create(name="HOTEL SIN ZONA", zone=None)
+
+        # Build order using this hotel
+        order = self.sample_order.copy()
+        order['pickup'] = {
+            'datetime': '2025-08-10 10:00',
+            'location_id': str(hotel_no_zone.id),
+            'location_name': 'HOTEL SIN ZONA'
+        }
+
+        # Mock successful Stripe response
+        mock_session = Mock()
+        mock_session.url = 'https://checkout.stripe.com/test_session'
+        self.mock_stripe_create.return_value = mock_session
+
+        # Create request
+        request = self.create_request_with_session()
+        request.GET = {'order_json': json.dumps(order)}
+
+        # Call view
+        response = create_checkout_session(request)
+
+        # Assert redirect to Stripe
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('checkout.stripe.com', response['Location'])
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+    def test_stripe_payment_success_creates_booking_for_hotel_without_zone(self):
+        """Successful Stripe payment should create a Booking even if hotel has no zone."""
+        hotel_no_zone = Hotel.objects.create(name="HOTEL SIN ZONA", zone=None)
+
+        order = self.sample_order.copy()
+        order['pickup'] = {
+            'datetime': '2025-08-10 10:00',
+            'location_id': str(hotel_no_zone.id),
+            'location_name': 'HOTEL SIN ZONA'
+        }
+
+        # Store order in session and call payment_success
+        request = self.create_request_with_session()
+        request.session['order_json'] = json.dumps(order)
+
+        response = payment_success(request)
+        self.assertEqual(response.status_code, 200)
+
+        # Emails sent (guest + test recipients)
+        from django.core import mail
+        self.assertEqual(len(mail.outbox), 2)
+
+        # Booking created with pickup_location1 set to our hotel and payment method Stripe
+        booking = Booking.objects.latest('id')
+        self.assertEqual(booking.pickup_location1_id, hotel_no_zone.id)
+        self.assertEqual(booking.payment_method, 'Stripe')
