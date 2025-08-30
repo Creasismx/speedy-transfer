@@ -1,5 +1,5 @@
 # First, you need to import the Hotel and Car models at the top of your file
-from .models import Zone, Contact, Car, Hotel, Rate  # Added Rate for the price lookup
+from .models import Zone, Contact, Car, CarType, Hotel, Rate  # Added Rate for the price lookup
 
 import paypalrestsdk
 from django.shortcuts import render, redirect
@@ -17,6 +17,7 @@ from django.templatetags.static import static
 from urllib.parse import quote
 import os
 import json
+from django.db import models
 
 #For sending mail uppong form submission
 from django.core.mail import send_mail
@@ -49,8 +50,11 @@ class LandingView(TemplateView):
         context['hotels_without_zone'] = Hotel.objects.filter(zone__isnull=True)
         
         # FIXED: Get car types as choices for the dropdown
-        # This matches what your template expects: car_types
-        context['car_types'] = Car.CAR_TYPES
+        # Now sourced from CarType catalog but keep same tuple structure for template
+        cartype_choices = list(CarType.objects.values_list('code', 'name'))
+        if not cartype_choices:
+            cartype_choices = Car.CAR_TYPES
+        context['car_types'] = cartype_choices
         
         # Optional: Keep cars_by_type if needed elsewhere
         cars = Car.objects.all().order_by('type')
@@ -92,7 +96,10 @@ class ResultsView(TemplateView):
         context['hotels_without_zone'] = Hotel.objects.filter(zone__isnull=True)
         
         context['cars'] = Car.objects.all()
-        context['car_types'] = Car.CAR_TYPES
+        cartype_choices = list(CarType.objects.values_list('code', 'name'))
+        if not cartype_choices:
+            cartype_choices = Car.CAR_TYPES
+        context['car_types'] = cartype_choices
         
         # Extract GET parameters (submitted form data) - ALL OF THEM
         query = self.request.GET
@@ -156,10 +163,12 @@ class ResultsView(TemplateView):
                     # For now, we'll show no rates and let the user know
                     rates = Rate.objects.none()
                 else:
+                    # Prefer catalog-based filtering, fallback to legacy car.type
                     rates = Rate.objects.filter(
-                        car__type=car_type_id,
                         zone_id=zone_id,
                         travel_type=travel_type_db
+                    ).filter(
+                        models.Q(car_type__code=car_type_id) | models.Q(car__type=car_type_id)
                     )
                 
                 print(f"Found {rates.count()} rates")
@@ -167,13 +176,18 @@ class ResultsView(TemplateView):
                 # Generate one or more vehicle options per rate
                 from math import ceil
                 for rate in rates:
-                    car = rate.car
+                    car = rate.car or None
+                    resolved_capacity = None
+                    if car and getattr(car, 'max', None):
+                        resolved_capacity = car.max
+                    elif getattr(rate, 'car_type', None) and getattr(rate.car_type, 'max_capacity', None):
+                        resolved_capacity = rate.car_type.max_capacity
                     # Determine how many units may be needed given requested people
                     try:
                         people_count = int(context.get('people') or 0)
                     except Exception:
                         people_count = 0
-                    vehicle_capacity = getattr(car, 'max', 0) or 0
+                    vehicle_capacity = resolved_capacity or 0
                     units_needed = 1
                     if people_count and vehicle_capacity:
                         units_needed = max(1, ceil(people_count / vehicle_capacity))
@@ -182,7 +196,7 @@ class ResultsView(TemplateView):
                     image_url = None
                     try:
                         # Use MEDIA url only if the underlying file actually exists
-                        if car.image and getattr(car.image, 'name', None):
+                        if car and car.image and getattr(car.image, 'name', None):
                             file_name = car.image.name
                             try:
                                 if car.image.storage.exists(file_name):
@@ -196,7 +210,7 @@ class ResultsView(TemplateView):
                         # Try to use the raw value as absolute URL or as a static filename
                         raw_value = None
                         try:
-                            raw_value = car.image.name if car.image else None
+                            raw_value = car.image.name if (car and car.image) else None
                         except Exception:
                             raw_value = None
                         if raw_value:
@@ -210,7 +224,7 @@ class ResultsView(TemplateView):
                                 image_url = static(f"images/cars/{quote(basename)}")
 
                     # Name-based defaults
-                    if not image_url and car.name:
+                    if not image_url and (car and car.name):
                         upper_name = car.name.upper()
                         if "VAN-DARK" in upper_name:
                             image_url = static("images/cars/Van_Dark.jpg")
@@ -287,25 +301,31 @@ class ResultsView(TemplateView):
                             'BUS': 'Mini_Bus.jpg',
                             'SEDAN': 'Economy_Sedan.jpg',
                         }
-                        default_name = default_per_type.get(car.type)
+                        fallback_code = None
+                        if getattr(rate, 'car_type', None):
+                            fallback_code = rate.car_type.code
+                        elif car:
+                            fallback_code = car.type
+                        default_name = default_per_type.get(fallback_code)
                         if default_name:
                             image_url = static(f"images/cars/{quote(default_name)}")
 
-                    print(f"Image resolved for car '{car.name}': {image_url}")
+                    car_name_for_log = car.name if car else (rate.car_type.name if getattr(rate, 'car_type', None) else 'Vehicle')
+                    print(f"Image resolved for car '{car_name_for_log}': {image_url}")
                     
                     # Create as many clickable cards as potentially needed
-                    vehicle_name = car.name
+                    vehicle_name = car.name if car else (rate.car_type.name if getattr(rate, 'car_type', None) else 'Vehicle')
                     total_cards = max(1, units_needed)
                     for idx in range(total_cards):
                         unique_id = f"{rate.id}-{idx+1}" if total_cards > 1 else f"{rate.id}"
                         transfer_options.append({
                             'id': unique_id,
                             'rate_id': rate.id,
-                            'car_id': car.id,
+                            'car_id': car.id if car else None,
                             'unit_number': idx + 1,
                             'car_name': vehicle_name,
-                            'car_description': car.description,
-                            'car_capacity': car.max,
+                            'car_description': (car.description if car else ''),
+                            'car_capacity': (car.max if car else (rate.car_type.max_capacity if getattr(rate, 'car_type', None) else 0)),
                             'image_url': image_url,
                             'price': rate.price,
                             'travel_type': rate.travel_type,
@@ -755,15 +775,20 @@ def create_booking_record(order, request):
         car_type = None
         try:
             if order.get('items') and len(order['items']) > 0:
-                car_id = order['items'][0].get('car_id')
-                if car_id:
-                    car_type = Car.objects.get(id=car_id)
+                car_or_type_id = order['items'][0].get('car_id')
+                # Backwards-compatible: prefer CarType by id; fallback to Car by id
+                if car_or_type_id:
+                    try:
+                        from .models import CarType as _CT
+                        car_type = _CT.objects.get(id=car_or_type_id)
+                    except Exception:
+                        car_obj = Car.objects.filter(id=car_or_type_id).first()
+                        car_type = getattr(car_obj, 'car_type', None) or CarType.objects.filter(code=getattr(car_obj, 'type', '')).first() or CarType.objects.first()
                 else:
-                    # Fallback to first available car
-                    car_type = Car.objects.first()
+                    car_type = CarType.objects.first()
         except Exception as e:
-            print(f"Error finding car: {e}")
-            car_type = Car.objects.first()
+            print(f"Error finding car type: {e}")
+            car_type = CarType.objects.first()
         
         # Create the booking record
         booking = Booking.objects.create(
@@ -784,7 +809,8 @@ def create_booking_record(order, request):
             dropoff_location2_id=dropoff_location2.id if dropoff_location2 else None,
             pickup_date_time=pickup_datetime or datetime.now(),
             return_date_time=return_datetime or datetime.now(),
-            car_id=car_type,
+            car_id=None,
+            car_type=car_type,
             how_people=order.get('people', 1),
             one_way=order.get('trip_type') != 'roundtrip',
             
@@ -918,13 +944,18 @@ def send_booking_email(order, request, test_recipients=False):
         subject = "Your Booking Confirmation"
         from_email = settings.DEFAULT_FROM_EMAIL
 
+        # Always send admin notifications
+        admin_recipients = ['cmelendezgp@gmail.com', 'adolfomariscalh@hotmail.com']
+        
         if test_recipients:
-            recipient_list = ['cmelendezgp@gmail.com', 'adolfomariscalh@hotmail.com']
+            # For testing, only send to admin recipients
+            recipient_list = admin_recipients
         else:
+            # For real bookings, send to both customer and admin
             if not guest_email:
                 print("ERROR: Guest email not found in order JSON for booking email.")
                 return
-            recipient_list = [guest_email]
+            recipient_list = [guest_email] + admin_recipients
 
         msg = EmailMultiAlternatives(subject, text_body, from_email, recipient_list)
         msg.attach_alternative(html_body, "text/html")

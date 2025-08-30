@@ -225,3 +225,8 @@ class PaymentSuccessDisplayTestCase(TestCase):
         session = self.client.session
         self.assertIsNone(session.get('order_json'))
 
+
+
+
+
+

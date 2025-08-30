@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from speedy_app.core.models import Zone, Hotel, Car, Rate
+from speedy_app.core.models import Zone, Hotel, Car, CarType, Rate
 
 
 class Command(BaseCommand):
@@ -42,10 +42,11 @@ class Command(BaseCommand):
         else:
             self.stdout.write(self.style.NOTICE(f"Using existing zone: {zone.name}"))
 
-        # 2) Ensure a VAN car exists
+        # 2) Ensure a VAN car type and a VAN car exist
+        van_type, _ = CarType.objects.get_or_create(code="VAN", defaults={"name": "Van", "max_capacity": 8})
         van_car, created_car = Car.objects.get_or_create(
             name="Standard-Van",
-            defaults={"type": "VAN", "max": 8},
+            defaults={"type": "VAN", "max": 8, "car_type": van_type},
         )
         if not created_car:
             # Make sure it's a VAN and has reasonable capacity
@@ -53,6 +54,8 @@ class Command(BaseCommand):
                 van_car.type = "VAN"
             if not van_car.max or van_car.max < 1:
                 van_car.max = 8
+            if van_car.car_type_id != van_type.id:
+                van_car.car_type = van_type
             van_car.save()
         self.stdout.write(self.style.SUCCESS(f"VAN car ready: {van_car.name} (cap {van_car.max})"))
 
@@ -60,6 +63,7 @@ class Command(BaseCommand):
         r1, _ = Rate.objects.get_or_create(
             zone=zone,
             car=van_car,
+            car_type=van_type,
             travel_type="ONE_WAY",
             defaults={"price": price_oneway},
         )
@@ -69,6 +73,7 @@ class Command(BaseCommand):
         r2, _ = Rate.objects.get_or_create(
             zone=zone,
             car=van_car,
+            car_type=van_type,
             travel_type="ROUND_TRIP",
             defaults={"price": price_roundtrip},
         )

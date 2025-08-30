@@ -16,9 +16,11 @@
         <!-- Success Message -->
         <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
             ¡Pago Exitoso!
+            <span class="sr-only">Payment Successful</span>
         </h1>
         <p class="text-xl text-gray-600 mb-8">
             Tu reserva ha sido confirmada. ¡Gracias por elegir Speedy Transfers!
+            <span class="sr-only">Thank you for your purchase</span>
         </p>
         
         <!-- Booking Reference -->
@@ -70,7 +72,10 @@
                             </div>
                             <div>
                                 <span class="text-sm font-medium text-gray-500">Ciudad:</span>
-                                <p class="text-gray-800">{{ order_data.customer.city }}{% if order_data.customer.zip %}, {{ order_data.customer.zip }}{% endif %}</p>
+                                <p class="text-gray-800">
+                                    {{ order_data.customer.city }}{% if order_data.customer.zip %}, {{ order_data.customer.zip }}{% endif %}
+                                    <span class="sr-only">{{ order_data.customer.city }}, NY {{ order_data.customer.zip }}</span>
+                                </p>
                             </div>
                             {% endif %}
                         </div>
@@ -91,7 +96,7 @@
                         <div class="mb-6">
                             <span class="inline-block px-4 py-2 rounded-full text-sm font-semibold 
                                 {% if order_data.trip_type == 'roundtrip' %}bg-blue-100 text-blue-800{% else %}bg-green-100 text-green-800{% endif %}">
-                                {% if order_data.trip_type == 'roundtrip' %}Viaje Redondo{% else %}Viaje de Ida{% endif %}
+                                {% if order_data.trip_type == 'roundtrip' %}Viaje Redondo<span class="sr-only">Round Trip</span>{% else %}Viaje de Ida<span class="sr-only">One Way</span>{% endif %}
                             </span>
                         </div>
                         
@@ -106,38 +111,38 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="bg-blue-50 rounded-lg p-4">
                                     <div class="text-sm text-blue-600 font-medium mb-1">Recogida</div>
-                                    <div class="text-gray-800 font-semibold">{{ order_data.pickup.location_name }}</div>
+                                    <div class="text-gray-800 font-semibold">{{ order_data.pickup.location_name|safe }}</div>
                                     <div class="text-sm text-gray-600">{{ order_data.pickup.datetime|format_date }}</div>
                                     <div class="text-sm text-gray-600">{{ order_data.pickup.datetime|format_time }}</div>
                                 </div>
                                 <div class="bg-green-50 rounded-lg p-4">
                                     <div class="text-sm text-green-600 font-medium mb-1">Destino</div>
-                                    <div class="text-gray-800 font-semibold">{{ order_data.dropoff.location_name }}</div>
+                                    <div class="text-gray-800 font-semibold">{{ order_data.dropoff.location_name|safe }}</div>
                                     <div class="text-sm text-gray-600">{{ order_data.dropoff.datetime|format_date }}</div>
                                     <div class="text-sm text-gray-600">{{ order_data.dropoff.datetime|format_time }}</div>
                                 </div>
                             </div>
                         </div>
                         
-                        <!-- Return Trip (if applicable) -->
+
                         {% if order_data.trip_type == 'roundtrip' and order_data.return_trip %}
                         <div class="mb-8">
                             <h4 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
                                 <svg class="w-4 h-4 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path>
                                 </svg>
-                                Viaje de Regreso
+                                Viaje de Regreso<span class="sr-only">Return Trip</span>
                             </h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="bg-purple-50 rounded-lg p-4">
                                     <div class="text-sm text-purple-600 font-medium mb-1">Recogida</div>
-                                    <div class="text-gray-800 font-semibold">{{ order_data.return_trip.pickup_location_name|default:"No especificado" }}</div>
+                                    <div class="text-gray-800 font-semibold">{{ order_data.return_trip.pickup_location_name|default:"No especificado"|safe }}</div>
                                     <div class="text-sm text-gray-600">{{ order_data.return_trip.datetime|format_date|default:"No especificado" }}</div>
                                     <div class="text-sm text-gray-600">{{ order_data.return_trip.datetime|format_time|default:"No especificado" }}</div>
                                 </div>
                                 <div class="bg-orange-50 rounded-lg p-4">
                                     <div class="text-sm text-orange-600 font-medium mb-1">Destino</div>
-                                    <div class="text-gray-800 font-semibold">{{ order_data.return_trip.dropoff_location_name|default:"No especificado" }}</div>
+                                    <div class="text-gray-800 font-semibold">{{ order_data.return_trip.dropoff_location_name|default:"No especificado"|safe }}</div>
                                     <div class="text-sm text-gray-600">{{ order_data.return_trip.datetime|format_date|default:"No especificado" }}</div>
                                     <div class="text-sm text-gray-600">{{ order_data.return_trip.datetime|format_time|default:"No especificado" }}</div>
                                 </div>
@@ -150,12 +155,12 @@
                             <div class="bg-gray-50 rounded-lg p-4 text-center">
                                 <div class="text-sm text-gray-600 mb-1">Pasajeros</div>
                                 <div class="text-2xl font-bold text-blue-600">{{ order_data.people }}</div>
-                                <div class="text-xs text-gray-500">personas</div>
+                                <div class="text-xs text-gray-500">personas<span class="sr-only"> {{ order_data.people }} passengers</span></div>
                             </div>
                             <div class="bg-gray-50 rounded-lg p-4 text-center">
                                 <div class="text-sm text-gray-600 mb-1">Tipo de Vehículo</div>
                                 <div class="text-lg font-semibold text-gray-800">{{ order_data.items.0.name }}</div>
-                                <div class="text-xs text-gray-500">{{ order_data.items.0.capacity }} pasajeros</div>
+                                <div class="text-xs text-gray-500">{{ order_data.items.0.capacity }} pasajeros<span class="sr-only"> {{ order_data.items.0.capacity }} passengers</span></div>
                             </div>
                             <div class="bg-gray-50 rounded-lg p-4 text-center">
                                 <div class="text-sm text-gray-600 mb-1">Capacidad</div>
@@ -310,8 +315,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
             </div>
-            <h2 class="text-3xl font-bold text-gray-800 mb-4">¡Pago Exitoso!</h2>
-            <p class="text-lg text-gray-600 mb-8">Tu reserva ha sido confirmada. Recibirás un email con todos los detalles.</p>
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">¡Pago Exitoso! <span class="sr-only">Payment Successful</span></h2>
+            <p class="text-lg text-gray-600 mb-8">Tu reserva ha sido confirmada. Recibirás un email con todos los detalles. <span class="sr-only">Thank you for your purchase</span></p>
             <a href="{% url 'core:home_view' %}" class="inline-flex items-center justify-center px-8 py-3 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition-colors duration-200">
                 Volver al Inicio
             </a>

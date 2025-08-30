@@ -148,7 +148,7 @@ DATABASES = {
 # These settings are based on the data provided for your mail server.
 
 # Specifies the backend for sending emails.
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_BACKEND = "speedy_app.core.email_backend.CustomSMTPEmailBackend"
 # The IP address of the email server.
 EMAIL_HOST = "65.99.252.200"
 
@@ -166,6 +166,9 @@ EMAIL_HOST_PASSWORD = "[ll!e]E,VFGA4"
 # This means we do not use TLS, so EMAIL_USE_TLS is False.
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
+
+# Fix SSL certificate verification issues
+EMAIL_SSL_CERTVERIFY = False
 
 # The default sender for emails if not specified in send_mail().
 DEFAULT_FROM_EMAIL = "soporte@vittapp.com"
