@@ -36,7 +36,16 @@ npm run install-deps
 python manage.py migrate
 ```
 
-### 4. **¡Ejecutar el proyecto!**
+### 4. **Aplicar migraciones (IMPORTANTE)**
+```bash
+# Aplicar las migraciones para actualizar la estructura de la base de datos
+python manage.py migrate
+
+# Crear datos de prueba
+python manage.py create_sample_data
+```
+
+### 5. **¡Ejecutar el proyecto!**
 ```bash
 # ✅ CORRECTO: Usar este comando para iniciar el servidor
 npm run dev
@@ -55,6 +64,12 @@ npm run migrate          # Aplicar migraciones
 npm run makemigrations  # Crear nuevas migraciones
 npm run shell           # Abrir shell de Django
 npm run collectstatic   # Recopilar archivos estáticos
+```
+
+### Para la base de datos:
+```bash
+python manage.py migrate              # Aplicar migraciones
+python manage.py create_sample_data   # Crear datos de prueba
 ```
 
 ### Para desarrollo frontend (CSS):
@@ -228,12 +243,17 @@ npm run dev
 
 ---
 
-## 🚨 **Error Adicional Resuelto**
+## 🚨 **Errores Adicionales Resueltos**
 
 ### **Error: `Car.CAR_TYPES` no existe**
 - **Problema:** El código en `views.py` intentaba acceder a `Car.CAR_TYPES` que ya no existe
 - **Solución:** ✅ Actualizado el código para usar `CarType.objects.values_list()`
 - **Resultado:** El sitio web ahora carga correctamente sin errores
+
+### **Error: `no such column: core_car.car_type_id`**
+- **Problema:** La base de datos no tiene la columna `car_type_id` en la tabla `core_car`
+- **Causa:** No se ejecutaron las migraciones después del `git pull`
+- **Solución:** ✅ Ejecutar `python manage.py migrate` para aplicar las migraciones
 
 ---
 

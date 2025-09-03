@@ -27,6 +27,11 @@
 - **Solución:** ✅ Actualizado el código para usar `CarType.objects.values_list()`
 - **Resultado:** El sitio web ahora carga correctamente sin errores
 
+### 6. **Error `no such column: core_car.car_type_id`**
+- **Problema:** La base de datos no tiene la columna `car_type_id` en la tabla `core_car`
+- **Causa:** No se ejecutaron las migraciones después del `git pull`
+- **Solución:** ✅ Ejecutar `python manage.py migrate` para aplicar las migraciones
+
 ## 🗄️ **Estructura de Base de Datos Actualizada**
 
 ### Tabla `core_cartype` (Tipos de Carros)
@@ -118,10 +123,13 @@ python manage.py shell    # Abrir shell Django
 
 ## 🎯 **Para Adolfo**
 
-1. **Usar:** `npm run dev` para iniciar el servidor
-2. **Base de datos:** Estructura corregida y optimizada
-3. **Destinos:** Deberían aparecer ahora (datos de prueba creados)
-4. **Campo `car_type_id`:** Ahora es NOT NULL como solicitaste
+1. **Hacer `git pull`** para obtener los cambios más recientes
+2. **Ejecutar:** `python manage.py migrate` para aplicar las migraciones
+3. **Ejecutar:** `python manage.py create_sample_data` para crear datos de prueba
+4. **Usar:** `npm run dev` para iniciar el servidor
+5. **Base de datos:** Estructura corregida y optimizada
+6. **Destinos:** Deberían aparecer ahora (datos de prueba creados)
+7. **Campo `car_type_id`:** Ahora es NOT NULL como solicitaste
 
 ---
 
