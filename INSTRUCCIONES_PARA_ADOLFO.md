@@ -36,10 +36,13 @@ npm run install-deps
 python manage.py migrate
 ```
 
-### 4. **Aplicar migraciones (IMPORTANTE)**
+### 4. **Diagnosticar y arreglar la base de datos (IMPORTANTE)**
 ```bash
-# Aplicar las migraciones para actualizar la estructura de la base de datos
-python manage.py migrate
+# Primero, diagnosticar el problema
+python manage.py diagnose_database
+
+# Si el diagnóstico muestra problemas, forzar la reparación
+python manage.py force_fix_database
 
 # Crear datos de prueba
 python manage.py create_sample_data
@@ -69,6 +72,8 @@ npm run collectstatic   # Recopilar archivos estáticos
 ### Para la base de datos:
 ```bash
 python manage.py migrate              # Aplicar migraciones
+python manage.py diagnose_database    # Diagnosticar problemas de BD
+python manage.py force_fix_database   # Forzar reparación de BD
 python manage.py create_sample_data   # Crear datos de prueba
 ```
 
@@ -252,8 +257,8 @@ npm run dev
 
 ### **Error: `no such column: core_car.car_type_id`**
 - **Problema:** La base de datos no tiene la columna `car_type_id` en la tabla `core_car`
-- **Causa:** No se ejecutaron las migraciones después del `git pull`
-- **Solución:** ✅ Ejecutar `python manage.py migrate` para aplicar las migraciones
+- **Causa:** Las migraciones no se aplicaron correctamente o hay un problema con la estructura
+- **Solución:** ✅ Ejecutar comandos de diagnóstico y reparación
 
 ---
 
