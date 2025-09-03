@@ -53,7 +53,14 @@ class LandingView(TemplateView):
         # Now sourced from CarType catalog but keep same tuple structure for template
         cartype_choices = list(CarType.objects.values_list('code', 'name'))
         if not cartype_choices:
-            cartype_choices = Car.CAR_TYPES
+            # Fallback to hardcoded choices if no CarType objects exist
+            cartype_choices = [
+                ('SEDAN', 'Sedan'),
+                ('SUV', 'SUV'),
+                ('VAN', 'Van'),
+                ('SPRINTER', 'Sprinter'),
+                ('BUS', 'Bus'),
+            ]
         context['car_types'] = cartype_choices
         
         # Optional: Keep cars_by_type if needed elsewhere
@@ -99,7 +106,14 @@ class ResultsView(TemplateView):
         context['cars'] = Car.objects.all()
         cartype_choices = list(CarType.objects.values_list('code', 'name'))
         if not cartype_choices:
-            cartype_choices = Car.CAR_TYPES
+            # Fallback to hardcoded choices if no CarType objects exist
+            cartype_choices = [
+                ('SEDAN', 'Sedan'),
+                ('SUV', 'SUV'),
+                ('VAN', 'Van'),
+                ('SPRINTER', 'Sprinter'),
+                ('BUS', 'Bus'),
+            ]
         context['car_types'] = cartype_choices
         
         # Extract GET parameters (submitted form data) - ALL OF THEM
