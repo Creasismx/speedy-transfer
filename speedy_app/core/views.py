@@ -57,13 +57,14 @@ class LandingView(TemplateView):
         context['car_types'] = cartype_choices
         
         # Optional: Keep cars_by_type if needed elsewhere
-        cars = Car.objects.all().order_by('type')
+        cars = Car.objects.select_related('car_type').all().order_by('car_type__name')
         cars_by_type = {}
         
         for car in cars:
-            if car.type not in cars_by_type:
-                cars_by_type[car.type] = []
-            cars_by_type[car.type].append(car)
+            car_type_code = car.car_type.code
+            if car_type_code not in cars_by_type:
+                cars_by_type[car_type_code] = []
+            cars_by_type[car_type_code].append(car)
         
         context['cars_by_type'] = cars_by_type
         
@@ -305,7 +306,7 @@ class ResultsView(TemplateView):
                         if getattr(rate, 'car_type', None):
                             fallback_code = rate.car_type.code
                         elif car:
-                            fallback_code = car.type
+                            fallback_code = car.car_type.code
                         default_name = default_per_type.get(fallback_code)
                         if default_name:
                             image_url = static(f"images/cars/{quote(default_name)}")

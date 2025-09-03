@@ -194,6 +194,43 @@ npm run dev
 
 ---
 
+## 🔧 **Cambios realizados en la base de datos**
+
+### ✅ **Problema resuelto: Campo `car_type_id`**
+- **Antes:** El campo `car_type_id` era nullable (podía ser NULL)
+- **Ahora:** El campo `car_type_id` es NOT NULL (obligatorio)
+- **Campo `type` eliminado:** Ya no existe el campo enum `type`, ahora se usa la relación con `CarType`
+
+### 📊 **Estructura actualizada:**
+```sql
+-- Tabla core_cartype (tipos de carros)
+- id (INTEGER, PRIMARY KEY)
+- code (varchar(10), UNIQUE) -- SEDAN, SUV, VAN, SPRINTER, BUS
+- name (varchar(50)) -- Sedan, SUV, Van, Sprinter, Bus
+- description (TEXT)
+- max_capacity (INTEGER)
+
+-- Tabla core_car (carros)
+- id (INTEGER, PRIMARY KEY)
+- name (varchar(50))
+- description (TEXT)
+- image (varchar(100))
+- max (INTEGER)
+- car_type_id (bigint, NOT NULL) -- Referencia a core_cartype
+```
+
+### 🎯 **Tipos de carros disponibles:**
+- **SEDAN:** Sedan (capacidad: 4)
+- **SUV:** SUV (capacidad: 6)  
+- **VAN:** Van (capacidad: 8)
+- **SPRINTER:** Sprinter (capacidad: 12)
+- **BUS:** Bus (capacidad: 20)
+
+---
+
 **¡El proyecto ahora está completamente funcional! 🎉**
 
 **Comando principal:** `npm run dev` (en lugar de `npm run server`)
+
+**Base de datos:** ✅ Estructura corregida y optimizada
+

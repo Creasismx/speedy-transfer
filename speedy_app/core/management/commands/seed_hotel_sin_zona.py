@@ -46,12 +46,10 @@ class Command(BaseCommand):
         van_type, _ = CarType.objects.get_or_create(code="VAN", defaults={"name": "Van", "max_capacity": 8})
         van_car, created_car = Car.objects.get_or_create(
             name="Standard-Van",
-            defaults={"type": "VAN", "max": 8, "car_type": van_type},
+            defaults={"max": 8, "car_type": van_type},
         )
         if not created_car:
             # Make sure it's a VAN and has reasonable capacity
-            if van_car.type != "VAN":
-                van_car.type = "VAN"
             if not van_car.max or van_car.max < 1:
                 van_car.max = 8
             if van_car.car_type_id != van_type.id:

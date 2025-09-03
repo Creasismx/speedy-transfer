@@ -42,26 +42,20 @@ class Hotel(models.Model):
 
 
 class Car(models.Model):
-    CAR_TYPES = [
-        ('SEDAN', 'Sedan'),
-        ('SUV', 'SUV'),
-        ('VAN', 'Van'),
-        ('SPRINTER', 'Sprinter'),
-        ('BUS', 'Bus'),
-    ]
-    
     name = models.CharField(max_length=50)
-    type = models.CharField(
-        max_length=10,
-        choices=CAR_TYPES,
-        default='VAN'  # <-- Add a default value (e.g., 'VAN')
+    car_type = models.ForeignKey(
+        CarType,
+        on_delete=models.CASCADE,
+        related_name='cars',
+        null=False,  # NOT NULL - cada carro debe tener un tipo
+        blank=False
     )
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to='cars/', blank=True, null=True)
     max = models.PositiveIntegerField(default=1)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.car_type.name})"
 
     class Meta:
         verbose_name_plural = "Cars"
