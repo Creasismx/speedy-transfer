@@ -9,6 +9,22 @@ class Zone(models.Model):
         return self.name
 
 
+class CarType(models.Model):
+    """
+    Catalog of car types for consistent categorization.
+    """
+    code = models.CharField(max_length=10, unique=True)  # e.g., 'SEDAN', 'SUV'
+    name = models.CharField(max_length=50)  # e.g., 'Sedan', 'SUV'
+    description = models.TextField(blank=True, null=True)
+    max_capacity = models.PositiveIntegerField(default=1)
+    
+    def __str__(self):
+        return f"{self.name} ({self.code})"
+    
+    class Meta:
+        verbose_name_plural = "Car Types"
+
+
 class Hotel(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)  # Optional description field

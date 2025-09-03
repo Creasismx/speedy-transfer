@@ -113,36 +113,16 @@ USE_L10N = False
 
 USE_TZ = False
 
-PAYPAL_CLIENT_ID = (
-    "AU8Pa2bfXPrlP-WS60LzBxSJiOugG883-DxKny9wfkv-Mgb3K1HJEB3cgxoS9SK723RMhcKAVhcNzzEf"
-)
-PAYPAL_SECRET = (
-    "EFR2p3w3BCvoFlVnsdnqbn8bNurqLkCvgH2jeauEdr_jvVFyw1T51GbqVwibUcBS1mArP0ER11gRoXeY"
-)
-STRIPE_PUBLIC_KEY = "pk_test_ViXq3dfT5R9NLIwqgwojPI9m"  # pk_test_hZFYGaBpYdraSagjw5X2RpQC in this example
-STRIPE_SECRET_KEY = "sk_test_dkGVwV72F6Ik8XoV3AghIa9v"
+# Payment Configuration - Use environment variables
+PAYPAL_CLIENT_ID = os.getenv('PAYPAL_CLIENT_ID', '')
+PAYPAL_SECRET = os.getenv('PAYPAL_SECRET', '')
+STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY', '')
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-from dotenv import load_dotenv
-
-load_dotenv()
-# ADD THESE LINES FOR DEBUGGING:
-print(f"DEBUG: DB_NAME from .env: '{os.getenv('DB_NAME')}'")
-print(f"DEBUG: DB_USER from .env: '{os.getenv('DB_USER')}'")  # END DEBUGGING LINES
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": os.getenv("DB_NAME"),
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASSWORD"),
-        "HOST": os.getenv("DB_HOST"),
-        "PORT": os.getenv("DB_PORT"),
-    }
-}
 
 # --- Email Configuration ---
 # These settings are based on the data provided for your mail server.
@@ -150,17 +130,17 @@ DATABASES = {
 # Specifies the backend for sending emails.
 EMAIL_BACKEND = "speedy_app.core.email_backend.CustomSMTPEmailBackend"
 # The IP address of the email server.
-EMAIL_HOST = "65.99.252.200"
+EMAIL_HOST = os.getenv('EMAIL_HOST', '65.99.252.200')
 
 # The port for the email server. Port 465 is typically used for SSL.
-EMAIL_PORT = 465
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '465'))
 
 # Your full email address for authentication.
-EMAIL_HOST_USER = "soporte@vittapp.com"
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'soporte@vittapp.com')
 
 # The password for the email account.
 # It is highly recommended to use an environment variable for this.
-EMAIL_HOST_PASSWORD = "[ll!e]E,VFGA4"
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 
 # Since MAIL_USE_SSL was True, we set EMAIL_USE_SSL to True.
 # This means we do not use TLS, so EMAIL_USE_TLS is False.
@@ -171,4 +151,4 @@ EMAIL_USE_SSL = True
 EMAIL_SSL_CERTVERIFY = False
 
 # The default sender for emails if not specified in send_mail().
-DEFAULT_FROM_EMAIL = "soporte@vittapp.com"
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'soporte@vittapp.com')

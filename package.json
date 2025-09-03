@@ -1,0 +1,22 @@
+{
+  "name": "speedy-transfer",
+  "version": "1.0.0",
+  "description": "Speedy Transfer Django application",
+  "scripts": {
+    "dev": "python manage.py runserver",
+    "build-css": "cd templates/assets && npm run watch",
+    "install-deps": "cd templates/assets && npm install",
+    "test": "python manage.py test",
+    "migrate": "python manage.py migrate",
+    "makemigrations": "python manage.py makemigrations",
+    "collectstatic": "python manage.py collectstatic",
+    "shell": "python manage.py shell"
+  },
+  "keywords": ["django", "transfer", "booking"],
+  "author": "Speedy Transfer Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}
