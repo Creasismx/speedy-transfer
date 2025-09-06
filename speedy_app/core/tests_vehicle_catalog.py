@@ -28,14 +28,15 @@ class VehicleCatalogTests(TestCase):
             self.assertIn(code, codes)
 
     def test_rate_relates_to_cartype_and_results_view_filters_by_code(self):
-        from speedy_app.core.models import CarType, Rate
+        from speedy_app.core.models import CarType, Car, Rate
         from speedy_app.core.views import ResultsView
 
         # Setup zone, hotel, type and rate
         zone = Zone.objects.create(name="Test Zone")
         hotel = Hotel.objects.create(name="Hotel A", zone=zone)
-        van = CarType.objects.create(code="VAN", name="Van")
-        Rate.objects.create(zone=zone, car_type=van, travel_type="ONE_WAY", price=123.45)
+        van_type = CarType.objects.create(code="VAN", name="Van")
+        van = Car.objects.create(name="Test Van", car_type=van_type, max=8)
+        Rate.objects.create(zone=zone, car=van, travel_type="ONE_WAY", price=123.45)
 
         # Build request
         url = reverse("core:results_view")

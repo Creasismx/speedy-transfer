@@ -15,7 +15,8 @@ DEBUG = True
 
 # Try to use MySQL if available, otherwise fall back to SQLite for development
 try:
-    import mysqlclient
+    import pymysql
+    pymysql.install_as_MySQLdb()
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',

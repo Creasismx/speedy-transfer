@@ -3,7 +3,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory
-from .models import Zone, Hotel, Car, Rate, Reservation, Payment, Booking
+from .models import Zone, Hotel, Car, CarType, Rate, Reservation, Payment, Booking
 
 
 class PaymentSuccessDisplayTestCase(TestCase):
@@ -24,9 +24,14 @@ class PaymentSuccessDisplayTestCase(TestCase):
             name="Lic. Gustavo Díaz Ordaz International Airport", 
             zone=self.zone
         )
+        self.car_type = CarType.objects.create(
+            code="VAN",
+            name="Van",
+            max_capacity=8
+        )
         self.car = Car.objects.create(
             name="Luxury Van",
-            type="VAN",
+            car_type=self.car_type,
             max=8
         )
         
