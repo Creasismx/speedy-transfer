@@ -8,7 +8,7 @@ from django.core import mail
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory
 from django.conf import settings
-from .models import Zone, Hotel, Car, Rate, Reservation, Payment, Booking
+from .models import Zone, Hotel, Car, CarType, Rate, Reservation, Payment, Booking
 from .views import create_checkout_session, create_payment, execute_payment, payment_success
 
 
@@ -26,9 +26,14 @@ class PaymentIntegrationTestCase(TestCase):
             name="Test Hotel", 
             zone=self.zone
         )
+        self.car_type = CarType.objects.create(
+            code="VAN",
+            name="Van",
+            max_capacity=8
+        )
         self.car = Car.objects.create(
             name="Test Van",
-            type="VAN",
+            car_type=self.car_type,
             max=8
         )
         

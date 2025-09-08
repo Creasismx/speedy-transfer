@@ -183,7 +183,7 @@ class ResultsView(TemplateView):
                         zone_id=zone_id,
                         travel_type=travel_type_db
                     ).filter(
-                        models.Q(car_type__code=car_type_id) | models.Q(car__type=car_type_id)
+                        models.Q(car__car_type__code=car_type_id)
                     )
                 
                 print(f"Found {rates.count()} rates")
@@ -824,8 +824,7 @@ def create_booking_record(order, request):
             dropoff_location2_id=dropoff_location2.id if dropoff_location2 else None,
             pickup_date_time=pickup_datetime or datetime.now(),
             return_date_time=return_datetime or datetime.now(),
-            car_id=None,
-            car_type=car_type,
+            car_id=car_type.cars.first().id if car_type and car_type.cars.exists() else None,
             how_people=order.get('people', 1),
             one_way=order.get('trip_type') != 'roundtrip',
             

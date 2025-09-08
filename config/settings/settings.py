@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
+import pymysql
+pymysql.install_as_MySQLdb()
+
 import os
 from pathlib import Path
 
