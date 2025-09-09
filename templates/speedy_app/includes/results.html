@@ -1,4 +1,5 @@
 {% load static %}
+{% load cache %}
 <style>
 /* Enhanced visual highlight for selected transfer cards */
 .transfer-card {
@@ -113,7 +114,7 @@
                      
             <div class="stat">
               <div class="stat-title">Per vehicle</div>
-              <div class="stat-value price-value text-success">${{ option.price }} USD</div>
+              <div class="stat-value price-value text-success" data-debug-price="{{ option.price }}">${{ option.price }} USD</div>
             </div>
           </div>
           <div class="card-actions justify-end">
@@ -318,6 +319,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Initialize button state
   updateBookButtonState();
+  
+  // Debug: Check price elements and fix any issues
+  console.log('=== PRICE DEBUG ===');
+  console.log('Page loaded at:', new Date().toISOString());
+  console.log('Cache busting timestamp:', Date.now());
+  
+  const priceElements = document.querySelectorAll('.price-value');
+  console.log(`Found ${priceElements.length} price elements`);
+  
+  priceElements.forEach((el, index) => {
+    const debugPrice = el.getAttribute('data-debug-price');
+    const currentText = el.textContent;
+    
+    console.log(`Price element ${index}:`, {
+      textContent: currentText,
+      innerHTML: el.innerHTML,
+      dataDebugPrice: debugPrice,
+      dataPrice: el.getAttribute('data-price')
+    });
+    
+    // Fix empty or $0.00 prices
+    if (!currentText || currentText.includes('$0.00') || currentText.trim() === '') {
+      console.log(`Fixing empty price for element ${index}`);
+      if (debugPrice) {
+        el.textContent = `$${debugPrice} USD`;
+        el.innerHTML = `$${debugPrice} USD`;
+      }
+    }
+  });
 
   transferCards.forEach((card, index) => {
     card.addEventListener('click', function () {
