@@ -26,11 +26,15 @@ from django.core.mail import send_mail
 from django.core.mail import send_mail, EmailMultiAlternatives
 
 
-paypalrestsdk.configure({
-    "mode": "sandbox",  # Change to "live" for production
-    "client_id": settings.PAYPAL_CLIENT_ID,
-    "client_secret": settings.PAYPAL_SECRET,
-})
+# Configure PayPal only if credentials are available
+if settings.PAYPAL_CLIENT_ID and settings.PAYPAL_SECRET and \
+   settings.PAYPAL_CLIENT_ID not in ['', 'your_paypal_client_id'] and \
+   settings.PAYPAL_SECRET not in ['', 'your_paypal_secret']:
+    paypalrestsdk.configure({
+        "mode": "sandbox",  # Change to "live" for production
+        "client_id": settings.PAYPAL_CLIENT_ID,
+        "client_secret": settings.PAYPAL_SECRET,
+    })
 
 
 # Optional: define your return/cancel URLs here or in settings
@@ -179,6 +183,7 @@ class ResultsView(TemplateView):
                     rates = Rate.objects.none()
                 else:
                     # Prefer catalog-based filtering, fallback to legacy car.type
+                    # Use exact match now that car type codes are cleaned
                     rates = Rate.objects.filter(
                         zone_id=zone_id,
                         travel_type=travel_type_db
@@ -535,6 +540,14 @@ def contact_form_view(request):
 
 
 def create_payment(request):
+    # Validate PayPal configuration
+    if not settings.PAYPAL_CLIENT_ID or not settings.PAYPAL_SECRET or \
+       settings.PAYPAL_CLIENT_ID in ['', 'your_paypal_client_id'] or \
+       settings.PAYPAL_SECRET in ['', 'your_paypal_secret']:
+        return render(request, 'speedy_app/payment_failed.html', {
+            'error_message': 'PayPal is not configured. Please contact support.'
+        })
+    
     # Accept an optional order_json to set amount and description for testing
     order_json = request.POST.get('order_json')
     amount_total = "10.00"
@@ -665,6 +678,12 @@ from django.shortcuts import redirect
 
 def create_checkout_session(request):
     if request.method == 'GET':
+        # Validate Stripe configuration
+        if not settings.STRIPE_SECRET_KEY or settings.STRIPE_SECRET_KEY in ['', 'your_stripe_secret_key']:
+            return JsonResponse({
+                'error': 'Stripe API key not configured. Please contact support.'
+            }, status=500)
+        
         # Use the current domain for redirects
         success_absolute = request.build_absolute_uri(reverse('core:payment_success'))
         cancel_absolute = request.build_absolute_uri(reverse('core:payment_failed'))
