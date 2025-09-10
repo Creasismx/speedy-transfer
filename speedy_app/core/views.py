@@ -13,6 +13,10 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import JsonResponse
 import stripe  # new
+
+# Use mock Stripe for testing if test keys are detected
+if settings.STRIPE_SECRET_KEY in ['sk_test_valid_key', 'sk_test_51H1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz', 'sk_test_51234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz']:
+    from .stripe_mock import mock_stripe as stripe
 from django.templatetags.static import static
 from urllib.parse import quote
 import os
@@ -757,6 +761,8 @@ def create_checkout_session(request):
             return redirect(checkout_session.url)  # ✅ Redirect to Stripe Checkout
         except Exception as e:
             return JsonResponse({'error': str(e)})
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 def create_booking_record(order, request):
     """
@@ -797,26 +803,54 @@ def create_booking_record(order, request):
         dropoff_location2 = None
         
         try:
-            if order.get('pickup', {}).get('location_id'):
-                pickup_location1 = Hotel.objects.get(id=order['pickup']['location_id'])
+            # Handle pickup location - skip if location_id is "0" or empty
+            pickup_location_id = order.get('pickup', {}).get('location_id')
+            if pickup_location_id and pickup_location_id != "0":
+                try:
+                    pickup_location1 = Hotel.objects.get(id=pickup_location_id)
+                except Hotel.DoesNotExist:
+                    pickup_location1 = None
             elif order.get('pickup', {}).get('location_name'):
                 pickup_location1 = Hotel.objects.filter(name__icontains=order['pickup']['location_name']).first()
+            else:
+                pickup_location1 = None
             
-            if order.get('dropoff', {}).get('location_id'):
-                dropoff_location1 = Hotel.objects.get(id=order['dropoff']['location_id'])
+            # Handle dropoff location - skip if location_id is "0" or empty
+            dropoff_location_id = order.get('dropoff', {}).get('location_id')
+            if dropoff_location_id and dropoff_location_id != "0":
+                try:
+                    dropoff_location1 = Hotel.objects.get(id=dropoff_location_id)
+                except Hotel.DoesNotExist:
+                    dropoff_location1 = None
             elif order.get('dropoff', {}).get('location_name'):
                 dropoff_location1 = Hotel.objects.filter(name__icontains=order['dropoff']['location_name']).first()
+            else:
+                dropoff_location1 = None
             
             if order.get('return_trip'):
-                if order['return_trip'].get('pickup_location_id'):
-                    pickup_location2 = Hotel.objects.get(id=order['return_trip']['pickup_location_id'])
+                # Handle return trip pickup location
+                return_pickup_id = order['return_trip'].get('pickup_location_id')
+                if return_pickup_id and return_pickup_id != "0":
+                    try:
+                        pickup_location2 = Hotel.objects.get(id=return_pickup_id)
+                    except Hotel.DoesNotExist:
+                        pickup_location2 = None
                 elif order['return_trip'].get('pickup_location_name'):
                     pickup_location2 = Hotel.objects.filter(name__icontains=order['return_trip']['pickup_location_name']).first()
+                else:
+                    pickup_location2 = None
                 
-                if order['return_trip'].get('dropoff_location_id'):
-                    dropoff_location2 = Hotel.objects.get(id=order['return_trip']['dropoff_location_id'])
+                # Handle return trip dropoff location
+                return_dropoff_id = order['return_trip'].get('dropoff_location_id')
+                if return_dropoff_id and return_dropoff_id != "0":
+                    try:
+                        dropoff_location2 = Hotel.objects.get(id=return_dropoff_id)
+                    except Hotel.DoesNotExist:
+                        dropoff_location2 = None
                 elif order['return_trip'].get('dropoff_location_name'):
                     dropoff_location2 = Hotel.objects.filter(name__icontains=order['return_trip']['dropoff_location_name']).first()
+                else:
+                    dropoff_location2 = None
         except Exception as e:
             print(f"Error finding hotel locations: {e}")
         
@@ -852,13 +886,13 @@ def create_booking_record(order, request):
             customer_company=order.get('customer', {}).get('company', ''),
             
             # Trip Information
-            pickup_location1_id=pickup_location1.id if pickup_location1 else None,
-            dropoff_location1_id=dropoff_location1.id if dropoff_location1 else None,
-            pickup_location2_id=pickup_location2.id if pickup_location2 else None,
-            dropoff_location2_id=dropoff_location2.id if dropoff_location2 else None,
+            pickup_location1=pickup_location1,
+            dropoff_location1=dropoff_location1,
+            pickup_location2=pickup_location2,
+            dropoff_location2=dropoff_location2,
             pickup_date_time=pickup_datetime or datetime.now(),
             return_date_time=return_datetime or datetime.now(),
-            car_id=car_type.cars.first().id if car_type and car_type.cars.exists() else None,
+            car_id=car_type.cars.first() if car_type and car_type.cars.exists() else None,
             how_people=order.get('people', 1),
             one_way=order.get('trip_type') != 'roundtrip',
             
@@ -869,15 +903,62 @@ def create_booking_record(order, request):
             trip_type=order.get('trip_type', 'oneway')
         )
         
-        print(f"Booking record created successfully: {booking}")
+        print(f"✅ Booking record created successfully: ID {booking.id}")
         return booking
         
     except Exception as e:
-        print(f"Error creating booking record: {e}")
+        print(f"❌ Error creating booking record: {e}")
         import traceback
         traceback.print_exc()
         return None
 
+
+def mock_stripe_checkout(request):
+    """Mock Stripe checkout page for testing"""
+    session_id = request.GET.get('session_id', 'cs_test_mock')
+    
+    # Get order data from session
+    order_json = request.session.get('order_json')
+    order_data = None
+    if order_json:
+        try:
+            order_data = json.loads(order_json)
+        except:
+            pass
+    
+    context = {
+        'session_id': session_id,
+        'order_data': order_data,
+    }
+    
+    return render(request, 'speedy_app/mock_stripe_checkout.html', context)
+
+def mock_payment_success(request):
+    """Mock payment success handler"""
+    session_id = request.GET.get('session_id', 'cs_test_mock')
+    
+    # Get order data from session
+    order_json = request.session.get('order_json')
+    order_data = None
+    booking = None
+    
+    if order_json:
+        try:
+            order_data = json.loads(order_json)
+            # Create booking record
+            booking = create_booking_record(order_data, request)
+            # Send booking email
+            send_booking_email(order_data, request)
+        except Exception as e:
+            print(f"Error processing mock payment success: {e}")
+    
+    context = {
+        'session_id': session_id,
+        'order_data': order_data,
+        'booking_id': booking.id if booking else None,
+    }
+    
+    return render(request, 'speedy_app/payment_success.html', context)
 
 def send_booking_email(order, request, test_recipients=False):
     """
@@ -1007,10 +1088,16 @@ def send_booking_email(order, request, test_recipients=False):
 
         msg = EmailMultiAlternatives(subject, text_body, from_email, recipient_list)
         msg.attach_alternative(html_body, "text/html")
-        msg.send()
-        print(f"Booking email sent to {recipient_list}")
+        
+        try:
+            msg.send()
+            print(f"✅ Booking email sent successfully to {recipient_list}")
+        except Exception as email_error:
+            print(f"⚠️ Email sending failed: {email_error}")
+            # Don't raise the exception, just log it so the booking can still be created
+            print("📝 Booking created successfully, but email notification failed")
 
     except Exception as e:
-        print(f"Error sending booking email: {e}")
+        print(f"❌ Error in booking email function: {e}")
         import traceback
         traceback.print_exc()
