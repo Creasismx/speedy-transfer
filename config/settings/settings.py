@@ -18,9 +18,13 @@ pymysql.install_as_MySQLdb()
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+# Load environment variables from .env file
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-46zd2kvf$xdc)pt#*vz0y49cbnl8$&eg-_2j0w^gzoh&3e9(8n"
@@ -81,7 +85,30 @@ STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
 )
 
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/assets/'
+STATIC_ROOT = str(BASE_DIR / 'staticfiles')
+
 WSGI_APPLICATION = "config.wsgi.application"
+
+# Database
+# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+
+# Remote MySQL Database Configuration
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('DB_NAME', 'speedy_transfers'),
+        'USER': os.getenv('DB_USER', 'root'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '3306'),
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+        },
+    }
+}
 
 
 # Password validation
