@@ -212,15 +212,30 @@ class ResultsView(TemplateView):
                 
                 print(f"Found {rates.count()} rates")
 
-                # Generate one or more vehicle options per rate
+                # FIXED: Group rates by car to show one option per car instead of one per rate
                 from math import ceil
+                from collections import defaultdict
+                
+                # Group rates by car
+                rates_by_car = defaultdict(list)
                 for rate in rates:
-                    car = rate.car or None
+                    if rate.car:
+                        rates_by_car[rate.car.id].append(rate)
+                
+                print(f"Found {len(rates_by_car)} unique cars with rates")
+                
+                # Generate one transfer option per car (not per rate)
+                for car_id, car_rates in rates_by_car.items():
+                    # Get the car and first rate for this car
+                    car = car_rates[0].car
+                    first_rate = car_rates[0]
+                    
                     resolved_capacity = None
                     if car and getattr(car, 'max', None):
                         resolved_capacity = car.max
-                    elif getattr(rate, 'car_type', None) and getattr(rate.car_type, 'max_capacity', None):
-                        resolved_capacity = rate.car_type.max_capacity
+                    elif getattr(first_rate, 'car_type', None) and getattr(first_rate.car_type, 'max_capacity', None):
+                        resolved_capacity = first_rate.car_type.max_capacity
+                    
                     # Determine how many units may be needed given requested people
                     try:
                         people_count = int(context.get('people') or 0)
@@ -341,40 +356,44 @@ class ResultsView(TemplateView):
                             'SEDAN': 'Economy_Sedan.jpg',
                         }
                         fallback_code = None
-                        if getattr(rate, 'car_type', None):
-                            fallback_code = rate.car_type.code
+                        if getattr(first_rate, 'car_type', None):
+                            fallback_code = first_rate.car_type.code
                         elif car:
                             fallback_code = car.car_type.code
                         default_name = default_per_type.get(fallback_code)
                         if default_name:
                             image_url = static(f"images/cars/{quote(default_name)}")
 
-                    car_name_for_log = car.name if car else (rate.car_type.name if getattr(rate, 'car_type', None) else 'Vehicle')
+                    car_name_for_log = car.name if car else (first_rate.car_type.name if getattr(first_rate, 'car_type', None) else 'Vehicle')
                     print(f"Image resolved for car '{car_name_for_log}': {image_url}")
                     
                     # Create as many clickable cards as potentially needed
-                    vehicle_name = car.name if car else (rate.car_type.name if getattr(rate, 'car_type', None) else 'Vehicle')
+                    vehicle_name = car.name if car else (first_rate.car_type.name if getattr(first_rate, 'car_type', None) else 'Vehicle')
                     total_cards = max(1, units_needed)
+                    
+                    # Use the first rate for pricing (they should all be similar for the same car)
+                    base_rate = first_rate
+                    
                     for idx in range(total_cards):
-                        unique_id = f"{rate.id}-{idx+1}" if total_cards > 1 else f"{rate.id}"
+                        unique_id = f"{car_id}-{idx+1}" if total_cards > 1 else f"{car_id}"
                         transfer_options.append({
                             'id': unique_id,
-                            'rate_id': rate.id,
+                            'rate_id': base_rate.id,  # Use first rate as reference
                             'car_id': car.id if car else None,
                             'unit_number': idx + 1,
                             'car_name': vehicle_name,
                             'car_description': (car.description if car else ''),
-                            'car_capacity': (car.max if car else (rate.car_type.max_capacity if getattr(rate, 'car_type', None) else 0)),
+                            'car_capacity': (car.max if car else (first_rate.car_type.max_capacity if getattr(first_rate, 'car_type', None) else 0)),
                             'image_url': image_url,
-                            'price': rate.price,
-                            'travel_type': rate.travel_type,
+                            'price': base_rate.price,  # Use first rate's price
+                            'travel_type': base_rate.travel_type,  # Use first rate's travel type
                             'departure_date': context['pickup_datetime'].split('T')[0] if context['pickup_datetime'] else '',
                             'departure_time': context['pickup_datetime'].split('T')[1] if context['pickup_datetime'] else '',
                             'availability_status': 'available',
                             'total_fleet_size': total_cards,
                             'is_fleet_vehicle': total_cards > 1,
                         })
-                        print(f"Created transfer option: {unique_id} - {vehicle_name} (unit {idx+1}/{total_cards})")
+                        print(f"Created transfer option: {unique_id} - {vehicle_name} (unit {idx+1}/{total_cards}) - {len(car_rates)} rates available")
 
             except Hotel.DoesNotExist:
                 print(f"ERROR: Hotel with ID {pickup_location_id} not found.")
