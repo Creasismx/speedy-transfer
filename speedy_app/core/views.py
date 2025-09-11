@@ -798,12 +798,16 @@ def create_booking_record(order, request):
         if order.get('pickup', {}).get('datetime'):
             try:
                 pickup_datetime = datetime.fromisoformat(order['pickup']['datetime'].replace('Z', '+00:00'))
+                # Convert to naive datetime for MySQL compatibility
+                pickup_datetime = pickup_datetime.replace(tzinfo=None)
             except:
                 pickup_datetime = datetime.now()
         
         if order.get('return_trip') and order.get('return_trip', {}).get('datetime'):
             try:
                 return_datetime = datetime.fromisoformat(order['return_trip']['datetime'].replace('Z', '+00:00'))
+                # Convert to naive datetime for MySQL compatibility
+                return_datetime = return_datetime.replace(tzinfo=None)
             except:
                 return_datetime = datetime.now()
         else:
@@ -830,7 +834,7 @@ def create_booking_record(order, request):
                 except Hotel.DoesNotExist:
                     pickup_location1 = None
             elif order.get('pickup', {}).get('location_name'):
-                pickup_location1 = Hotel.objects.filter(name__icontains=order['pickup']['location_name']).first()
+                pickup_location1 = Hotel.objects.filter(name__icontains=order['pickup']['location_name']).exclude(id=0).first()
             else:
                 pickup_location1 = None
             
@@ -842,7 +846,7 @@ def create_booking_record(order, request):
                 except Hotel.DoesNotExist:
                     dropoff_location1 = None
             elif order.get('dropoff', {}).get('location_name'):
-                dropoff_location1 = Hotel.objects.filter(name__icontains=order['dropoff']['location_name']).first()
+                dropoff_location1 = Hotel.objects.filter(name__icontains=order['dropoff']['location_name']).exclude(id=0).first()
             else:
                 dropoff_location1 = None
             
@@ -855,7 +859,7 @@ def create_booking_record(order, request):
                     except Hotel.DoesNotExist:
                         pickup_location2 = None
                 elif order['return_trip'].get('pickup_location_name'):
-                    pickup_location2 = Hotel.objects.filter(name__icontains=order['return_trip']['pickup_location_name']).first()
+                    pickup_location2 = Hotel.objects.filter(name__icontains=order['return_trip']['pickup_location_name']).exclude(id=0).first()
                 else:
                     pickup_location2 = None
                 
@@ -867,7 +871,7 @@ def create_booking_record(order, request):
                     except Hotel.DoesNotExist:
                         dropoff_location2 = None
                 elif order['return_trip'].get('dropoff_location_name'):
-                    dropoff_location2 = Hotel.objects.filter(name__icontains=order['return_trip']['dropoff_location_name']).first()
+                    dropoff_location2 = Hotel.objects.filter(name__icontains=order['return_trip']['dropoff_location_name']).exclude(id=0).first()
                 else:
                     dropoff_location2 = None
         except Exception as e:
@@ -875,6 +879,7 @@ def create_booking_record(order, request):
         
         # Try to find car by type
         car_type = None
+        car_obj = None
         try:
             if order.get('items') and len(order['items']) > 0:
                 car_or_type_id = order['items'][0].get('car_id')
@@ -883,14 +888,28 @@ def create_booking_record(order, request):
                     try:
                         from .models import CarType as _CT
                         car_type = _CT.objects.get(id=car_or_type_id)
+                        # Get the first car of this type
+                        car_obj = car_type.cars.first() if car_type and car_type.cars.exists() else None
                     except Exception:
                         car_obj = Car.objects.filter(id=car_or_type_id).first()
                         car_type = getattr(car_obj, 'car_type', None) or CarType.objects.filter(code=getattr(car_obj, 'type', '')).first() or CarType.objects.first()
                 else:
                     car_type = CarType.objects.first()
+                    car_obj = car_type.cars.first() if car_type and car_type.cars.exists() else None
+            else:
+                car_type = CarType.objects.first()
+                car_obj = car_type.cars.first() if car_type and car_type.cars.exists() else None
         except Exception as e:
             print(f"Error finding car type: {e}")
             car_type = CarType.objects.first()
+            car_obj = car_type.cars.first() if car_type and car_type.cars.exists() else None
+        
+        # Ensure we have a valid car object - use first available car if none found
+        if not car_obj:
+            car_obj = Car.objects.first()
+            if not car_obj:
+                print("❌ No cars available in database")
+                return None
         
         # Create the booking record
         booking = Booking.objects.create(
@@ -911,7 +930,7 @@ def create_booking_record(order, request):
             dropoff_location2=dropoff_location2,
             pickup_date_time=pickup_datetime or datetime.now(),
             return_date_time=return_datetime or datetime.now(),
-            car_id=car_type.cars.first() if car_type and car_type.cars.exists() else None,
+            car_id=car_obj,
             how_people=order.get('people', 1),
             one_way=order.get('trip_type') != 'roundtrip',
             
