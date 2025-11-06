@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "python manage.py runserver --settings=config.settings.develop",
     "dev-develop": "python manage.py runserver --settings=config.settings.develop",
+    "build": "chmod +x build_files.sh && ./build_files.sh",
     "build-css": "cd templates/assets && npm run watch",
     "install-deps": "cd templates/assets && npm install",
     "test": "python manage.py test --settings=config.settings.settings",
