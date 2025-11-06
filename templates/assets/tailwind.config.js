@@ -9,8 +9,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'title': ['"Gobold"', "sans-serif"],
-        'text': ['"Roboto"', "sans-serif"],
+        'title': ["system-ui", "sans-serif"],
+        'text': ['"Roboto"', "system-ui", "sans-serif"],
       }
     },
   },

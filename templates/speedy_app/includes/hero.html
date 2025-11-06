@@ -1,8 +1,14 @@
 {% load static %}
 <!-- Carga el tag 'static' de Django para usar archivos estáticos (imágenes, CSS, JS). -->
 
-<div class="relative hero min-h-[94vh] bg-center text-white"
-     style="background-image: url({% static 'images/background-hero.jpeg' %});">
+<style>
+  .hero-bg {
+    background-image: url('{% static "images/background-hero.jpeg" %}');
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+</style>
+<div class="relative hero hero-bg min-h-[94vh] bg-center text-white">
   <!-- Contenedor principal con posición relativa para referencia de posicionamiento -->
 
   <!--
@@ -14,7 +20,7 @@
     - 'style="background-image: url(...)": define la imagen de fondo usando la ruta estática proporcionada por Django.
   -->
 
-  <div class="absolute bottom-[5rem] right-0 p-8 max-w-xl text-right">
+  <div class="p-6 md:p-8 max-w-xl mx-auto md:mx-0 md:absolute md:bottom-20 md:right-0 text-center md:text-right">
     <!--
       Caja de texto posicionada dentro del div relativo:
       - 'absolute': posicionamiento absoluto.
@@ -24,7 +30,7 @@
       - 'text-right': alinea el texto hacia la derecha dentro de la caja.
     -->
 
-      <h1 class="text-5xl leading-[60px] font-bold">
+  <h1 class="text-4xl md:text-5xl leading-tight md:leading-[60px] font-bold">
       <!--
         - 'text-5xl': tamaño de fuente muy grande (~3rem).
         - 'leading-[60px]': altura de línea fija de 60px.
@@ -33,7 +39,7 @@
       Call to action
     </h1>
 
-<p class="text-lg leading-[27px] py-6">
+<p class="text-base md:text-lg leading-normal md:leading-[27px] py-4 md:py-6">
   <!-- Párrafo principal:
        - 'text-lg': tamaño de fuente grande (~1.125rem)
        - 'leading-[27px]': altura de línea de 27px
