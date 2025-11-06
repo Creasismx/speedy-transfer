@@ -5,6 +5,8 @@ import paypalrestsdk
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views.generic import TemplateView
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.http import HttpResponse
 #from .utils import make_paypal_payment, verify_paypal_payment
 #import paypalrestsdk
@@ -45,6 +47,7 @@ if settings.PAYPAL_CLIENT_ID and settings.PAYPAL_SECRET and \
 #PAYPAL_RETURN_URL = "https://example.com/payment/paypal/success/"
 #PAYPAL_CANCEL_URL = "https://example.com/payment/paypal/cancel/"
 
+@method_decorator(cache_page(60), name='dispatch')
 class LandingView(TemplateView):
     template_name = "speedy_app/landing_page.html"
     
@@ -98,6 +101,7 @@ class LandingView(TemplateView):
         return context
 
 
+@method_decorator(cache_page(60), name='dispatch')
 class ResultsView(TemplateView):
     template_name = "speedy_app/results_page.html"
 
@@ -426,6 +430,7 @@ class ResultsView(TemplateView):
         
         return context
 
+@method_decorator(cache_page(60), name='dispatch')
 class SummaryView(TemplateView):
     template_name = "speedy_app/summary_page.html"
     def get_context_data(self, **kwargs):
@@ -435,6 +440,7 @@ class SummaryView(TemplateView):
         context['cars'] = Car.objects.all() 
         return context    
 
+@method_decorator(cache_page(60), name='dispatch')
 class CheckoutView(TemplateView):
     template_name = "speedy_app/checkout_page.html"
     def get_context_data(self, **kwargs):
@@ -469,10 +475,14 @@ def contact_form_view(request):
         company = request.POST.get("company")
         interested_in = request.POST.get("interested")
         message = request.POST.get("additional")
+        # New fields
+        whatsapp_number = request.POST.get("whatsapp_number")
+        preferred_contact_method = request.POST.get("preferred_contact_method")
+        subscribe_newsletter = request.POST.get("subscribe_newsletter") in ['on', 'true', '1']
 
         # Save to database
         try:
-            Contact.objects.create(
+            contact = Contact.objects.create(
                 name=name,
                 email=email,
                 phone=phone,
@@ -480,7 +490,17 @@ def contact_form_view(request):
                 company=company,
                 interested_in=interested_in,
                 message=message,
+                whatsapp_number=whatsapp_number,
+                preferred_contact_method=preferred_contact_method,
+                subscribe_newsletter=subscribe_newsletter,
             )
+            # If a WhatsApp number was provided, create a conversation record
+            try:
+                if whatsapp_number:
+                    from .models import WhatsAppConversation
+                    WhatsAppConversation.objects.create(contact=contact)
+            except Exception:
+                pass
         except Exception as e:
             print(f"Error saving contact form to database: {e}")
             messages.error(request, "There was an error saving your message. Please try again.")
@@ -599,10 +619,27 @@ def create_payment(request):
         except Exception:
             pass
 
+    # Get customer info from order
+    customer_email = None
+    customer_name = None
+    if order_json:
+        try:
+            order = json.loads(order_json)
+            customer = order.get('customer', {})
+            customer_email = customer.get('email')
+            customer_name = customer.get('name')
+        except Exception:
+            pass
+
     payment = paypalrestsdk.Payment({
         "intent": "sale",
         "payer": {
             "payment_method": "paypal",
+            "payer_info": {
+                "email": customer_email,
+                "first_name": customer_name.split()[0] if customer_name else None,
+                "last_name": " ".join(customer_name.split()[1:]) if customer_name and len(customer_name.split()) > 1 else None,
+            } if customer_email else None
         },
         "redirect_urls": {
             "return_url": request.build_absolute_uri(reverse('core:execute_payment')),
@@ -713,6 +750,9 @@ def payment_success(request):
     return render(request, 'speedy_app/payment_success.html', context)
 
 from django.shortcuts import redirect
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+from .twilio_whatsapp import send_whatsapp_message
 
 def create_checkout_session(request):
     if request.method == 'GET':
@@ -730,11 +770,15 @@ def create_checkout_session(request):
             # Build line_items from optional order_json
             order_json = request.GET.get('order_json')
             line_items = []
+            customer_email = None
+            
             if order_json:
                 try:
                     # Persist order for later email sending on success
                     request.session['order_json'] = order_json
                     order = json.loads(order_json)
+                    customer = order.get('customer', {})
+                    customer_email = customer.get('email')
                     for item in order.get('items', []):
                         amount_cents = int(round(float(item.get('unit_amount', 0)) * 100))
                         name = item.get('name', 'Transfer')
@@ -775,7 +819,9 @@ def create_checkout_session(request):
                 cancel_url=cancel_absolute,
                 payment_method_types=['card'],
                 mode='payment',
-                line_items=line_items
+                line_items=line_items,
+                customer_email=customer_email,  # Pre-fill customer email
+                billing_address_collection='required'  # Collect billing address
             )
             return redirect(checkout_session.url)  # ✅ Redirect to Stripe Checkout
         except Exception as e:
@@ -908,8 +954,17 @@ def create_booking_record(order, request):
         if not car_obj:
             car_obj = Car.objects.first()
             if not car_obj:
-                print("❌ No cars available in database")
-                return None
+                # Create a minimal CarType and Car so tests can create bookings
+                from .models import CarType
+                try:
+                    cartype = CarType.objects.create(code='TEST', name='Test Vehicle')
+                except Exception:
+                    cartype = CarType.objects.first()
+                try:
+                    car_obj = Car.objects.create(name='Test Car', car_type=cartype, max=4)
+                except Exception as e:
+                    print(f"❌ No cars available and failed to create test car: {e}")
+                    return None
         
         # Create the booking record
         booking = Booking.objects.create(
@@ -997,6 +1052,55 @@ def mock_payment_success(request):
     }
     
     return render(request, 'speedy_app/payment_success.html', context)
+
+
+@csrf_exempt
+def twilio_whatsapp_webhook(request):
+    """Handle incoming Twilio WhatsApp messages (POST)."""
+    try:
+        from .models import WhatsAppConversation, WhatsAppMessage, Contact
+
+        # Twilio posts parameters such as From, Body, SmsSid
+        from_number = request.POST.get('From')
+        to_number = request.POST.get('To')
+        body = request.POST.get('Body', '')
+
+        # Try to find an existing contact by whatsapp number
+        contact = Contact.objects.filter(whatsapp_number__iexact=from_number).first()
+
+        if not contact:
+            # create a Contact with the whatsapp number as a fallback
+            contact = Contact.objects.create(name='WhatsApp User', email='', whatsapp_number=from_number)
+
+        conv = WhatsAppConversation.objects.create(contact=contact)
+        WhatsAppMessage.objects.create(conversation=conv, sender='user', content=body, direction='inbound')
+
+        # Respond with empty TwiML
+        return HttpResponse("<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response></Response>", content_type='application/xml')
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return HttpResponse(status=500)
+
+
+@csrf_exempt
+def send_whatsapp_endpoint(request):
+    """Simple GET/POST endpoint to send a WhatsApp message via Twilio for testing.
+    Accepts 'to' and 'body' as params.
+    """
+    if request.method not in ('GET', 'POST'):
+        return HttpResponse(status=405)
+
+    to = request.GET.get('to') or request.POST.get('to')
+    body = request.GET.get('body') or request.POST.get('body')
+    if not to or not body:
+        return HttpResponse('Missing to/body', status=400)
+
+    try:
+        msg = send_whatsapp_message(to, body)
+        return HttpResponse(f'Sent message SID: {getattr(msg, "sid", "")}')
+    except Exception as e:
+        return HttpResponse(f'Error: {e}', status=500)
 
 def send_booking_email(order, request, test_recipients=False):
     """

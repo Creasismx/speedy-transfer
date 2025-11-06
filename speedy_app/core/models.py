@@ -206,6 +206,31 @@ class Contact(models.Model):
     message = models.TextField(blank=True, null=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
 
+    # New fields for Version 2
+    whatsapp_number = models.CharField(max_length=32, blank=True, null=True)
+    preferred_contact_method = models.CharField(max_length=20, blank=True, null=True, choices=[('email','Email'),('phone','Phone'),('whatsapp','WhatsApp')])
+    subscribe_newsletter = models.BooleanField(default=False)
+
     def __str__(self):
         return f"{self.name} - {self.email}"
+
+
+class WhatsAppConversation(models.Model):
+    contact = models.ForeignKey(Contact, on_delete=models.CASCADE, related_name='whatsapp_conversations')
+    started_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"WhatsAppConversation {self.id} for {self.contact.email}"
+
+
+class WhatsAppMessage(models.Model):
+    conversation = models.ForeignKey(WhatsAppConversation, on_delete=models.CASCADE, related_name='messages')
+    sent_at = models.DateTimeField(auto_now_add=True)
+    sender = models.CharField(max_length=50, choices=[('user','User'),('agent','Agent')])
+    content = models.TextField()
+    direction = models.CharField(max_length=10, choices=[('inbound','Inbound'),('outbound','Outbound')])
+
+    def __str__(self):
+        return f"Msg {self.id} ({self.direction}) @ {self.sent_at}"
 
