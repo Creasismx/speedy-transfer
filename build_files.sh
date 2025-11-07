@@ -12,9 +12,9 @@ python -m pip install --upgrade pip
 # Install Python dependencies
 pip install -r requirements.txt
 
-# Create .env file if it doesn't exist and copy production settings
+# Ensure .env exists (do not auto-copy Vercel-specific env)
 if [ ! -f .env ]; then
-    cp vercel.env .env
+    echo ".env not found. Create a .env file with the required environment variables (SECRET_KEY, DB settings, etc)."
 fi
 
 # Ensure static directories exist

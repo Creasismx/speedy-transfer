@@ -6,7 +6,7 @@ from django.core.asgi import get_asgi_application
 logger = logging.getLogger(__name__)
 
 # Set Django settings module
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.vercel')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
 
 # Get Django ASGI application first
 django_asgi_app = get_asgi_application()

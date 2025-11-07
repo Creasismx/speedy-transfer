@@ -8,8 +8,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # Temporarily enable debug for troubleshooting
 DEBUG = True
 
-# Allow Vercel domain and custom domains
-ALLOWED_HOSTS = ['*', '.vercel.app', '.now.sh', 'localhost', '127.0.0.1']
+# Allow hosts (set via environment variable in production)
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 # Add logging configuration
 LOGGING = {
@@ -116,8 +116,6 @@ CHANNEL_LAYERS = {
     }
 }
 
-# CORS settings
-CORS_ALLOWED_ORIGINS = [
-    "https://*.vercel.app",
-    "https://*.now.sh",
-]
+# CORS settings - configure specific origins via environment if needed
+CORS_ALLOWED_ORIGINS = []
+CORS_ORIGIN_ALLOW_ALL = False
