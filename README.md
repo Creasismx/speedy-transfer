@@ -405,4 +405,5 @@ __pycache__/
 
 ## Support
 
-For technical support or questions, please contact the development team.
+For technical support or questions, please contact the development team.#   S p e e d y  
+ 

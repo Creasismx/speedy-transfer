@@ -32,9 +32,29 @@ SECRET_KEY = "django-insecure-46zd2kvf$xdc)pt#*vz0y49cbnl8$&eg-_2j0w^gzoh&3e9(8n
 ALLOWED_HOSTS = ["*"]
 
 
+# Template configuration
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
 # Application definition
 
 INSTALLED_APPS = [
+    'whitenoise.runserver_nostatic',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -42,19 +62,117 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "speedy_app.core",
-    "livereload",
+    "channels",
+    "rest_framework",
+    "corsheaders",
+    "chat",
+    "reports",
 ]
+
+# Channels Configuration
+ASGI_APPLICATION = 'config.asgi.application'
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
+
+# Allow all hosts for development
+DEBUG = True
+ALLOWED_HOSTS = ["*"]
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+
+# Frame options for chat widget
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'OPTIONS',
+]
+
+# WebSocket settings
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+SECURE_SSL_REDIRECT = False  # Set to True in production with SSL
+
+# Import authentication settings
+from .auth import *
+
+# Database configuration
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('DB_NAME', 'speedy'),
+        'USER': os.getenv('DB_USER', 'speedy_user'),
+        'PASSWORD': os.getenv('DB_PASSWORD', '71Du$1WJ>bvv]iw'),
+        'HOST': os.getenv('DB_HOST', '45.82.72.136'),
+        'PORT': os.getenv('DB_PORT', '3306'),
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+        }
+    },
+    'reports': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'speedy',
+        'USER': 'speedy_user',
+        'PASSWORD': '71Du$1WJ>bvv]iw',
+        'HOST': '45.82.72.136',
+        'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+        }
+    }
+}
+
+# Database routers
+DATABASE_ROUTERS = ['reports.router.ReportsRouter']
+
+# Add reports database configuration
+DATABASES['reports'] = {
+    'ENGINE': 'django.db.backends.mysql',
+    'NAME': 'speedy',
+    'USER': 'speedy_user',
+    'PASSWORD': '71Du$1WJ>bvv]iw',
+    'HOST': '45.82.72.136',
+    'PORT': '3306',
+    'OPTIONS': {
+        'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        'charset': 'utf8mb4',
+    }
+}
+
+# Database routers
+DATABASE_ROUTERS = ['reports.router.ReportsRouter']
+
+# OpenAI configuration
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.middleware.gzip.GZipMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "livereload.middleware.LiveReloadScript",
 ]
+
+# CORS settings
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+# CSRF settings
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = False  # Required for AJAX requests
 
 TAILWIND_APP_NAME = "speedy_app.core"
 
