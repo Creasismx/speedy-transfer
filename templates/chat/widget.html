@@ -93,12 +93,14 @@
 
             function connectWebSocket(roomId) {
                 // Get the current hostname and port
-                const hostname = window.location.hostname;
-                const wsPort = '8001'; // Daphne WebSocket server port
-                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                //const hostname = window.location.hostname;
+                //const wsPort = '8001'; // Daphne WebSocket server port
+                //const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
                 
                 // Construct WebSocket URL
-                const wsUrl = `${protocol}//${hostname}:${wsPort}/ws/chat/${roomId}/`;
+                //const wsUrl = `${protocol}//${hostname}:${wsPort}/ws/chat/${roomId}/`;
+                const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+                const wsUrl = `${protocol}//${window.location.host}/ws/chat/${roomId}/`;
                 console.log('WebSocket URL:', wsUrl);
                 
                 // Add error event listener to window
