@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sold History</title>
+    <style>
+      body { font-family: Arial, sans-serif; background:#f4f6f8; }
+      .wrap { max-width:1100px; margin:36px auto; }
+      .section { background:#fff; padding:16px; border-radius:6px; margin-bottom:16px }
+      table { width:100%; border-collapse:collapse }
+      th, td { padding:8px; border-bottom:1px solid #eee; text-align:left }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
+        <h1>Sold History</h1>
+        <div>
+          <a href="{% url 'reports:sold_csv' %}">CSV</a>
+          &nbsp;|&nbsp;
+          <a href="{% url 'reports:sold_xlsx' %}">Excel</a>
+          &nbsp;|&nbsp;
+          <a href="{% url 'reports:sold_pdf' %}">PDF</a>
+        </div>
+      </header>
+
+      <div class="section">
+        <h2>Payments (last 30 days)</h2>
+        <canvas id="sellsChart" width="800" height="250"></canvas>
+      </div>
+
+      {{ labels|json_script:"labels-data" }}
+      {{ data|json_script:"data-data" }}
+
+      <div class="section">
+        <h2>Recent Bookings</h2>
+        <div style="overflow-x:auto;">
+          <table style="font-size:12px;">
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Origin</th>
+                <th>Destination</th>
+                <th>Passenger</th>
+                <th>Vehicle</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Flight</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Pay</th>
+                <th>Payment</th>
+                <th>Service</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Return Date</th>
+                <th>Return Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for b in bookings %}
+                <tr>
+                  <td>{{ b.id }}</td>
+                  <td>{{ b.pickup_location1.name|default:"—" }}</td>
+                  <td>{{ b.dropoff_location1.name|default:"—" }}</td>
+                  <td>{{ b.how_people|default:"—" }}</td>
+                  <td>{% if b.car_id %}{% if b.car_id.name %}{{ b.car_id.name }}{% else %}{{ b.car_id.car_type.name|default:"—" }}{% endif %}{% else %}—{% endif %}</td>
+                  <td>{{ b.pickup_date_time|date:"Y-m-d" }}</td>
+                  <td>{{ b.pickup_date_time|time:"H:i" }}</td>
+                  <td>{{ b.flight_number|default:"—" }}</td>
+                  <td>{{ b.customer_first_name|default:"—" }}</td>
+                  <td>{{ b.customer_last_name|default:"—" }}</td>
+                  <td>{{ b.total_amount|default:"0.00" }} {{ b.currency|default:"USD" }}</td>
+                  <td>{{ b.payment_method|default:"—" }}</td>
+                  <td>{% if b.trip_type == 'roundtrip' or not b.one_way %}RT{% else %}OW{% endif %}</td>
+                  <td>{{ b.client_id }}</td>
+                  <td>{{ b.customer_phone|default:"—" }}</td>
+                  <td>{% if b.return_date_time %}{{ b.return_date_time|date:"Y-m-d" }}{% else %}—{% endif %}</td>
+                  <td>{% if b.return_date_time %}{{ b.return_date_time|time:"H:i" }}{% else %}—{% endif %}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="17">No bookings found.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <script>
+        (function() {
+          const labelsData = JSON.parse(document.getElementById('labels-data').textContent);
+          const dataSet = JSON.parse(document.getElementById('data-data').textContent);
+          const ctx = document.getElementById('sellsChart').getContext('2d');
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: labelsData,
+              datasets: [{
+                label: 'Total',
+                data: dataSet,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                fill: true,
+              }]
+            },
+            options: {
+              responsive: true,
+              scales: { y: { beginAtZero: true } }
+            }
+          });
+        })();
+      </script>
+    </div>
+  </body>
+</html>

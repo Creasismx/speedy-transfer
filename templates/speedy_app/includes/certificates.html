@@ -1,0 +1,67 @@
+{% load static %}
+<section id="certificates" class="my-16 bg-gray-50 py-12">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-10">
+            <div class="my-6 relative">
+                <span class="absolute inset-0 text-[60px] md:text-[96px] text-[#E5E5E5] font-bold flex items-center bottom-[5rem] md:bottom-[3rem] justify-center opacity-50 z-0">
+                    Certifications
+                </span>
+                <p class="text-3xl md:text-5xl font-bold relative z-10 text-gray-800">
+                    Our Certifications & Accreditations
+                </p>
+            </div>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                We are committed to maintaining the highest standards of safety, quality, and service excellence.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8 max-w-6xl mx-auto">
+            {% for cert in certificates %}
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center text-center">
+                <div class="w-20 h-20 rounded-full flex items-center justify-center mb-4" style="background-color: {{ cert.icon_color|default:'#4abbc1' }};">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ cert.icon_svg }}" />
+                    </svg>
+                </div>
+                <h3 class="font-semibold text-gray-800 mb-2">{{ cert.title }}</h3>
+                {% if cert.description %}
+                <p class="text-sm text-gray-600">{{ cert.description }}</p>
+                {% endif %}
+            </div>
+            {% empty %}
+            <!-- Fallback: Show default certificates if none are configured -->
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center text-center">
+                <div class="w-20 h-20 bg-[#4abbc1] rounded-full flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="font-semibold text-gray-800 mb-2">No certificates configured</h3>
+                <p class="text-sm text-gray-600">Please add certificates in the admin panel</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Additional Trust Badges Row -->
+        {% if trust_badges %}
+        <div class="mt-12 flex flex-wrap justify-center items-center gap-6 lg:gap-10">
+            {% for badge in trust_badges %}
+            <div class="flex items-center gap-3 bg-white px-6 py-4 rounded-lg shadow-sm">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center opacity-20" style="background-color: {{ badge.icon_color|default:'#4abbc1' }};">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 opacity-100" style="color: {{ badge.icon_color|default:'#4abbc1' }};" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ badge.icon_svg }}" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-semibold text-gray-800">{{ badge.title }}</p>
+                    {% if badge.description %}
+                    <p class="text-xs text-gray-500">{{ badge.description }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+

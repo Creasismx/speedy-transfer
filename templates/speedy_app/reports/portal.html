@@ -1,0 +1,13 @@
+{% extends 'speedy_app/base.html' %}
+{% block content %}
+<div class="py-8">
+  <h2 class="text-2xl font-bold mb-4">Reporting Portal</h2>
+  <ul class="list-disc ml-6">
+    <li><a href="{% url 'reports:sold' %}" class="text-blue-600">Sold Orders</a> — list of bookings and CSV export</li>
+    <li><a href="{% url 'reports:sells' %}" class="text-blue-600">Sales History</a> — daily sales aggregation and CSV export</li>
+  </ul>
+  <p class="mt-4 text-sm text-gray-600">
+    Note: You can also access reports via the <a href="{% url 'admin:admin_reports_portal' %}" class="text-blue-600">Admin Panel</a>.
+  </p>
+</div>
+{% endblock %}

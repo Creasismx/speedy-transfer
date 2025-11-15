@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Support</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        .messages-container {
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <div class="flex flex-col h-screen">
+        <!-- Chat Header -->
+        <div class="bg-indigo-600 text-white p-4 flex justify-between items-center">
+            <h1 class="text-lg font-semibold">Support Chat</h1>
+            <div id="connectionStatus" class="text-sm px-2 py-1 rounded bg-indigo-500">
+                Connecting...
+            </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div id="messages" class="messages-container p-4 space-y-3 bg-gray-50">
+            <div class="text-center text-gray-500 text-sm py-2">
+                Welcome to support chat
+            </div>
+        </div>
+
+        <!-- Message Input -->
+        <div class="border-t bg-white p-4">
+            <form id="chatForm" class="flex space-x-2">
+                <input type="text" 
+                       id="messageInput" 
+                       class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                       placeholder="Type your message..."
+                       required>
+                <button type="submit"
+                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    Send
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let chatSocket = null;
+            const messages = document.getElementById('messages');
+            const chatForm = document.getElementById('chatForm');
+            const messageInput = document.getElementById('messageInput');
+            const connectionStatus = document.getElementById('connectionStatus');
+
+            function updateConnectionStatus(status, isError = false) {
+                connectionStatus.textContent = status;
+                connectionStatus.className = `text-sm px-2 py-1 rounded ${
+                    isError ? 'bg-red-500' : 'bg-green-500'
+                }`;
+            }
+
+            console.log('Initializing chat widget...');
+            // Create a new chat room when the page loads
+            fetch('/chat/api/rooms/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    customer_name: 'Website Visitor',
+                    customer_email: 'visitor@example.com',
+                    status: 'open'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Chat room created:', data);
+                connectWebSocket(data.id);
+            })
+            .catch(error => {
+                console.error('Error creating chat room:', error);
+                updateConnectionStatus('Connection Error', true);
+                appendMessage('System', 'Error connecting to chat service.');
+            });
+
+            function connectWebSocket(roomId) {
+                // Get the current hostname and port
+                // Get the current hostname - don't use port when going through nginx
+    const hostname = window.location.host; // This includes port if needed, or just hostname
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    
+    // Construct WebSocket URL - no port needed when going through nginx
+    const wsUrl = `${protocol}//${hostname}/ws/chat/${roomId}/`;
+    console.log('WebSocket URL:', wsUrl);
+                
+                // Add error event listener to window
+                window.addEventListener('error', function(e) {
+                    console.error('Global error:', e.message);
+                    updateConnectionStatus('Connection Error', true);
+                });
+                
+                console.log('Attempting to connect to WebSocket:', wsUrl);
+                updateConnectionStatus('Connecting...', false);
+                
+                try {
+                    if (chatSocket && chatSocket.readyState !== WebSocket.CLOSED) {
+                        console.log('Closing existing connection...');
+                        chatSocket.close();
+                    }
+                    
+                    console.log('Creating new WebSocket connection...');
+                    chatSocket = new WebSocket(wsUrl);
+                    console.log('WebSocket object created successfully');
+
+                    chatSocket.onopen = function() {
+                        console.log('WebSocket connection established');
+                        updateConnectionStatus('Connected');
+                        appendMessage('System', 'Connected to chat service. How can we help you?');
+                    };
+
+                    // Add detailed error logging
+                    window.onerror = function(msg, url, line) {
+                        console.error('Window Error:', msg, 'at', url, ':', line);
+                    };
+
+                    chatSocket.onmessage = function(e) {
+                        console.log('Message received:', e.data);
+                        try {
+                            const data = JSON.parse(e.data);
+                            appendMessage(data.sender_type || 'ai', data.message);
+                        } catch (error) {
+                            console.error('Error parsing message:', error);
+                            appendMessage('System', 'Error receiving message. Please try again.');
+                        }
+                    };
+
+                    chatSocket.onclose = function(e) {
+                        console.log('WebSocket connection closed:', e);
+                        updateConnectionStatus('Reconnecting...', true);
+                        setTimeout(() => connectWebSocket(roomId), 3000);
+                    };
+
+                    chatSocket.onerror = function(e) {
+                        console.error('WebSocket error:', e);
+                        updateConnectionStatus('Connection Error', true);
+                    };
+                } catch (error) {
+                    console.error('Error creating WebSocket:', error);
+                    updateConnectionStatus('Connection Error', true);
+                }
+            }
+
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const message = messageInput.value.trim();
+                
+                if (message && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+                    chatSocket.send(JSON.stringify({
+                        'message': message,
+                        'sender_type': 'customer'
+                    }));
+                    messageInput.value = '';
+                } else {
+                    appendMessage('System', 'Could not send message. Please check your connection.');
+                }
+            });
+
+            function appendMessage(sender, content) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `group flex ${sender === 'customer' ? 'justify-end' : 'justify-start'}`;
+                
+                const bubble = document.createElement('div');
+                bubble.className = `max-w-[85%] px-4 py-2 rounded-lg ${
+                    sender === 'customer' 
+                        ? 'bg-indigo-600 text-white rounded-br-none' 
+                        : sender === 'System'
+                            ? 'bg-gray-200 text-gray-700'
+                            : sender === 'ai'
+                            ? 'bg-blue-100 text-blue-900 rounded-bl-none'
+                            : 'bg-gray-100 text-gray-900 rounded-bl-none'
+                }`;
+                bubble.textContent = content;
+                
+                messageDiv.appendChild(bubble);
+                messages.appendChild(messageDiv);
+                messages.scrollTop = messages.scrollHeight;
+            }
+
+            // Helper function to get CSRF token
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bookings</title>
+    <style>
+      body { font-family: Arial, sans-serif; background:#f4f6f8; }
+      .wrap { max-width:1400px; margin:36px auto; }
+      table { width:100%; border-collapse:collapse; background:#fff; font-size:12px; }
+      th, td { padding:8px; border-bottom:1px solid #eee; text-align:left }
+      th { background:#f7f7f7; font-weight:bold; position:sticky; top:0; }
+      header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px }
+      .table-container { overflow-x:auto; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>Bookings</h1>
+        <div>
+          <a href="{% url 'reports:bookings_csv' %}">CSV</a>
+          &nbsp;|&nbsp;
+          <a href="{% url 'reports:bookings_xlsx' %}">Excel</a>
+          &nbsp;|&nbsp;
+          <a href="{% url 'reports:bookings_pdf' %}">PDF</a>
+        </div>
+      </header>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Origin</th>
+              <th>Destination</th>
+              <th>Passenger</th>
+              <th>Vehicle</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Flight</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Pay</th>
+              <th>Payment</th>
+              <th>Service</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Return Date</th>
+              <th>Return Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in bookings %}
+              <tr>
+                <td>{{ b.id }}</td>
+                <td>{{ b.pickup_location1.name|default:"—" }}</td>
+                <td>{{ b.dropoff_location1.name|default:"—" }}</td>
+                <td>{{ b.how_people|default:"—" }}</td>
+                <td>{% if b.car_id %}{% if b.car_id.name %}{{ b.car_id.name }}{% else %}{{ b.car_id.car_type.name|default:"—" }}{% endif %}{% else %}—{% endif %}</td>
+                <td>{{ b.pickup_date_time|date:"Y-m-d" }}</td>
+                <td>{{ b.pickup_date_time|time:"H:i" }}</td>
+                <td>{{ b.flight_number|default:"—" }}</td>
+                <td>{{ b.customer_first_name|default:"—" }}</td>
+                <td>{{ b.customer_last_name|default:"—" }}</td>
+                <td>{{ b.total_amount|default:"0.00" }} {{ b.currency|default:"USD" }}</td>
+                <td>{{ b.payment_method|default:"—" }}</td>
+                <td>{% if b.trip_type == 'roundtrip' or not b.one_way %}RT{% else %}OW{% endif %}</td>
+                <td>{{ b.client_id }}</td>
+                <td>{{ b.customer_phone|default:"—" }}</td>
+                <td>{% if b.return_date_time %}{{ b.return_date_time|date:"Y-m-d" }}{% else %}—{% endif %}</td>
+                <td>{% if b.return_date_time %}{{ b.return_date_time|time:"H:i" }}{% else %}—{% endif %}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="17">No bookings found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </body>
+</html>

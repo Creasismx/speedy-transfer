@@ -1,0 +1,359 @@
+{% load static %}
+ <!-- Checkout -->
+ <section id="checkout-page" class="bg-white py-16">
+    <div class="container mx-auto px-4">
+        <h1 class="text-2xl font-semibold mb-8">Checkout</h1>
+        <div class="flex flex-col md:flex-row gap-4">
+            <!-- Billing Details -->
+            <div class="md:w-2/3 bg-white rounded-lg shadow-md p-4">
+                <h2 class="text-xl font-semibold mb-4">Billing Details</h2>
+                <form id="billing-form">
+                    <!-- Order ID (Read-only, auto-incrementing) -->
+                    <div class="mb-4">
+                        <label for="order-id" class="mb-4">Order #</label>
+                        <input type="text" id="order-id" class="w-full px-3 mt-2 py-2 border focus:border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100" readonly value="Pending">
+                    </div>
+                    <div class="mb-4 flex gap-4">
+                        <div class="w-1/2">
+                            <label for="billing-first-name" class="mb-4">First Name</label>
+                            <input type="text" id="billing-first-name" class="w-full px-3 mt-2 py-2 border focus:border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-primary" required>
+                        </div>
+                        <div class="w-1/2">
+                            <label for="billing-last-name" class="mb-4">Last Name</label>
+                            <input type="text" id="billing-last-name" class="w-full px-3 mt-2 py-2 border focus:border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-primary" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="billing-email" class="mb-4">Email</label>
+                        <input type="email" id="billing-email" class="w-full px-3 mt-2 py-2 border focus:border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-primary" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="billing-phone" class="mb-4">Phone Number</label>
+                        <input type="tel" id="billing-phone" class="w-full px-3 mt-2 py-2 border focus:border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-primary" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="billing-flight" class="mb-4">Flight Number (Optional)</label>
+                        <input type="text" id="billing-flight" class="w-full px-3 mt-2 py-2 border focus:border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g., AA1234">
+                    </div>
+                    <div class="mb-4">
+                        <label for="billing-address" class="mb-4">Address</label>
+                        <input type="text" id="billing-address" class="w-full px-3 mt-2 py-2 border focus:border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+                    </div>
+                    <div class="mb-4 flex gap-4">
+                        <div class="w-1/2">
+                            <label for="billing-city" class="mb-4">City</label>
+                            <input type="text" id="billing-city" class="w-full px-3 mt-2 py-2 border focus:border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+                        </div>
+                        <div class="w-1/2">
+                            <label for="billing-zip" class="mb-4">ZIP Code</label>
+                            <input type="text" id="billing-zip" class="w-full px-3 mt-2 py-2 border focus:border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+                        </div>
+                    </div>
+                    <div class="mb-4 flex gap-4">
+                        <div class="w-1/2">
+                            <label for="billing-state" class="mb-4">State/Province</label>
+                            <input type="text" id="billing-state" class="w-full px-3 mt-2 py-2 border focus:border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+                        </div>
+                        <div class="w-1/2">
+                            <label for="billing-country" class="mb-4">Country</label>
+                            <input type="text" id="billing-country" class="w-full px-3 mt-2 py-2 border focus:border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-primary" value="Mexico">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="billing-company" class="mb-4">Company (Optional)</label>
+                        <input type="text" id="billing-company" class="w-full px-3 mt-2 py-2 border focus:border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+                    </div>
+                    <div class="mb-4">
+                        <label for="billing-date-of-birth" class="mb-4">Date of Birth (Optional)</label>
+                        <input type="date" id="billing-date-of-birth" class="w-full px-3 mt-2 py-2 border focus:border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+                    </div>
+                    <div class="mb-4">
+                        <label for="billing-passport" class="mb-4">Passport Number (Optional)</label>
+                        <input type="text" id="billing-passport" class="w-full px-3 mt-2 py-2 border focus:border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+                    </div>
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold mb-3">Emergency Contact</h3>
+                        <div class="mb-4">
+                            <label for="emergency-contact-name" class="mb-4">Emergency Contact Name</label>
+                            <input type="text" id="emergency-contact-name" class="w-full px-3 mt-2 py-2 border focus:border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+                        </div>
+                        <div class="mb-4">
+                            <label for="emergency-contact-phone" class="mb-4">Emergency Contact Phone</label>
+                            <input type="tel" id="emergency-contact-phone" class="w-full px-3 mt-2 py-2 border focus:border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="special-instructions" class="mb-4">Special Instructions (Optional)</label>
+                        <textarea id="special-instructions" rows="3" class="w-full px-3 mt-2 py-2 border focus:border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Any special requests or instructions for your trip..."></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label for="additional-notes" class="mb-4">Additional Notes (Optional)</label>
+                        <textarea id="additional-notes" rows="3" class="w-full px-3 mt-2 py-2 border focus:border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Any additional information you'd like to share..."></textarea>
+                    </div>
+                </form>
+
+                <div class="bg-white rounded-lg shadow-md p-4 mt-6">
+                  <h3 class="text-lg font-semibold mb-3">Trip Details</h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p><span class="font-semibold">Origin:</span> <span id="c-origin"></span></p>
+                      <p><span class="font-semibold">Destination:</span> <span id="c-destination"></span></p>
+                      <p><span class="font-semibold">Passenger(s):</span> <span id="c-passenger"></span></p>
+                    </div>
+                    <div>
+                      <p><span class="font-semibold">Vehicle:</span> <span id="c-vehicle"></span></p>
+                      <p><span class="font-semibold">Date:</span> <span id="c-date"></span></p>
+                      <p><span class="font-semibold">Time:</span> <span id="c-time"></span></p>
+                    </div>
+                    <div>
+                      <p><span class="font-semibold">Service:</span> <span id="c-service"></span></p>
+                      <p><span class="font-semibold">Flight:</span> <span id="c-flight"></span></p>
+                    </div>
+                    <div>
+                      <p><span class="font-semibold">Return Date:</span> <span id="c-return-date"></span></p>
+                      <p><span class="font-semibold">Return Time:</span> <span id="c-return-time"></span></p>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <!-- Order Summary / Payments -->
+            <div class="md:w-1/3 bg-white rounded-lg shadow-md p-4">
+                <h2 class="text-xl font-semibold mb-4">Order Summary</h2>
+                <div id="c-vehicles" class="space-y-3 mb-4"></div>
+                <div class="flex justify-between mb-2 text-sm text-gray-600">
+                  <p>Capacity selected</p>
+                  <p id="c-capacity">0/0</p>
+                </div>
+                <div class="flex justify-between mb-4">
+                    <p>Subtotal</p>
+                    <p id="c-subtotal">$0.00</p>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <p class="font-semibold">Pay (Total)</p>
+                    <p class="font-semibold" id="c-total">$0.00</p>
+                </div>
+                <div class="flex justify-between mb-4 text-sm text-gray-600">
+                    <p>Payment Method:</p>
+                    <p id="c-payment-method">Not Selected</p>
+                </div>
+
+                <form id="paypal-form" action="{% url 'core:create_payment' %}" method="POST" class="mt-4">
+                 {% csrf_token %}
+                 <input type="hidden" name="order_json" id="paypal-order-json" />
+                 <button type="submit" class="bg-[#4abbc1] hover:bg-[#047884] text-white border-0 py-2 px-4 rounded-full w-full">Pay with PayPal (Test)</button>
+                </form>
+
+                <form id="stripe-form" action="{% url 'core:create_checkout_session' %}" method="get" class="mt-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="order_json" id="stripe-order-json" />
+                    <button type="submit" class="bg-[#4abbc1] hover:bg-[#047884] text-white border-0 py-2 px-4 rounded-full w-full">Pay with Card (Stripe Test)</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+(function(){
+  function fmtMoney(amount, currency) {
+    const num = isNaN(amount) ? 0 : Number(amount);
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency: currency || 'USD', minimumFractionDigits: 2 }).format(num);
+  }
+  function el(id){ return document.getElementById(id); }
+  function val(id){ const n = el(id); return n ? (n.value || '').trim() : ''; }
+
+  // Load data
+  let selectedTransfers = [];
+  let fechasData = null;
+  try { selectedTransfers = JSON.parse(sessionStorage.getItem('selectedTransfers') || '[]'); } catch(e){}
+  try { fechasData = JSON.parse(sessionStorage.getItem('fechasData') || 'null'); } catch(e){}
+
+  // Generate temporary order ID
+  function generateOrderId() {
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 1000);
+    return `ORD-${timestamp}-${random}`;
+  }
+  const tempOrderId = generateOrderId();
+  if (el('order-id')) {
+    el('order-id').value = tempOrderId;
+  }
+
+  // Populate trip details
+  if (fechasData) {
+    const pickup = fechasData.pickup_datetime ? fechasData.pickup_datetime.replace('T', ' ') : '';
+    const ret = fechasData.return_datetime ? fechasData.return_datetime.replace('T', ' ') : '';
+    
+    // Parse date and time from pickup datetime
+    let pickupDate = '';
+    let pickupTime = '';
+    if (pickup) {
+      const dt = new Date(fechasData.pickup_datetime);
+      pickupDate = dt.toLocaleDateString();
+      pickupTime = dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+    
+    // Parse return date and time
+    let returnDate = '';
+    let returnTime = '';
+    if (ret) {
+      const dt = new Date(fechasData.return_datetime);
+      returnDate = dt.toLocaleDateString();
+      returnTime = dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+    
+    // Service type: OW = One Way, RT = Round Trip
+    const serviceType = (fechasData.trip_type === 'roundtrip') ? 'RT' : 'OW';
+    
+    // Populate new fields
+    if (el('c-origin')) el('c-origin').textContent = fechasData.pickup_location_name || '—';
+    if (el('c-destination')) el('c-destination').textContent = fechasData.dropoff_location_name || '—';
+    if (el('c-passenger')) el('c-passenger').textContent = fechasData.people || '0';
+    if (el('c-vehicle')) el('c-vehicle').textContent = fechasData.car_type_label || fechasData.car_type_value || '—';
+    if (el('c-date')) el('c-date').textContent = pickupDate || '—';
+    if (el('c-time')) el('c-time').textContent = pickupTime || '—';
+    if (el('c-service')) el('c-service').textContent = serviceType;
+    if (el('c-return-date')) el('c-return-date').textContent = returnDate || '—';
+    if (el('c-return-time')) el('c-return-time').textContent = returnTime || '—';
+    
+    // Flight number from form
+    if (el('c-flight')) {
+      const flightNum = val('billing-flight');
+      el('c-flight').textContent = flightNum || 'Not provided';
+    }
+  }
+
+  // Render vehicles
+  const cVehicles = el('c-vehicles');
+  const required = Number((fechasData && fechasData.people) || 0) || 0;
+  let subtotal = 0;
+  let capacity = 0;
+  selectedTransfers.forEach(function(it){
+    const unit = Number(it.price_numeric || 0);
+    subtotal += unit;
+    capacity += Number(it.car_capacity || 0);
+    const item = document.createElement('div');
+    item.className = 'flex items-center justify-between border-b border-gray-line pb-2';
+    item.innerHTML = `
+      <div class="text-sm">
+        <div class="font-semibold">${it.name || 'Vehicle'}</div>
+        <div class="text-gray-600">${it.date || ''} ${it.time || ''}</div>
+      </div>
+      <div class="text-sm font-semibold">${fmtMoney(unit, it.currency || 'USD')}</div>
+    `;
+    cVehicles.appendChild(item);
+  });
+  el('c-capacity').textContent = `${capacity}/${required}`;
+  el('c-subtotal').textContent = fmtMoney(subtotal, 'USD');
+  el('c-total').textContent = fmtMoney(subtotal, 'USD');
+
+  function buildOrder(){
+    const order = {
+      trip_type: (fechasData && fechasData.trip_type) || 'oneway',
+      people: required,
+      pickup: {
+        datetime: (fechasData && fechasData.pickup_datetime) || '',
+        location_id: (fechasData && fechasData.pickup_location_id) || '',
+        location_name: (fechasData && fechasData.pickup_location_name) || ''
+      },
+      dropoff: {
+        location_id: (fechasData && fechasData.dropoff_location_id) || '',
+        location_name: (fechasData && fechasData.dropoff_location_name) || ''
+      },
+      return_trip: (fechasData && fechasData.trip_type) === 'roundtrip' ? {
+        datetime: (fechasData && fechasData.return_datetime) || '',
+        pickup_location_id: (fechasData && fechasData.return_pickup_location_id) || '',
+        pickup_location_name: (fechasData && fechasData.return_pickup_location_name) || '',
+        dropoff_location_id: (fechasData && fechasData.return_dropoff_location_id) || '',
+        dropoff_location_name: (fechasData && fechasData.return_dropoff_location_name) || ''
+      } : null,
+      car_type_value: (fechasData && fechasData.car_type_value) || '',
+      car_type_label: (fechasData && fechasData.car_type_label) || '',
+      items: selectedTransfers.map(function(it){ return {
+        rate_id: it.rate_id,
+        car_id: it.car_id,
+        name: it.name,
+        unit_amount: Number(it.price_numeric || 0),
+        currency: it.currency || 'USD',
+        date: it.date,
+        time: it.time,
+        capacity: Number(it.car_capacity || 0),
+        image_url: it.image_url
+      };}),
+      subtotal: subtotal,
+      total: subtotal,
+      order_id: tempOrderId,
+      customer: {
+        first_name: val('billing-first-name'),
+        last_name: val('billing-last-name'),
+        name: val('billing-first-name') + ' ' + val('billing-last-name'),
+        email: val('billing-email'),
+        phone: val('billing-phone'),
+        address: val('billing-address'),
+        city: val('billing-city'),
+        state: val('billing-state'),
+        zip: val('billing-zip'),
+        country: val('billing-country') || 'Mexico',
+        company: val('billing-company') || '',
+        date_of_birth: val('billing-date-of-birth'),
+        passport_number: val('billing-passport'),
+        flight_number: val('billing-flight'),
+        emergency_contact_name: val('emergency-contact-name'),
+        emergency_contact_phone: val('emergency-contact-phone'),
+        special_instructions: val('special-instructions'),
+        additional_notes: val('additional-notes')
+      },
+      // Additional fields for display
+      origin: (fechasData && fechasData.pickup_location_name) || '',
+      destination: (fechasData && fechasData.dropoff_location_name) || '',
+      passenger: required,
+      vehicle: (fechasData && (fechasData.car_type_label || fechasData.car_type_value)) || '',
+      date: (fechasData && fechasData.pickup_datetime) ? new Date(fechasData.pickup_datetime).toLocaleDateString() : '',
+      time: (fechasData && fechasData.pickup_datetime) ? new Date(fechasData.pickup_datetime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '',
+      service: ((fechasData && fechasData.trip_type) === 'roundtrip') ? 'RT' : 'OW',
+      pay: subtotal,
+      payment: 'Pending',
+      currency: 'USD'
+    };
+    return order;
+  }
+
+  function refreshHiddenOrder(){
+    try {
+      const order = buildOrder();
+      el('paypal-order-json').value = JSON.stringify(order);
+      el('stripe-order-json').value = JSON.stringify(order);
+      sessionStorage.setItem('order', JSON.stringify(order));
+    } catch(e) {}
+  }
+
+  // Update flight number display when changed
+  const flightInput = el('billing-flight');
+  if (flightInput && el('c-flight')) {
+    flightInput.addEventListener('input', function() {
+      const flightNum = val('billing-flight');
+      el('c-flight').textContent = flightNum || 'Not provided';
+      refreshHiddenOrder();
+    });
+  }
+
+  // Update payment method display
+  const pf = el('paypal-form');
+  const sf = el('stripe-form');
+  if (pf) {
+    pf.addEventListener('submit', function(){ 
+      refreshHiddenOrder();
+      if (el('c-payment-method')) el('c-payment-method').textContent = 'PayPal';
+    });
+  }
+  if (sf) {
+    sf.addEventListener('submit', function(){ 
+      refreshHiddenOrder();
+      if (el('c-payment-method')) el('c-payment-method').textContent = 'Stripe';
+    });
+  }
+
+  // Initialize hidden inputs once
+  refreshHiddenOrder();
+})();
+</script>
