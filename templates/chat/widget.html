@@ -1,63 +1,189 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Support</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
-        }
-        .messages-container {
-            height: calc(100vh - 120px);
-            overflow-y: auto;
-        }
-    </style>
-</head>
-<body class="bg-white">
+{% extends 'chat/base.html' %}
+
+{% block title %}Chat Support{% endblock %}
+
+{% block content %}
+<style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        background-color: white !important;
+    }
+    .messages-container {
+        height: calc(100vh - 120px);
+        overflow-y: auto;
+    }
+    .chat-body {
+        transition: all 0.3s ease;
+    }
+    .chat-body.minimized {
+        display: none;
+    }
+    .header-btn {
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+    .header-btn:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+</style>
     <div class="flex flex-col h-screen">
         <!-- Chat Header -->
         <div class="bg-indigo-600 text-white p-4 flex justify-between items-center">
             <h1 class="text-lg font-semibold">Support Chat</h1>
-            <div id="connectionStatus" class="text-sm px-2 py-1 rounded bg-indigo-500">
-                Connecting...
-            </div>
-        </div>
-
-        <!-- Messages Container -->
-        <div id="messages" class="messages-container p-4 space-y-3 bg-gray-50">
-            <div class="text-center text-gray-500 text-sm py-2">
-                Welcome to support chat
-            </div>
-        </div>
-
-        <!-- Message Input -->
-        <div class="border-t bg-white p-4">
-            <form id="chatForm" class="flex space-x-2">
-                <input type="text" 
-                       id="messageInput" 
-                       class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                       placeholder="Type your message..."
-                       required>
-                <button type="submit"
-                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                    Send
+            <div class="flex items-center space-x-3">
+                <div id="connectionStatus" class="text-sm px-2 py-1 rounded bg-indigo-500">
+                    Connecting...
+                </div>
+                <button id="minimizeBtn" class="header-btn" title="Minimize">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                    </svg>
                 </button>
-            </form>
+                <button id="closeBtn" class="header-btn" title="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Body (Messages + Input) -->
+        <div id="chatBody" class="chat-body flex-1 flex flex-col">
+            <!-- Messages Container -->
+            <div id="messages" class="messages-container p-4 space-y-3 bg-gray-50">
+                <div class="text-center text-gray-500 text-sm py-2">
+                    Welcome to support chat
+                </div>
+            </div>
+
+            <!-- Message Input -->
+            <div class="border-t bg-white p-4">
+                <form id="chatForm" class="flex space-x-2">
+                    <input type="text"
+                           id="messageInput"
+                           class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                           placeholder="Type your message..."
+                           required>
+                    <button type="submit"
+                            class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        Send
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Chat widget initializing...');
+
             let chatSocket = null;
             const messages = document.getElementById('messages');
             const chatForm = document.getElementById('chatForm');
             const messageInput = document.getElementById('messageInput');
             const connectionStatus = document.getElementById('connectionStatus');
+            const chatBody = document.getElementById('chatBody');
+            const minimizeBtn = document.getElementById('minimizeBtn');
+            const closeBtn = document.getElementById('closeBtn');
+            let isMinimized = false;
+
+            console.log('Minimize button:', minimizeBtn);
+            console.log('Close button:', closeBtn);
+
+            // Listen for visibility changes (when parent reopens the widget)
+            window.addEventListener('message', function(event) {
+                console.log('Widget received message:', event.data);
+                if (event.data.type === 'chatOpened') {
+                    console.log('Chat reopened, showing content');
+                    // Show the content when reopened
+                    isMinimized = false;
+                    chatBody.classList.remove('minimized');
+                    minimizeBtn.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                        </svg>
+                    `;
+                    minimizeBtn.title = "Minimize";
+                }
+            });
+
+            // Minimize button functionality
+            if (minimizeBtn) {
+                minimizeBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Minimize button clicked');
+
+                    // Always notify parent if in iframe
+                    try {
+                        if (window.parent && window.parent !== window) {
+                            console.log('Sending chatMinimized message to parent');
+                            window.parent.postMessage({ type: 'chatMinimized' }, '*');
+                        }
+                    } catch (err) {
+                        console.error('Error sending message to parent:', err);
+                    }
+
+                    // Also handle standalone mode - toggle visibility
+                    isMinimized = !isMinimized;
+                    chatBody.classList.toggle('minimized');
+
+                    // Change minimize button icon
+                    if (isMinimized) {
+                        minimizeBtn.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                            </svg>
+                        `;
+                        minimizeBtn.title = "Expand";
+                    } else {
+                        minimizeBtn.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                            </svg>
+                        `;
+                        minimizeBtn.title = "Minimize";
+                    }
+                });
+                console.log('Minimize event listener attached');
+            } else {
+                console.error('Minimize button not found!');
+            }
+
+            // Close button functionality
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Close button clicked');
+
+                    // Close WebSocket connection
+                    if (chatSocket) {
+                        chatSocket.close();
+                    }
+
+                    // Always notify parent if in iframe
+                    try {
+                        if (window.parent && window.parent !== window) {
+                            console.log('Sending chatClosed message to parent');
+                            window.parent.postMessage({ type: 'chatClosed' }, '*');
+                        }
+                    } catch (err) {
+                        console.error('Error sending message to parent:', err);
+                    }
+
+                    // Also handle standalone mode - hide the entire widget
+                    document.body.style.display = 'none';
+                });
+                console.log('Close event listener attached');
+            } else {
+                console.error('Close button not found!');
+            }
 
             function updateConnectionStatus(status, isError = false) {
                 connectionStatus.textContent = status;
@@ -211,5 +337,4 @@
             }
         });
     </script>
-</body>
-</html>
+{% endblock %}

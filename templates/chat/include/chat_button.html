@@ -23,7 +23,32 @@
     document.addEventListener('DOMContentLoaded', function() {
         const chatButton = document.getElementById('chatButton');
         const chatWindow = document.getElementById('chatWindow');
-        
+
+        // Listen for messages from the iframe
+        window.addEventListener('message', function(event) {
+            console.log('Message received:', event.data);
+
+            // Handle messages from the chat widget iframe
+            if (event.data && (event.data.type === 'chatClosed' || event.data.type === 'chatMinimized')) {
+                console.log('Chat action received:', event.data.type);
+
+                // Hide the chat window
+                if (!chatWindow.classList.contains('hidden')) {
+                    chatWindow.classList.add('hidden');
+                    console.log('Chat window hidden');
+                }
+
+                // Reset the button
+                chatButton.innerHTML = `
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4z"/>
+                    </svg>
+                    Need Help?
+                `;
+                console.log('Button reset');
+            }
+        });
+
         chatButton.addEventListener('click', function() {
             if (chatWindow.classList.contains('hidden')) {
                 chatWindow.classList.remove('hidden');

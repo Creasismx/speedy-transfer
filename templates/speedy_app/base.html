@@ -18,6 +18,24 @@
 
     {% block extra_css %}{% endblock %}
     
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1244900227681588');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1244900227681588&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+    
     <!-- Chat Widget Styles -->
     <style>
         #chatWidgetContainer {
@@ -71,10 +89,44 @@
         document.addEventListener('DOMContentLoaded', function() {
             const chatButton = document.getElementById('chatButton');
             const chatWindow = document.getElementById('chatWindow');
+            const chatWidgetContainer = document.getElementById('chatWidgetContainer');
+            const chatFrame = document.getElementById('chatFrame');
+            
+            // Listen for messages from the chat iframe
+            window.addEventListener('message', function(event) {
+                console.log('Parent received message:', event.data);
+                
+                if (event.data.type === 'chatMinimized') {
+                    console.log('Minimizing chat window');
+                    // Hide the chat window but keep the button visible
+                    chatWindow.classList.add('hidden');
+                    chatButton.innerHTML = `
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4z"/>
+                        </svg>
+                        Need Help?
+                    `;
+                } else if (event.data.type === 'chatClosed') {
+                    console.log('Closing entire chat widget');
+                    // Hide the entire widget container (button + window)
+                    chatWidgetContainer.style.display = 'none';
+                }
+            });
             
             chatButton.addEventListener('click', function() {
                 if (chatWindow.classList.contains('hidden')) {
                     chatWindow.classList.remove('hidden');
+                    
+                    // Notify the iframe that chat is being opened
+                    setTimeout(function() {
+                        try {
+                            chatFrame.contentWindow.postMessage({ type: 'chatOpened' }, '*');
+                            console.log('Sent chatOpened message to iframe');
+                        } catch (err) {
+                            console.error('Error sending message to iframe:', err);
+                        }
+                    }, 100);
+                    
                     chatButton.innerHTML = `
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -114,39 +166,7 @@
                     loading="lazy">
             </iframe>
         </div>
-        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4z"/>
-        </svg>
-        ¿Necesitas ayuda?
-      </button>
-      <div id="chat-container" class="hidden fixed bottom-20 right-4 w-96 h-[500px] bg-white rounded-lg shadow-xl overflow-hidden">
-        <iframe src="{% url 'chat:chat_widget' %}" 
-                class="w-full h-full border-0"
-                title="Chat Support">
-        </iframe>
-      </div>
     </div>
-
-    <script>
-      // Chat Widget Controls
-      const chatButton = document.getElementById('chat-button');
-      const chatContainer = document.getElementById('chat-container');
-
-      chatButton.addEventListener('click', () => {
-        if (chatContainer.classList.contains('hidden')) {
-          chatContainer.classList.remove('hidden');
-          chatButton.textContent = 'Close Chat';
-        } else {
-          chatContainer.classList.add('hidden');
-          chatButton.innerHTML = `
-            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4z"/>
-            </svg>
-            Need Help?
-          `;
-        }
-      });
-    </script>
   </body>
 
   {% block extra_js %}
