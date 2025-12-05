@@ -763,6 +763,8 @@ def execute_payment(request):
                 booking = create_booking_record(order, request)
                 if booking:
                     booking_id = booking.id
+                    # Create Payment record for reports
+                    create_payment_record(booking, 'PAYPAL', order.get('total', 0))
                     # Send booking email to the guest with booking ID
                     send_booking_email(order, request, booking_id=booking_id)
                     # Send booking email to test recipients
@@ -803,6 +805,8 @@ def payment_success(request):
             booking = create_booking_record(order, request)
             if booking:
                 booking_id = booking.id
+                # Create Payment record for reports
+                create_payment_record(booking, 'STRIPE', order.get('total', 0))
                 # Send booking emails with booking ID
                 send_booking_email(order, request, booking_id=booking_id)
                 send_booking_email(order, request, booking_id=booking_id, test_recipients=True)
@@ -905,6 +909,45 @@ def create_checkout_session(request):
             return JsonResponse({'error': str(e)})
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+def create_payment_record(booking, payment_method, amount):
+    """
+    Creates a Payment record linked to a Reservation for reporting purposes.
+    This creates the necessary records for the sales reports to work.
+    
+    Args:
+        booking: The Booking object that was just created
+        payment_method: 'PAYPAL', 'STRIPE', or 'CASH_ON_ARRIVAL'
+        amount: The payment amount as Decimal or float
+    """
+    try:
+        from .models import Reservation, Payment
+        from decimal import Decimal
+        
+        # Create a Reservation record (required by Payment model)
+        reservation = Reservation.objects.create(
+            name=booking.customer_name or f"{booking.customer_first_name} {booking.customer_last_name}".strip() or 'Guest',
+            email=booking.client_id,  # client_id is the email
+            phone=booking.customer_phone or '',
+            company=booking.customer_company or '',
+            country=booking.customer_country or ''
+        )
+        
+        # Create the Payment record
+        payment = Payment.objects.create(
+            reservation=reservation,
+            method=payment_method,
+            amount=Decimal(str(amount))
+        )
+        
+        print(f"✅ Payment record created: ID {payment.id}, Amount: ${payment.amount}, Method: {payment.method}")
+        return payment
+        
+    except Exception as e:
+        print(f"❌ Error creating payment record: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
 
 def create_booking_record(order, request):
     """
@@ -1140,6 +1183,8 @@ def mock_payment_success(request):
             booking = create_booking_record(order_data, request)
             # Send booking email with booking ID
             if booking:
+                # Create Payment record for reports
+                create_payment_record(booking, 'STRIPE', order_data.get('total', 0))
                 send_booking_email(order_data, request, booking_id=booking.id)
         except Exception as e:
             print(f"Error processing mock payment success: {e}")
