@@ -660,6 +660,16 @@ def create_payment(request):
 
     print("📝 Creating PayPal payment object...")
     
+    # Safely parse customer name
+    first_name = None
+    last_name = None
+    if customer_name and customer_name.strip():
+        name_parts = customer_name.strip().split()
+        if len(name_parts) > 0:
+            first_name = name_parts[0]
+        if len(name_parts) > 1:
+            last_name = " ".join(name_parts[1:])
+    
     try:
         payment = paypalrestsdk.Payment({
             "intent": "sale",
@@ -667,8 +677,8 @@ def create_payment(request):
                 "payment_method": "paypal",
                 "payer_info": {
                     "email": customer_email,
-                    "first_name": customer_name.split()[0] if customer_name else None,
-                    "last_name": " ".join(customer_name.split()[1:]) if customer_name and len(customer_name.split()) > 1 else None,
+                    "first_name": first_name,
+                    "last_name": last_name,
                 } if customer_email else None
             },
             "redirect_urls": {
