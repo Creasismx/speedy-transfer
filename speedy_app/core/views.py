@@ -664,9 +664,31 @@ def create_payment(request):
     if payment.create():
         # Store order JSON in session
         request.session['order_json'] = order_json
-        return redirect(payment.links[1].href)  # Redirect to PayPal for payment
+        
+        # Find the approval URL from PayPal response
+        approval_url = None
+        if hasattr(payment, 'links') and payment.links:
+            for link in payment.links:
+                if hasattr(link, 'rel') and link.rel == 'approval_url':
+                    approval_url = link.href
+                    break
+        
+        if approval_url:
+            return redirect(approval_url)
+        else:
+            print(f"ERROR: No approval URL found in PayPal payment response")
+            print(f"Payment links: {payment.links if hasattr(payment, 'links') else 'No links'}")
+            return render(request, 'speedy_app/payment_failed.html', {
+                'error_message': 'PayPal payment created but no approval URL found. Please try again.'
+            })
     else:
-        return render(request, 'speedy_app/payment_failed.html')
+        error_message = 'Payment creation failed.'
+        if hasattr(payment, 'error'):
+            error_message = f"PayPal Error: {payment.error}"
+            print(f"PayPal payment creation error: {payment.error}")
+        return render(request, 'speedy_app/payment_failed.html', {
+            'error_message': error_message
+        })
 
 def execute_payment(request):
     payment_id = request.GET.get('paymentId')
