@@ -178,7 +178,18 @@ def sells_history(request):
 	end = datetime.date.today()
 	start = end - datetime.timedelta(days=29)
 	qs = Payment.objects.filter(paid_at__date__range=(start, end))
+	
+	# Debug: Check if we have any payments at all
+	total_payments = Payment.objects.count()
+	print(f"🔍 DEBUG sells_history:")
+	print(f"  - Total payments in DB: {total_payments}")
+	print(f"  - Date range: {start} to {end}")
+	print(f"  - Payments in range: {qs.count()}")
+	
 	agg = qs.annotate(day=TruncDate('paid_at')).values('day').annotate(total=Sum('amount')).order_by('day')
+	print(f"  - Aggregated records: {agg.count()}")
+	for item in agg:
+		print(f"    {item['day']}: ${item['total']}")
 
 	# Build mapping day -> total for full range
 	totals = {item['day']: float(item['total'] or 0) for item in agg}
@@ -188,6 +199,11 @@ def sells_history(request):
 		d = start + datetime.timedelta(days=i)
 		labels.append(d.strftime('%Y-%m-%d'))
 		data.append(totals.get(d, 0))
+	
+	print(f"  - Labels count: {len(labels)}")
+	print(f"  - Data points count: {len(data)}")
+	print(f"  - Total sum: ${sum(data)}")
+	print(f"  - Non-zero days: {sum(1 for x in data if x > 0)}")
 
 	return render(request, 'reports/sells.html', {'labels': labels, 'data': data})
 
@@ -327,12 +343,22 @@ def bookings_xlsx(request):
 @login_required(login_url='/reports/login/')
 @user_passes_test(lambda u: u.is_staff, login_url='/reports/login/')
 def sold_history(request):
-	# Combine bookings and payments: render chart (payments) and bookings table
+	"""Combine bookings and payments: render chart (payments) and bookings table"""
 	# Reuse sells aggregation
 	end = datetime.date.today()
 	start = end - datetime.timedelta(days=29)
 	qs = Payment.objects.filter(paid_at__date__range=(start, end))
+	
+	# Debug: Check if we have any payments at all
+	total_payments = Payment.objects.count()
+	print(f"🔍 DEBUG sold_history:")
+	print(f"  - Total payments in DB: {total_payments}")
+	print(f"  - Date range: {start} to {end}")
+	print(f"  - Payments in range: {qs.count()}")
+	
 	agg = qs.annotate(day=TruncDate('paid_at')).values('day').annotate(total=Sum('amount')).order_by('day')
+	print(f"  - Aggregated records: {agg.count()}")
+	
 	totals = {item['day']: float(item['total'] or 0) for item in agg}
 	labels = []
 	data = []
@@ -340,8 +366,12 @@ def sold_history(request):
 		d = start + datetime.timedelta(days=i)
 		labels.append(d.strftime('%Y-%m-%d'))
 		data.append(totals.get(d, 0))
+	
+	print(f"  - Data points: {len(data)}, Total: ${sum(data)}")
 
 	bookings = Booking.objects.select_related('pickup_location1', 'dropoff_location1', 'car_id', 'car_id__car_type').all().order_by('-date_capture')[:100]
+	print(f"  - Bookings: {bookings.count()}")
+	
 	return render(request, 'reports/sold.html', {'labels': labels, 'data': data, 'bookings': bookings})
 
 

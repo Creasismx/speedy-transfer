@@ -90,24 +90,61 @@
 
       <script>
         (function() {
-          const labelsData = JSON.parse(document.getElementById('labels-data').textContent);
-          const dataSet = JSON.parse(document.getElementById('data-data').textContent);
+          const labelsDataElement = document.getElementById('labels-data');
+          const dataDataElement = document.getElementById('data-data');
+          
+          console.log('Labels element:', labelsDataElement);
+          console.log('Data element:', dataDataElement);
+          
+          if (!labelsDataElement || !dataDataElement) {
+            console.error('Missing data elements');
+            return;
+          }
+          
+          const labelsData = JSON.parse(labelsDataElement.textContent);
+          const dataSet = JSON.parse(dataDataElement.textContent);
+          
+          console.log('Labels:', labelsData);
+          console.log('Data:', dataSet);
+          console.log('Data length:', dataSet.length);
+          console.log('Total sum:', dataSet.reduce((a, b) => a + b, 0));
+          
           const ctx = document.getElementById('sellsChart').getContext('2d');
           new Chart(ctx, {
             type: 'line',
             data: {
               labels: labelsData,
               datasets: [{
-                label: 'Total',
+                label: 'Total Sales (USD)',
                 data: dataSet,
                 borderColor: 'rgba(75, 192, 192, 1)',
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 fill: true,
+                tension: 0.1
               }]
             },
             options: {
               responsive: true,
-              scales: { y: { beginAtZero: true } }
+              maintainAspectRatio: true,
+              scales: { 
+                y: { 
+                  beginAtZero: true,
+                  ticks: {
+                    callback: function(value) {
+                      return '$' + value.toFixed(2);
+                    }
+                  }
+                } 
+              },
+              plugins: {
+                tooltip: {
+                  callbacks: {
+                    label: function(context) {
+                      return 'Sales: $' + context.parsed.y.toFixed(2);
+                    }
+                  }
+                }
+              }
             }
           });
         })();
