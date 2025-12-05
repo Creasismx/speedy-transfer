@@ -33,14 +33,24 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 
 
 # Configure PayPal only if credentials are available
+paypal_configured = False
 if settings.PAYPAL_CLIENT_ID and settings.PAYPAL_SECRET and \
    settings.PAYPAL_CLIENT_ID not in ['', 'your_paypal_client_id'] and \
    settings.PAYPAL_SECRET not in ['', 'your_paypal_secret']:
-    paypalrestsdk.configure({
-        "mode": "sandbox",  # Change to "live" for production
-        "client_id": settings.PAYPAL_CLIENT_ID,
-        "client_secret": settings.PAYPAL_SECRET,
-    })
+    try:
+        paypalrestsdk.configure({
+            "mode": "sandbox",  # Change to "live" for production
+            "client_id": settings.PAYPAL_CLIENT_ID,
+            "client_secret": settings.PAYPAL_SECRET,
+        })
+        paypal_configured = True
+        print("✅ PayPal configured successfully")
+        print(f"PayPal Client ID: {settings.PAYPAL_CLIENT_ID[:20]}...")
+    except Exception as e:
+        print(f"❌ Error configuring PayPal: {e}")
+        paypal_configured = False
+else:
+    print("⚠️ PayPal credentials not found or invalid")
 
 
 # Optional: define your return/cancel URLs here or in settings
@@ -603,25 +613,35 @@ def contact_form_view(request):
 
 
 def create_payment(request):
+    print("🔵 create_payment called")
+    print(f"PayPal configured: {paypal_configured}")
+    print(f"PAYPAL_CLIENT_ID: {settings.PAYPAL_CLIENT_ID[:20] if settings.PAYPAL_CLIENT_ID else 'None'}...")
+    print(f"PAYPAL_SECRET: {'*' * 20 if settings.PAYPAL_SECRET else 'None'}")
+    
     # Validate PayPal configuration
-    if not settings.PAYPAL_CLIENT_ID or not settings.PAYPAL_SECRET or \
-       settings.PAYPAL_CLIENT_ID in ['', 'your_paypal_client_id'] or \
-       settings.PAYPAL_SECRET in ['', 'your_paypal_secret']:
+    if not paypal_configured:
+        error_msg = 'PayPal is not configured properly. Please contact support.'
+        print(f"❌ {error_msg}")
         return render(request, 'speedy_app/payment_failed.html', {
-            'error_message': 'PayPal is not configured. Please contact support.'
+            'error_message': error_msg
         })
     
     # Accept an optional order_json to set amount and description for testing
     order_json = request.POST.get('order_json')
     amount_total = "10.00"
     description = "Payment for Product/Service"
+    
+    print(f"Order JSON received: {order_json[:100] if order_json else 'None'}...")
+    
     if order_json:
         try:
             order = json.loads(order_json)
             total = float(order.get('total', 0))
             amount_total = f"{total:.2f}"
             description = f"Transfer booking ({order.get('trip_type', 'oneway')})"
-        except Exception:
+            print(f"Amount: {amount_total}, Description: {description}")
+        except Exception as e:
+            print(f"⚠️ Error parsing order JSON: {e}")
             pass
 
     # Get customer info from order
@@ -633,61 +653,81 @@ def create_payment(request):
             customer = order.get('customer', {})
             customer_email = customer.get('email')
             customer_name = customer.get('name')
-        except Exception:
+            print(f"Customer: {customer_name} ({customer_email})")
+        except Exception as e:
+            print(f"⚠️ Error getting customer info: {e}")
             pass
 
-    payment = paypalrestsdk.Payment({
-        "intent": "sale",
-        "payer": {
-            "payment_method": "paypal",
-            "payer_info": {
-                "email": customer_email,
-                "first_name": customer_name.split()[0] if customer_name else None,
-                "last_name": " ".join(customer_name.split()[1:]) if customer_name and len(customer_name.split()) > 1 else None,
-            } if customer_email else None
-        },
-        "redirect_urls": {
-            "return_url": request.build_absolute_uri(reverse('core:execute_payment')),
-            "cancel_url": request.build_absolute_uri(reverse('core:payment_failed')),
-        },
-        "transactions": [
-            {
-                "amount": {
-                    "total": amount_total,  # Total amount in USD
-                    "currency": "USD",
-                },
-                "description": description,
-            }
-        ],
-    })
-
-    if payment.create():
-        # Store order JSON in session
-        request.session['order_json'] = order_json
+    print("📝 Creating PayPal payment object...")
+    
+    try:
+        payment = paypalrestsdk.Payment({
+            "intent": "sale",
+            "payer": {
+                "payment_method": "paypal",
+                "payer_info": {
+                    "email": customer_email,
+                    "first_name": customer_name.split()[0] if customer_name else None,
+                    "last_name": " ".join(customer_name.split()[1:]) if customer_name and len(customer_name.split()) > 1 else None,
+                } if customer_email else None
+            },
+            "redirect_urls": {
+                "return_url": request.build_absolute_uri(reverse('core:execute_payment')),
+                "cancel_url": request.build_absolute_uri(reverse('core:payment_failed')),
+            },
+            "transactions": [
+                {
+                    "amount": {
+                        "total": amount_total,  # Total amount in USD
+                        "currency": "USD",
+                    },
+                    "description": description,
+                }
+            ],
+        })
         
-        # Find the approval URL from PayPal response
-        approval_url = None
-        if hasattr(payment, 'links') and payment.links:
-            for link in payment.links:
-                if hasattr(link, 'rel') and link.rel == 'approval_url':
-                    approval_url = link.href
-                    break
+        print("🔄 Attempting to create payment with PayPal...")
         
-        if approval_url:
-            return redirect(approval_url)
+        if payment.create():
+            print("✅ PayPal payment created successfully")
+            # Store order JSON in session
+            request.session['order_json'] = order_json
+            
+            # Find the approval URL from PayPal response
+            approval_url = None
+            if hasattr(payment, 'links') and payment.links:
+                print(f"Payment links count: {len(payment.links)}")
+                for idx, link in enumerate(payment.links):
+                    print(f"Link {idx}: rel={link.rel}, href={link.href}")
+                    if hasattr(link, 'rel') and link.rel == 'approval_url':
+                        approval_url = link.href
+                        break
+            
+            if approval_url:
+                print(f"✅ Redirecting to PayPal: {approval_url[:50]}...")
+                return redirect(approval_url)
+            else:
+                print(f"❌ No approval URL found in PayPal payment response")
+                print(f"Payment links: {payment.links if hasattr(payment, 'links') else 'No links'}")
+                return render(request, 'speedy_app/payment_failed.html', {
+                    'error_message': 'PayPal payment created but no approval URL found. Please try again.'
+                })
         else:
-            print(f"ERROR: No approval URL found in PayPal payment response")
-            print(f"Payment links: {payment.links if hasattr(payment, 'links') else 'No links'}")
+            error_message = 'Payment creation failed.'
+            if hasattr(payment, 'error'):
+                error_message = f"PayPal Error: {payment.error}"
+                print(f"❌ PayPal payment creation error: {payment.error}")
+            else:
+                print(f"❌ PayPal payment creation failed (no error details)")
             return render(request, 'speedy_app/payment_failed.html', {
-                'error_message': 'PayPal payment created but no approval URL found. Please try again.'
+                'error_message': error_message
             })
-    else:
-        error_message = 'Payment creation failed.'
-        if hasattr(payment, 'error'):
-            error_message = f"PayPal Error: {payment.error}"
-            print(f"PayPal payment creation error: {payment.error}")
+    except Exception as e:
+        print(f"❌ Exception during PayPal payment creation: {e}")
+        import traceback
+        traceback.print_exc()
         return render(request, 'speedy_app/payment_failed.html', {
-            'error_message': error_message
+            'error_message': f'Error creating payment: {str(e)}'
         })
 
 def execute_payment(request):
