@@ -22,7 +22,7 @@ class Command(BaseCommand):
         self.stdout.write("=" * 50)
         self.stdout.write("✅ Simple email testing completed!")
         self.stdout.write("📬 Check these email addresses for test emails:")
-        self.stdout.write("   - cmelendezgp@gmail.com")
+        self.stdout.write("   - info@speedytransfers.mx")
         self.stdout.write("   - adolfomariscalh@hotmail.com")
 
     def test_simple_email(self):
@@ -54,11 +54,11 @@ Speedy Transfers Team
                     tls=settings.EMAIL_USE_TLS
                 ),
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=['cmelendezgp@gmail.com'],
+                recipient_list=['info@speedytransfers.mx'],
                 fail_silently=False,
             )
             
-            self.stdout.write("✅ Basic test email sent successfully to cmelendezgp@gmail.com")
+            self.stdout.write("✅ Basic test email sent successfully to info@speedytransfers.mx")
             
         except Exception as e:
             self.stdout.write(f"❌ Basic test email failed: {e}")
@@ -97,7 +97,7 @@ Best regards,
 Speedy Transfers System
                 ''',
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=['cmelendezgp@gmail.com', 'adolfomariscalh@hotmail.com'],
+                recipient_list=['info@speedytransfers.mx', 'adolfomariscalh@hotmail.com'],
                 fail_silently=False,
             )
             
@@ -153,11 +153,11 @@ Best regards,
 Speedy Transfers Team
                 ''',
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=['cmelendezgp@gmail.com'],
+                recipient_list=['info@speedytransfers.mx'],
                 fail_silently=False,
             )
             
-            self.stdout.write("✅ Booking confirmation email sent successfully to cmelendezgp@gmail.com")
+            self.stdout.write("✅ Booking confirmation email sent successfully to info@speedytransfers.mx")
             
         except Exception as e:
             self.stdout.write(f"❌ Booking confirmation email failed: {e}")

@@ -226,7 +226,7 @@ npm install
 ## Windows
 
 ### **1. Install Python**
-- Download Python from [python.org](https://www.python.org/downloads/)
+- Download Python from [python.org](https://www.python.ornode --vg/downloads/)
 - During installation, check "Add Python to PATH"
 - Verify installation: `python --version`
 
@@ -241,7 +241,7 @@ npm install
 ### **4. Create Virtual Environment**
 ```powershell
 # Navigate to project directory
-cd speedy-transfer-main
+cd speedy-transfer
 
 # Create virtual environment
 python -m venv venv
@@ -405,5 +405,6 @@ __pycache__/
 
 ## Support
 
-For technical support or questions, please contact the development team.#   S p e e d y  
+For technical support or questions, please contact the development team.#   S p e e d y 
+ 
  

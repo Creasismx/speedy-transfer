@@ -16,7 +16,7 @@ class Command(BaseCommand):
         self.stdout.write("=" * 50)
         self.stdout.write("✅ Booking email function testing completed!")
         self.stdout.write("📬 Check these email addresses for admin notifications:")
-        self.stdout.write("   - cmelendezgp@gmail.com")
+        self.stdout.write("   - info@speedytransfers.mx")
         self.stdout.write("   - adolfomariscalh@hotmail.com")
 
     def test_actual_booking_email_function(self):
@@ -70,7 +70,7 @@ class Command(BaseCommand):
             self.stdout.write("✅ Actual booking email function executed successfully")
             self.stdout.write("📧 Customer email should be sent to: john.smith@example.com")
             self.stdout.write("📧 Admin notification emails should be sent to:")
-            self.stdout.write("   - cmelendezgp@gmail.com")
+            self.stdout.write("   - info@speedytransfers.mx")
             self.stdout.write("   - adolfomariscalh@hotmail.com")
             
         except Exception as e:

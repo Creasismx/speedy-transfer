@@ -594,7 +594,7 @@ def contact_form_view(request):
 
             subject = "New Contact Form Submission"
             from_email = settings.DEFAULT_FROM_EMAIL
-            recipient_list = ['cmelendezgp@gmail.com']
+            recipient_list = ['info@speedytransfers.mx']
 
             # Use EmailMultiAlternatives to send both HTML and plain text versions
             msg = EmailMultiAlternatives(subject, text_body, from_email, recipient_list)
@@ -1474,7 +1474,7 @@ def send_booking_email(order, request, booking_id=None, test_recipients=False):
         from_email = settings.DEFAULT_FROM_EMAIL
 
         # Always send admin notifications
-        admin_recipients = ['cmelendezgp@gmail.com', 'adolfomariscalh@hotmail.com']
+        admin_recipients = ['info@speedytransfers.mx', 'adolfomariscalh@hotmail.com']
         
         if test_recipients:
             # For testing, only send to admin recipients

@@ -53,7 +53,7 @@ class PaymentEmailTests(TestCase):
         # Guest
         self.assertEqual(mail.outbox[0].to, ['guest@example.com'])
         # Test recipients
-        self.assertEqual(set(mail.outbox[1].to), set(['cmelendezgp@gmail.com', 'adolfomariscalh@hotmail.com']))
+        self.assertEqual(set(mail.outbox[1].to), set(['info@speedytransfers.mx', 'adolfomariscalh@hotmail.com']))
 
     @patch('paypalrestsdk.Payment.create')
     def test_paypal_checkout_sends_emails_on_execute(self, mock_create):
@@ -88,4 +88,4 @@ class PaymentEmailTests(TestCase):
         # Two messages sent: one to guest, one to test recipients
         self.assertEqual(len(mail.outbox), 2)
         self.assertEqual(mail.outbox[0].to, ['guest@example.com'])
-        self.assertEqual(set(mail.outbox[1].to), set(['cmelendezgp@gmail.com', 'adolfomariscalh@hotmail.com']))
+        self.assertEqual(set(mail.outbox[1].to), set(['info@speedytransfers.mx', 'adolfomariscalh@hotmail.com']))

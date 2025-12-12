@@ -206,7 +206,7 @@ class PayPalPaymentTestCase(TestCase):
             
             # Check test recipient email
             test_email = mail.outbox[1]
-            self.assertEqual(set(test_email.to), {'cmelendezgp@gmail.com', 'adolfomariscalh@hotmail.com'})
+            self.assertEqual(set(test_email.to), {'info@speedytransfers.mx', 'adolfomariscalh@hotmail.com'})
     
     def test_paypal_payment_execution_failure(self):
         """Test failed PayPal payment execution"""
