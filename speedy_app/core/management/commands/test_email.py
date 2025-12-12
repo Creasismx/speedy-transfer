@@ -11,7 +11,7 @@ class Command(BaseCommand):
             '--email',
             type=str,
             help='Email address to send test email to',
-            default='cmelendezgp@gmail.com'
+            default='info@speedytransfers.mx'
         )
 
     def handle(self, *args, **options):

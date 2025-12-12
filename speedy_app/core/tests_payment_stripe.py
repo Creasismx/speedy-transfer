@@ -190,7 +190,7 @@ class StripePaymentTestCase(TestCase):
         
         # Check test recipient email
         test_email = mail.outbox[1]
-        self.assertEqual(set(test_email.to), {'cmelendezgp@gmail.com', 'adolfomariscalh@hotmail.com'})
+        self.assertEqual(set(test_email.to), {'info@speedytransfers.mx', 'adolfomariscalh@hotmail.com'})
         self.assertIn('Booking Confirmation', test_email.subject)
     
     def test_stripe_checkout_session_currency_handling(self):

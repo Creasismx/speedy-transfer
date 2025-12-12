@@ -142,7 +142,7 @@ class PaymentIntegrationTestCase(TestCase):
             
             # Check test recipient email
             test_email = mail.outbox[1]
-            self.assertEqual(set(test_email.to), {'cmelendezgp@gmail.com', 'adolfomariscalh@hotmail.com'})
+            self.assertEqual(set(test_email.to), {'info@speedytransfers.mx', 'adolfomariscalh@hotmail.com'})
     
     @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
     def test_complete_paypal_payment_flow(self):
