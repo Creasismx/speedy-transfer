@@ -222,7 +222,7 @@ class ResultsView(TemplateView):
                 else:
                     # Prefer catalog-based filtering, fallback to legacy car.type
                     # Use exact match now that car type codes are cleaned
-                    rates = Rate.objects.filter(
+                    rates = Rate.objects.select_related('car', 'car__car_type').filter(
                         zone_id=zone_id,
                         travel_type=travel_type_db
                     ).filter(
@@ -1075,7 +1075,7 @@ def create_booking_record(order, request):
             car_obj = Car.objects.first()
             if not car_obj:
                 # Create a minimal CarType and Car so tests can create bookings
-                from .models import CarType
+                # Create a minimal CarType and Car so tests can create bookings
                 try:
                     cartype = CarType.objects.create(code='TEST', name='Test Vehicle')
                 except Exception:
@@ -1477,14 +1477,14 @@ def send_booking_email(order, request, booking_id=None, test_recipients=False):
         admin_recipients = ['info@speedytransfers.mx', 'adolfomariscalh@hotmail.com']
         
         if test_recipients:
-            # For testing, only send to admin recipients
+            # For testing or admin notification, only send to admin recipients
             recipient_list = admin_recipients
         else:
-            # For real bookings, send to both customer and admin
+            # For real bookings, send ONLY to customer (admins get separate email)
             if not guest_email:
                 print("ERROR: Guest email not found in order JSON for booking email.")
                 return
-            recipient_list = [guest_email] + admin_recipients
+            recipient_list = [guest_email]
 
         msg = EmailMultiAlternatives(subject, text_body, from_email, recipient_list)
         msg.attach_alternative(html_body, "text/html")

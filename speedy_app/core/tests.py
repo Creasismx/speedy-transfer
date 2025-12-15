@@ -62,7 +62,7 @@ class PaymentEmailTests(TestCase):
         # Mock the Payment.links with approval url at index 1
         with patch('paypalrestsdk.Payment') as MockPayment:
             instance = MockPayment.return_value
-            instance.links = [type('link', (), {'href': '/link0'}), type('link', (), {'href': '/paypal-redirect'})]
+            instance.links = [type('link', (), {'href': '/link0', 'rel': 'cancel_url'}), type('link', (), {'href': '/paypal-redirect', 'rel': 'approval_url'})]
 
             # Create payment (store session)
             resp = self.client.post(

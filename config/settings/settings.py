@@ -190,6 +190,9 @@ STATICFILES_FINDERS = (
 STATIC_URL = '/assets/'
 STATIC_ROOT = str(BASE_DIR / 'staticfiles')
 
+# WhiteNoise storage for compression and caching
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 WSGI_APPLICATION = "config.wsgi.application"
 
 # Database configuration is defined above (lines 105-130)
