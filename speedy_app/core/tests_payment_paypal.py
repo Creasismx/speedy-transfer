@@ -97,8 +97,8 @@ class PayPalPaymentTestCase(TestCase):
         mock_payment = Mock()
         mock_payment.create.return_value = True
         mock_payment.links = [
-            Mock(href='http://cancel.url'),  # Cancel link
-            Mock(href='https://www.sandbox.paypal.com/checkoutnow?token=test_token')  # Approval link
+            Mock(href='http://cancel.url', rel='cancel_url'),  # Cancel link
+            Mock(href='https://www.sandbox.paypal.com/checkoutnow?token=test_token', rel='approval_url')  # Approval link
         ]
         self.mock_paypal_payment.return_value = mock_payment
         
@@ -134,8 +134,8 @@ class PayPalPaymentTestCase(TestCase):
         mock_payment = Mock()
         mock_payment.create.return_value = True
         mock_payment.links = [
-            Mock(href='http://cancel.url'),
-            Mock(href='https://www.sandbox.paypal.com/checkoutnow?token=test_token')
+            Mock(href='http://cancel.url', rel='cancel_url'),
+            Mock(href='https://www.sandbox.paypal.com/checkoutnow?token=test_token', rel='approval_url')
         ]
         self.mock_paypal_payment.return_value = mock_payment
         
@@ -275,8 +275,8 @@ class PayPalPaymentTestCase(TestCase):
         mock_payment = Mock()
         mock_payment.create.return_value = True
         mock_payment.links = [
-            Mock(href='http://cancel.url'),
-            Mock(href='https://www.sandbox.paypal.com/checkoutnow?token=test_token')
+            Mock(href='http://cancel.url', rel='cancel_url'),
+            Mock(href='https://www.sandbox.paypal.com/checkoutnow?token=test_token', rel='approval_url')
         ]
         self.mock_paypal_payment.return_value = mock_payment
         
@@ -298,8 +298,8 @@ class PayPalPaymentTestCase(TestCase):
         mock_payment = Mock()
         mock_payment.create.return_value = True
         mock_payment.links = [
-            Mock(href='http://cancel.url'),
-            Mock(href='https://www.sandbox.paypal.com/checkoutnow?token=test_token')
+            Mock(href='http://cancel.url', rel='cancel_url'),
+            Mock(href='https://www.sandbox.paypal.com/checkoutnow?token=test_token', rel='approval_url')
         ]
         self.mock_paypal_payment.return_value = mock_payment
         
@@ -338,8 +338,8 @@ class PayPalPaymentTestCase(TestCase):
         mock_payment = Mock()
         mock_payment.create.return_value = True
         mock_payment.links = [
-            Mock(href='http://cancel.url'),
-            Mock(href='https://www.sandbox.paypal.com/checkoutnow?token=test_token')
+            Mock(href='http://cancel.url', rel='cancel_url'),
+            Mock(href='https://www.sandbox.paypal.com/checkoutnow?token=test_token', rel='approval_url')
         ]
         self.mock_paypal_payment.return_value = mock_payment
         
@@ -367,8 +367,8 @@ class PayPalPaymentTestCase(TestCase):
         mock_payment = Mock()
         mock_payment.create.return_value = True
         mock_payment.links = [
-            Mock(href='http://cancel.url'),
-            Mock(href='https://www.sandbox.paypal.com/checkoutnow?token=test_token')
+            Mock(href='http://cancel.url', rel='cancel_url'),
+            Mock(href='https://www.sandbox.paypal.com/checkoutnow?token=test_token', rel='approval_url')
         ]
         self.mock_paypal_payment.return_value = mock_payment
 

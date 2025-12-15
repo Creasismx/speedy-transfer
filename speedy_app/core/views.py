@@ -708,9 +708,13 @@ def create_payment(request):
             if hasattr(payment, 'links') and payment.links:
                 print(f"Payment links count: {len(payment.links)}")
                 for idx, link in enumerate(payment.links):
-                    print(f"Link {idx}: rel={link.rel}, href={link.href}")
-                    if hasattr(link, 'rel') and link.rel == 'approval_url':
-                        approval_url = link.href
+                    # Handle both object attribute and dictionary access for robustness
+                    rel = getattr(link, 'rel', None) or (link.get('rel') if isinstance(link, dict) else None)
+                    href = getattr(link, 'href', None) or (link.get('href') if isinstance(link, dict) else None)
+                    
+                    print(f"Link {idx}: rel={rel}, href={href}")
+                    if rel == 'approval_url':
+                        approval_url = href
                         break
             
             if approval_url:
@@ -954,7 +958,7 @@ def create_booking_record(order, request):
     Creates a booking record in the database from the order data.
     """
     try:
-        from .models import Booking, Hotel, Car
+        from .models import Booking, Hotel, Car, CarType
         from datetime import datetime, timedelta
         
         # Parse datetime strings
