@@ -221,7 +221,7 @@ class PaymentConfigurationTests(TestCase):
                 
                 response = client.post(reverse('core:create_payment'), {
                     'order_json': json.dumps(test_order)
-                })
+                }, content_type='application/x-www-form-urlencoded')
                 
                 self.assertEqual(response.status_code, 302)
                 mock_paypal_payment.assert_called_once()
