@@ -1,12 +1,12 @@
 import requests
 import json
-from decouple import config
+import os
 
 def make_paypal_payment(amount, currency, return_url, cancel_url):
     # Set up PayPal API credentials
-    client_id = config("PAYPAL_ID")
-    secret = config("PAYPAL_SECRET")
-    url =config("PAYPAL_BASE_URL")
+    client_id = os.getenv("PAYPAL_ID")
+    secret = os.getenv("PAYPAL_SECRET")
+    url = os.getenv("PAYPAL_BASE_URL")
     # Set up API endpoints
     base_url = url
     token_url = base_url + '/v1/oauth2/token'
@@ -55,9 +55,9 @@ def make_paypal_payment(amount, currency, return_url, cancel_url):
 
 def verify_paypal_payment(payment_id):
     # Set up PayPal API credentials
-    client_id = config("PAYPAL_ID")
-    secret = config("PAYPAL_SECRET")
-    url =config("PAYPAL_BASE_URL")
+    client_id = os.getenv("PAYPAL_ID")
+    secret = os.getenv("PAYPAL_SECRET")
+    url = os.getenv("PAYPAL_BASE_URL")
 
     # Set up API endpoints
     base_url = url
