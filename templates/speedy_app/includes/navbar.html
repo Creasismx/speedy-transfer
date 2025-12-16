@@ -1,10 +1,10 @@
 {% load static %}
 
-<div class="navbar bg-base-100">
+<div class="navbar bg-base-100 py-6 min-h-[6rem]">
   <div class="navbar-start">
     <div class="dropdown">
       <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
         </svg>
       </div>
@@ -39,34 +39,37 @@
             Contact Us
           </a>
         </li>
-        
+
       </ul>
     </div>
-    <a href="{% url 'core:home_view' %}" class="btn btn-ghost text-xl w-64"><img
-        src="{% static 'images/Copia-de-logos-Mesa-de-trabajo-1-02.png' %}" alt="Logo de Speedy Transfers"></a>
+    <a href="{% url 'core:home_view' %}" class="btn btn-ghost text-2xl w-96 h-auto"><img
+        src="{% static 'images/Copia-de-logos-Mesa-de-trabajo-1-02.png' %}" alt="Logo de Speedy Transfers"
+        class="h-24"></a>
   </div>
   <div class="navbar-center hidden lg:flex">
-    <ul class="menu menu-horizontal px-1 font-bold">
+    <ul class="menu menu-horizontal px-1 font-bold text-2xl">
       <li><a href="#destinos"
-          class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884]">Destinations</a>
+          class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884] text-2xl">Destinations</a>
       </li>
       <li><a href="#servicios"
-          class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884]">Services</a>
+          class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884] text-2xl">Services</a>
       </li>
       <li><a href="#nosotros"
-          class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884]">About
+          class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884] text-2xl">About
           Us</a></li>
       <li><a href="#testimonios"
-          class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884]">Testimonials</a>
+          class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884] text-2xl">Testimonials</a>
       </li>
       <li><a href="#contactanos"
-          class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884]">Contact
+          class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884] text-2xl">Contact
           Us</a></li>
-      
+
     </ul>
   </div>
   <div class="navbar-end">
-    <a href="{% url 'core:home_view' %}#fechas" class="btn bg-[#4abbc1] hover:bg-[#047884] leading-[21px] gap-[10px] border-none text-white px-[28px] py-[12px]">Find a Transfer</a>
-    
+    <a href="{% url 'core:home_view' %}#fechas"
+      class="btn bg-[#4abbc1] hover:bg-[#047884] leading-[21px] gap-[10px] border-none text-white px-[40px] py-[20px] h-auto text-2xl">Find
+      a Transfer</a>
+
   </div>
 </div>
