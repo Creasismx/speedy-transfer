@@ -660,6 +660,7 @@ def create_payment(request):
 
     print("📝 Creating PayPal payment object...")
     
+    
     # Safely parse customer name
     first_name = None
     last_name = None
@@ -669,7 +670,28 @@ def create_payment(request):
             first_name = name_parts[0]
         if len(name_parts) > 1:
             last_name = " ".join(name_parts[1:])
+
+    print("🔄 Attempting to create payment with PayPal...")
     
+    # NEW STRATEGY: Create Booking record BEFORE payment to ensure persistence
+    booking_id = None
+    try:
+        if order_json:
+            order = json.loads(order_json)
+            # Add temporary payment method just for creation
+            order['payment_method'] = 'PAYPAL_PENDING'
+            booking = create_booking_record(order, request)
+            if booking:
+                booking_id = booking.id
+                print(f"✅ Pre-payment Booking created: {booking_id}")
+    except Exception as e:
+        print(f"⚠️ Failed to create pre-payment booking: {e}")
+
+    # Build return URL with booking_id
+    ex_url = request.build_absolute_uri(reverse('core:execute_payment'))
+    if booking_id:
+        ex_url += f"?booking_id={booking_id}"
+        
     try:
         payment = paypalrestsdk.Payment({
             "intent": "sale",
@@ -682,7 +704,7 @@ def create_payment(request):
                 } if customer_email else None
             },
             "redirect_urls": {
-                "return_url": request.build_absolute_uri(reverse('core:execute_payment')),
+                "return_url": ex_url,
                 "cancel_url": request.build_absolute_uri(reverse('core:payment_failed')),
             },
             "transactions": [
@@ -692,27 +714,22 @@ def create_payment(request):
                         "currency": "USD",
                     },
                     "description": description,
+                    "custom": str(booking_id) if booking_id else "" # Also store in custom field
                 }
             ],
         })
         
-        print("🔄 Attempting to create payment with PayPal...")
-        
         if payment.create():
             print("✅ PayPal payment created successfully")
-            # Store order JSON in session
-            request.session['order_json'] = order_json
+            
+            # Find the approval URL from PayPal response
             
             # Find the approval URL from PayPal response
             approval_url = None
             if hasattr(payment, 'links') and payment.links:
-                print(f"Payment links count: {len(payment.links)}")
-                for idx, link in enumerate(payment.links):
-                    # Handle both object attribute and dictionary access for robustness
+                for link in payment.links:
                     rel = getattr(link, 'rel', None) or (link.get('rel') if isinstance(link, dict) else None)
                     href = getattr(link, 'href', None) or (link.get('href') if isinstance(link, dict) else None)
-                    
-                    print(f"Link {idx}: rel={rel}, href={href}")
                     if rel == 'approval_url':
                         approval_url = href
                         break
@@ -721,20 +738,12 @@ def create_payment(request):
                 print(f"✅ Redirecting to PayPal: {approval_url[:50]}...")
                 return redirect(approval_url)
             else:
-                print(f"❌ No approval URL found in PayPal payment response")
-                print(f"Payment links: {payment.links if hasattr(payment, 'links') else 'No links'}")
                 return render(request, 'speedy_app/payment_failed.html', {
                     'error_message': 'PayPal payment created but no approval URL found. Please try again.'
                 })
         else:
-            error_message = 'Payment creation failed.'
-            if hasattr(payment, 'error'):
-                error_message = f"PayPal Error: {payment.error}"
-                print(f"❌ PayPal payment creation error: {payment.error}")
-            else:
-                print(f"❌ PayPal payment creation failed (no error details)")
             return render(request, 'speedy_app/payment_failed.html', {
-                'error_message': error_message
+                'error_message': 'Payment creation failed.'
             })
     except Exception as e:
         print(f"❌ Exception during PayPal payment creation: {e}")
@@ -747,43 +756,58 @@ def create_payment(request):
 def execute_payment(request):
     payment_id = request.GET.get('paymentId')
     payer_id = request.GET.get('PayerID')
+    booking_id = request.GET.get('booking_id') # Retrieve from URL
+    
+    print(f"🔄 Executing Payment: ID={payment_id}, Payer={payer_id}, Booking={booking_id}")
 
     payment = paypalrestsdk.Payment.find(payment_id)
 
     if payment.execute({"payer_id": payer_id}):
-        # Retrieve order JSON from session
-        order_json = request.session.get('order_json')
-        # Get order data for display and create booking
-        order_data = None
-        booking_id = None
+        print("✅ Payment executed successfully.")
         
-        if order_json:
+        order_data = None
+        
+        # Strategy: Retrieve existing booking from DB
+        from .models import Booking
+        from .utils import booking_to_order_data
+        
+        if booking_id:
             try:
-                order = json.loads(order_json)
-                order_data = order
-                # Add payment method information
-                order['payment_method'] = 'PayPal'
-                # Create booking record in database
-                booking = create_booking_record(order, request)
-                if booking:
-                    booking_id = booking.id
-                    # Create Payment record for reports
-                    create_payment_record(booking, 'PAYPAL', order.get('total', 0))
-                    # Send booking email to the guest with booking ID
-                    send_booking_email(order, request, booking_id=booking_id)
-                    # Send booking email to test recipients
-                    send_booking_email(order, request, booking_id=booking_id, test_recipients=True)
+                booking = Booking.objects.get(id=booking_id)
+                print(f"✅ Found Booking {booking_id} in DB.")
+                
+                # Update Booking Payment Status
+                booking.payment_method = 'PAYPAL'
+                booking.save() # Save status update
+                
+                # Create Payment Record
+                create_payment_record(booking, 'PAYPAL', booking.total_amount)
+                
+                # Reconstruct order_data for Email & Template
+                order_data = booking_to_order_data(booking)
+                
+                # Send Emails
+                if order_data:
+                    send_booking_email(order_data, request, booking_id=booking.id)
+                    send_booking_email(order_data, request, booking_id=booking.id, test_recipients=True)
+                
+            except Booking.DoesNotExist:
+                print(f"❌ Booking ID {booking_id} not found in DB.")
+                booking = None
             except Exception as e:
-                print(f"Error processing successful PayPal payment: {e}")
+                print(f"❌ Error processing booking {booking_id}: {e}")
                 import traceback
                 traceback.print_exc()
-        
+        else:
+             print("❌ No booking_id provided in URL.")
+             # Fallback to session/cache (removed for clarity, assuming new flow works)
+
         context = {
             'order_data': order_data,
             'booking_id': booking_id,
         }
         
-        return render(request, 'speedy_app/payment_success.html', context)
+        return render(request, 'speedy_app/payment_success_v2.html', context)
     else:
         return render(request, 'speedy_app/payment_failed.html')
 
