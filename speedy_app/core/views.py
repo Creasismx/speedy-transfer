@@ -675,17 +675,26 @@ def create_payment(request):
     
     # NEW STRATEGY: Create Booking record BEFORE payment to ensure persistence
     booking_id = None
+    booking_error = None
     try:
         if order_json:
             order = json.loads(order_json)
             # Add temporary payment method just for creation
             order['payment_method'] = 'PAYPAL_PENDING'
-            booking = create_booking_record(order, request)
+            booking, booking_error = create_booking_record(order, request) # Now returns tuple
             if booking:
                 booking_id = booking.id
                 print(f"✅ Pre-payment Booking created: {booking_id}")
+            elif booking_error:
+                 print(f"⚠️ Booking creation failed with: {booking_error}")
+                 return render(request, 'speedy_app/payment_failed.html', {
+                    'error_message': f'Could not initiate booking: {booking_error}'
+                })
     except Exception as e:
         print(f"⚠️ Failed to create pre-payment booking: {e}")
+        return render(request, 'speedy_app/payment_failed.html', {
+            'error_message': f'System error initiating booking: {str(e)}'
+        })
 
     # Build return URL with booking_id
     ex_url = request.build_absolute_uri(reverse('core:execute_payment'))
@@ -1166,13 +1175,19 @@ def create_booking_record(order, request):
         )
         
         print(f"✅ Booking record created successfully: ID {booking.id}")
-        return booking
+        return booking, None
         
     except Exception as e:
         print(f"❌ Error creating booking record: {e}")
         import traceback
+        error_msg = traceback.format_exc()
         traceback.print_exc()
-        return None
+        try:
+            with open('booking_error.log', 'a') as f:
+                f.write(f"\n\nERROR {datetime.now()}:\n{error_msg}\nORDER DATA:\n{json.dumps(order, default=str)}")
+        except:
+             pass
+        return None, str(e)
 
 
 def mock_stripe_checkout(request):
@@ -1208,7 +1223,7 @@ def mock_payment_success(request):
         try:
             order_data = json.loads(order_json)
             # Create booking record
-            booking = create_booking_record(order_data, request)
+            booking, _ = create_booking_record(order_data, request)
             # Send booking email with booking ID
             if booking:
                 # Create Payment record for reports
