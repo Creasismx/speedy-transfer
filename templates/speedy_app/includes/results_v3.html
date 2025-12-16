@@ -1,0 +1,489 @@
+{% load static %}
+{% load cache %}
+<style>
+    /* Enhanced visual highlight for selected transfer cards */
+    .transfer-card {
+        position: relative;
+        border-radius: 1rem;
+        /* match rounded-box look */
+        transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease, border-color 200ms ease;
+    }
+
+    .transfer-card.selected {
+        background: linear-gradient(90deg, rgba(74, 187, 193, 0.12), rgba(4, 120, 132, 0.06));
+        box-shadow: 0 10px 25px rgba(4, 120, 132, 0.25), 0 0 0 3px rgba(74, 187, 193, 0.65) inset;
+        transform: translateY(-2px);
+        border-color: #4abbc1;
+    }
+
+    .transfer-card.selected::after {
+        content: 'Selected';
+        position: absolute;
+        top: 10px;
+        right: 12px;
+        background: #4abbc1;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: 0.02em;
+        padding: 6px 10px;
+        border-radius: 9999px;
+        box-shadow: 0 4px 12px rgba(4, 120, 132, 0.3);
+    }
+
+    .transfer-card .card-title,
+    .transfer-card .stat-value {
+        transition: color 200ms ease;
+    }
+
+    .transfer-card.selected .card-title,
+    .transfer-card.selected .stat-value:not(.price-value) {
+        color: #047884;
+        /* accent text */
+    }
+
+    .transfer-card.selected img {
+        outline: 3px solid rgba(74, 187, 193, 0.5);
+        outline-offset: 2px;
+        border-radius: 0.75rem;
+    }
+
+    @keyframes pulseRing {
+        0% {
+            box-shadow: 0 0 0 0 rgba(74, 187, 193, 0.5);
+        }
+
+        70% {
+            box-shadow: 0 0 0 12px rgba(74, 187, 193, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(74, 187, 193, 0);
+        }
+    }
+
+    .transfer-card.selected::before {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        border-radius: inherit;
+        pointer-events: none;
+        animation: pulseRing 1.6s ease-out;
+    }
+</style>
+<section id="results" class="py-8 bg-slate-50">
+    <div class="container">
+        <div class="grid lg:grid-cols-3 gap-8 items-start">
+
+            <!-- Left Column: Results List -->
+            <div class="lg:col-span-2">
+                <div class="mb-6 flex justify-between items-center">
+                    <h1 class="text-2xl font-bold text-gray-800">Select Arrival Vehicle</h1>
+                    <span class="text-sm text-muted bg-white px-3 py-1 rounded shadow-sm">{{ transfer_options|length }}
+                        options
+                        available</span>
+                </div>
+
+                <div class="space-y-4">
+                    {% if transfer_options %}
+                    {% for option in transfer_options %}
+                    <div class="transfer-card card bg-white shadow-sm hover:shadow-md transition-all border border-slate-200 p-0 overflow-hidden cursor-pointer"
+                        data-transfer-id="{{ option.id }}" data-rate-id="{{ option.rate_id }}"
+                        data-car-id="{{ option.car_id }}" data-unit-number="{{ option.unit_number }}"
+                        data-vehicle-id="{{ option.id }}" data-car-capacity="{{ option.car_capacity }}"
+                        data-travel-type="{{ option.travel_type }}" data-price="{{ option.price }}"
+                        data-image-url="{{ option.image_url }}" data-departure-date="{{ option.departure_date }}"
+                        data-departure-time="{{ option.departure_time }}">
+
+                        <div class="flex flex-col sm:flex-row">
+                            <!-- Image -->
+                            <div class="w-full sm:w-1/3 bg-gray-100 relative">
+                                {% if option.image_url %}
+                                <img src="{{ option.image_url }}" alt="{{ option.car_name }}"
+                                    class="w-full h-full object-cover absolute inset-0"
+                                    onerror="this.src='https://placehold.co/400x300/e2e8f0/64748b?text={{ option.car_name|urlencode }}'; this.onerror=null;">
+                                {% else %}
+                                <div class="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
+                                    <span class="text-xs">No Image</span>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Content -->
+                            <div class="flex-1 p-5 flex flex-col justify-between">
+                                <div>
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h2 class="card-title text-xl font-bold text-gray-900">{{ option.car_name }}
+                                        </h2>
+                                        <span
+                                            class="bg-blue-50 text-primary text-xs font-bold px-2 py-1 rounded uppercase">Private</span>
+                                    </div>
+
+                                    <div class="flex items-center gap-4 text-sm text-gray-600 mb-4">
+                                        <div class="flex items-center gap-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                                </path>
+                                            </svg>
+                                            <span>Max {{ option.car_capacity }} pax</span>
+                                        </div>
+                                        <div class="flex items-center gap-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4">
+                                                </path>
+                                            </svg>
+                                            <span>Ample Luggage</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between items-end border-t pt-4 mt-auto">
+                                    <div class="text-xs text-gray-500">
+                                        Unit #{{ option.unit_number|stringformat:"03d" }}
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-xs text-gray-400 mb-0.5">Per Vehicle</div>
+                                        <div class="text-2xl font-bold text-primary price-value"
+                                            data-debug-price="{{ option.price }}">
+                                            ${{ option.price }}
+                                        </div>
+                                        <button class="btn btn-sm btn-primary mt-2 select-btn w-full">Select</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <!-- No Results Alert -->
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded shadow-sm">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-yellow-800">No transfer options found</h3>
+                                <div class="mt-2 text-sm text-yellow-700">
+                                    <p>{{ no_rates_message|default:"Please verify your pickup/dropoff locations and
+                                        passenger count." }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Right Column: Sticky Summary -->
+            <div class="lg:col-span-1">
+                <div class="sticky top-24 space-y-4">
+
+                    <!-- Trip Summary Card -->
+                    <div class="card bg-white shadow-md border border-slate-200 p-6">
+                        <h3 class="text-lg font-bold text-gray-900 border-b pb-3 mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                            Trip Details
+                        </h3>
+
+                        <div class="space-y-4 text-sm">
+                            <div>
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Pickup</span>
+                                {# Use simple if tags to avoid formatter breakage #}
+                                <p class="font-medium text-gray-800 truncate">
+                                    {% if request.GET.pickup_location %}
+                                    {{ request.GET.pickup_location }}
+                                    {% else %}
+                                    Not selected
+                                    {% endif %}
+                                </p>
+                                <p class="text-xs text-gray-500">
+                                    {% if request.GET.pickup_datetime %}
+                                    {{ request.GET.pickup_datetime }}
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </p>
+                            </div>
+
+                            <div>
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Dropoff</span>
+                                <p class="font-medium text-gray-800 truncate">
+                                    {% if request.GET.dropoff_location %}
+                                    {{ request.GET.dropoff_location }}
+                                    {% else %}
+                                    Not selected
+                                    {% endif %}
+                                </p>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Type</span>
+                                    <p class="font-medium text-gray-800">
+                                        {% if request.GET.trip_type %}
+                                        {{ request.GET.trip_type|title }}
+                                        {% else %}
+                                        One Way
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div>
+                                    <span
+                                        class="text-xs font-bold text-gray-400 uppercase tracking-wide">Passengers</span>
+                                    <p class="font-medium text-gray-800">
+                                        {% if request.GET.people %}
+                                        {{ request.GET.people }} Pax
+                                        {% else %}
+                                        0 Pax
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booking Status Card -->
+                    <div class="card bg-slate-800 text-white p-6 shadow-xl">
+                        <h3 class="text-lg font-bold mb-2">Booking Status</h3>
+                        <div id="selection-status" class="text-sm text-slate-300 mb-6">
+                            Select vehicles to continue.
+                        </div>
+                        <a href="{% url 'core:summary_view' %}"
+                            class="book-btn btn w-full bg-secondary hover:bg-amber-600 text-white border-0 font-bold py-3 shadow-lg opacity-50 pointer-events-none transition-all">
+                            Book Now
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const transferCards = document.querySelectorAll('.transfer-card');
+        const bookButton = document.querySelector('.book-btn');
+        const selectionStatus = document.getElementById('selection-status');
+
+        let selectedTransfers = [];
+
+        // Helper to safely parse integers
+        function toInt(value, fallback) {
+            const n = parseInt(value, 10);
+            return isNaN(n) ? (fallback ?? 0) : n;
+        }
+
+        function getSelectedOptionText(selectEl) {
+            if (!selectEl) return '';
+            const opt = selectEl.options[selectEl.selectedIndex];
+            return opt ? opt.textContent.trim() : '';
+        }
+
+        function collectFechasData() {
+            // Re-collect parameters from the URL if not present in inputs
+            // This helper is for the results page where inputs might be hidden or from the query strings
+            // Ideally we read from the URL parameters as the source of truth if input elements are not available
+            const urlParams = new URLSearchParams(window.location.search);
+
+            const pickupDTStub = document.createElement('input');
+            pickupDTStub.value = urlParams.get('pickup_datetime') || '';
+
+            const pickupLocStub = document.createElement('select');
+
+            // Basic reconstruction
+            const dates = {
+                pickup_datetime: urlParams.get('pickup_datetime') || '',
+                pickup_location_id: urlParams.get('pickup_location') || '',
+                pickup_location_name: urlParams.get('pickup_location') || 'Selected Location', // Fallback name
+                dropoff_location_id: urlParams.get('dropoff_location') || '',
+                dropoff_location_name: urlParams.get('dropoff_location') || 'Selected Location',
+                people: urlParams.get('people') || 0,
+                trip_type: urlParams.get('trip_type') || 'oneway',
+                car_type_value: urlParams.get('car_type') || ''
+            };
+
+            // Also try to read from DOM elements if they exist (e.g. from the search bar included at top)
+            const pickupDT = document.querySelector('input[name="pickup_datetime"]');
+            if (pickupDT) dates.pickup_datetime = pickupDT.value;
+
+            // ... logic continues same as before but respecting available elements
+            return dates;
+        }
+
+        // Existing functions ...
+        function getRequiredPassengers() {
+            // Try to get from URL if input not found
+            const peopleInput = document.querySelector('input[name="people"]');
+            if (peopleInput) return toInt(peopleInput.value, 0);
+            const urlParams = new URLSearchParams(window.location.search);
+            return toInt(urlParams.get('people'), 0);
+        }
+
+        function isSingleSelectionRequired() {
+            const requiredPassengers = getRequiredPassengers();
+            if (selectedTransfers.length === 0) return false;
+            const firstCapacity = toInt(selectedTransfers[0].car_capacity, 0);
+            return requiredPassengers > 0 && firstCapacity > 0 && requiredPassengers <= firstCapacity;
+        }
+
+        function updateBookButtonState() {
+            const requiredPassengers = getRequiredPassengers();
+            const totalCapacity = selectedTransfers.reduce((sum, t) => sum + (toInt(t.car_capacity, 0)), 0);
+            const totalVehicles = selectedTransfers.length;
+            const covered = requiredPassengers > 0 ? totalCapacity >= requiredPassengers : totalVehicles > 0;
+            const remaining = Math.max(0, requiredPassengers - totalCapacity);
+
+            const singleMode = isSingleSelectionRequired();
+            if (singleMode && selectedTransfers.length > 1) {
+                const keepId = selectedTransfers[0]?.id;
+                selectedTransfers = keepId ? selectedTransfers.filter(t => t.id === keepId) : [];
+                transferCards.forEach(card => {
+                    const cardId = card.getAttribute('data-transfer-id');
+                    if (cardId !== keepId) {
+                        card.classList.remove('selected', 'ring-4', 'ring-offset-2', 'ring-[#4abbc1]', 'shadow-2xl');
+                    }
+                });
+            }
+
+            if (selectionStatus) {
+                if (singleMode) {
+                    selectionStatus.textContent = requiredPassengers > 0
+                        ? `Select 1 vehicle • Must cover ${requiredPassengers} pax`
+                        : 'Select 1 vehicle';
+                } else {
+                    if (requiredPassengers > 0) {
+                        selectionStatus.textContent = `Capacity selected: ${totalCapacity}/${requiredPassengers}` + (remaining > 0 ? ` • Need ${remaining} more seat${remaining === 1 ? '' : 's'}` : ' • Ready');
+                    } else {
+                        selectionStatus.textContent = totalVehicles > 0 ? `Selected ${totalVehicles} vehicle${totalVehicles === 1 ? '' : 's'}` : 'Select vehicles to cover your passengers.';
+                    }
+                }
+            }
+
+            if (!bookButton) return;
+            const currentHref = bookButton.getAttribute('href') || "{% url 'core:summary_view' %}";
+            if (!bookButton.getAttribute('data-original-href')) {
+                bookButton.setAttribute('data-original-href', currentHref);
+            }
+
+            if (covered) {
+                bookButton.classList.remove('btn-disabled');
+                bookButton.style.pointerEvents = 'auto';
+                bookButton.style.opacity = '1';
+                const vehiclesLabel = `${totalVehicles} vehicle${totalVehicles === 1 ? '' : 's'}`;
+                const paxLabel = requiredPassengers > 0 ? ` • Covers ${requiredPassengers} pax` : '';
+                bookButton.textContent = `Book ${vehiclesLabel}${paxLabel}`;
+                const originalHref = bookButton.getAttribute('data-original-href');
+                if (originalHref) {
+                    bookButton.setAttribute('href', originalHref);
+                }
+            } else {
+                bookButton.classList.add('btn-disabled');
+                bookButton.style.pointerEvents = 'none';
+                bookButton.style.opacity = '0.6';
+                if (singleMode) {
+                    bookButton.textContent = requiredPassengers > 0 ? `Select a vehicle that covers ${requiredPassengers} pax` : 'Select 1 vehicle first';
+                } else {
+                    bookButton.textContent = requiredPassengers > 0 ? `Select more vehicles (${totalCapacity}/${requiredPassengers} seats)` : 'Select vehicles first';
+                }
+                bookButton.removeAttribute('href');
+            }
+        }
+
+        updateBookButtonState();
+
+        transferCards.forEach((card, index) => {
+            card.addEventListener('click', function () {
+                const transferId = this.getAttribute('data-transfer-id') || `vehicle_${index}`;
+                const existingIndex = selectedTransfers.findIndex(t => t.id === transferId);
+
+                // ... extraction logic ...
+                const cardTitle = this.querySelector('.card-title')?.textContent || 'Unknown Vehicle';
+                const priceElement = this.querySelector('.price-value');
+                const priceText = priceElement ? priceElement.textContent : '$0 USD';
+                const rateId = this.getAttribute('data-rate-id') || transferId;
+                const carId = this.getAttribute('data-car-id') || '';
+                const unitNumber = this.getAttribute('data-unit-number') || '1';
+                const imageUrl = this.getAttribute('data-image-url') || this.querySelector('img')?.src || '';
+                const carCapacity = toInt(this.getAttribute('data-car-capacity') || '0', 0);
+                const travelType = this.getAttribute('data-travel-type') || '';
+                const priceNumeric = parseFloat(this.getAttribute('data-price') || '0');
+                const departureDate = this.getAttribute('data-departure-date') || '';
+                const departureTime = this.getAttribute('data-departure-time') || '';
+
+                const singleMode = isSingleSelectionRequired();
+
+                if (singleMode) {
+                    if (existingIndex >= 0) {
+                        // no-op
+                    } else {
+                        transferCards.forEach(c => {
+                            if (c !== this) c.classList.remove('selected', 'ring-4', 'ring-offset-2', 'ring-[#4abbc1]', 'shadow-2xl');
+                        });
+                        selectedTransfers = [];
+                        this.classList.add('selected', 'ring-4', 'ring-offset-2', 'ring-[#4abbc1]', 'shadow-2xl');
+                        selectedTransfers.push({
+                            id: transferId, rate_id: rateId, car_id: carId, unit_number: unitNumber,
+                            name: cardTitle, price_text: priceText, price_numeric: isNaN(priceNumeric) ? 0 : priceNumeric,
+                            currency: 'USD', date: departureDate, time: departureTime, image_url: imageUrl,
+                            car_capacity: carCapacity, travel_type: travelType, quantity: 1, selection_type: 'single_vehicle'
+                        });
+                    }
+                } else {
+                    if (existingIndex >= 0) {
+                        this.classList.remove('selected', 'ring-4', 'ring-offset-2', 'ring-[#4abbc1]', 'shadow-2xl');
+                        selectedTransfers.splice(existingIndex, 1);
+                    } else {
+                        this.classList.add('selected', 'ring-4', 'ring-offset-2', 'ring-[#4abbc1]', 'shadow-2xl');
+                        selectedTransfers.push({
+                            id: transferId, rate_id: rateId, car_id: carId, unit_number: unitNumber,
+                            name: cardTitle, price_text: priceText, price_numeric: isNaN(priceNumeric) ? 0 : priceNumeric,
+                            currency: 'USD', date: departureDate, time: departureTime, image_url: imageUrl,
+                            car_capacity: carCapacity, travel_type: travelType, quantity: 1, selection_type: 'multi_vehicle'
+                        });
+                    }
+                }
+                updateBookButtonState();
+            });
+        });
+
+        // Save functionality
+        if (bookButton) {
+            bookButton.addEventListener('click', function (e) {
+                const requiredPassengers = getRequiredPassengers();
+                const totalCapacity = selectedTransfers.reduce((sum, t) => sum + (toInt(t.car_capacity, 0)), 0);
+                const covered = requiredPassengers > 0 ? totalCapacity >= requiredPassengers : selectedTransfers.length > 0;
+
+                if (!covered || !this.getAttribute('href')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    alert(requiredPassengers > 0 ? 'Please select enough vehicles to cover all passengers.' : 'Please select at least one vehicle.');
+                    return false;
+                }
+
+                // Collect and Save
+                try {
+                    const fd = collectFechasData();
+                    sessionStorage.setItem('selectedTransfers', JSON.stringify(selectedTransfers));
+                    if (selectedTransfers.length > 0) sessionStorage.setItem('selectedTransfer', JSON.stringify(selectedTransfers[0]));
+                    sessionStorage.setItem('fechasData', JSON.stringify(fd));
+                } catch (err) { console.error(err); }
+
+                return true;
+            });
+        }
+    });
+</script>

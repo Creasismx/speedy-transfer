@@ -437,5 +437,47 @@
 
     // Initialize hidden inputs once
     refreshHiddenOrder();
+
+    // ==========================================
+    // BILLING FORM VALIDATION
+    // ==========================================
+    const billingForm = document.getElementById('billing-form');
+
+    function validateBillingForm() {
+      if (!billingForm) return true;
+      if (!billingForm.reportValidity()) {
+        return false;
+      }
+      refreshHiddenOrder(); // Update with latest values
+      return true;
+    }
+
+    const pf = el('paypal-form');
+    const sf = el('stripe-form');
+
+    if (pf) {
+      pf.addEventListener('submit', function (e) {
+        if (!validateBillingForm()) {
+          e.preventDefault();
+          e.stopPropagation();
+          alert('Please fill in all required billing details before paying.');
+          return false;
+        }
+        if (el('c-payment-method')) el('c-payment-method').textContent = 'PayPal';
+      });
+    }
+
+    if (sf) {
+      sf.addEventListener('submit', function (e) {
+        if (!validateBillingForm()) {
+          e.preventDefault();
+          e.stopPropagation();
+          alert('Please fill in all required billing details before paying.');
+          return false;
+        }
+        if (el('c-payment-method')) el('c-payment-method').textContent = 'Stripe';
+      });
+    }
+
   })();
 </script>

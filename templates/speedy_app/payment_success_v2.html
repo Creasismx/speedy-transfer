@@ -24,8 +24,9 @@
         <!-- Booking Reference -->
         <div class="inline-block bg-white rounded-lg shadow-md px-6 py-3 mb-8">
             <span class="text-sm text-gray-500">Booking Reference:</span>
-            <span class="ml-2 font-mono font-semibold text-lg text-blue-600">SPEEDY-{{
-                booking_id|stringformat:"06d"|default:"PENDING" }}</span>
+            <span class="ml-2 font-mono font-semibold text-lg text-blue-600">
+                SPEEDY-{% if booking_id %}{{ booking_id }}{% else %}PENDING{% endif %}
+            </span>
         </div>
     </div>
 </section>
