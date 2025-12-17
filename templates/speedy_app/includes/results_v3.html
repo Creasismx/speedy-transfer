@@ -320,7 +320,29 @@
             const pickupDT = document.querySelector('input[name="pickup_datetime"]');
             if (pickupDT) dates.pickup_datetime = pickupDT.value;
 
-            // ... logic continues same as before but respecting available elements
+            const peopleInput = document.querySelector('input[name="people"]');
+            if (peopleInput) dates.people = peopleInput.value;
+
+            const pickupLoc = document.querySelector('select[name="pickup_location"]');
+            if (pickupLoc) {
+                dates.pickup_location_id = pickupLoc.value;
+                const opt = pickupLoc.options[pickupLoc.selectedIndex];
+                if (opt) dates.pickup_location_name = opt.textContent.trim();
+            }
+
+            const dropoffLoc = document.querySelector('select[name="dropoff_location"]');
+            if (dropoffLoc) {
+                dates.dropoff_location_id = dropoffLoc.value;
+                const opt = dropoffLoc.options[dropoffLoc.selectedIndex];
+                if (opt) dates.dropoff_location_name = opt.textContent.trim();
+            }
+
+            const tripTypeInput = document.querySelector('input[name="trip_type"]:checked');
+            if (tripTypeInput) dates.trip_type = tripTypeInput.value;
+
+            const returnDT = document.querySelector('input[name="return_datetime"]');
+            if (returnDT) dates.return_datetime = returnDT.value;
+
             return dates;
         }
 
