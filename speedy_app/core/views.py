@@ -1121,7 +1121,7 @@ def create_booking_record(order, request):
                     car_obj = Car.objects.create(name='Test Car', car_type=cartype, max=4)
                 except Exception as e:
                     print(f"❌ No cars available and failed to create test car: {e}")
-                    return None
+                    return None, f"No cars available: {e}"
         
         # Parse date of birth if provided
         customer_dob = None
