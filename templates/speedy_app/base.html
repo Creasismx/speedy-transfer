@@ -182,8 +182,12 @@
 
 {% endblock %}
 <script src=" https://cdn.jsdelivr.net/npm/@tailwindcss/typography@0.5.16/src/index.min.js "></script>
-<script src="{% static 'swiper-init.js' %}" type="module"></script>
+<!-- Swiper JS -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<!-- Initialize Swiper if needed -->
+<script>
+  // Ensure Swiper is loaded
+</script>
 <script>
   var swiper1 = new Swiper('.mySwiper1', {
     navigation: { nextEl: '.swiper-button-next1', prevEl: '.swiper-button-prev1' },
@@ -249,15 +253,19 @@
 
   function toggleContent() {
     const allContents = document.querySelectorAll('[id^="content-"]')
+    if (allContents.length === 0) return; // Exit if no content to toggle
+
     allContents.forEach((content) => {
       content.classList.add('hidden')
     })
     const selectedRadio = document.querySelector('input[name="options"]:checked')
-    const contentId = `content-${selectedRadio.id}`
-    const content = document.getElementById(contentId)
-    if (content) {
-      content.classList.remove('hidden')
-      content.classList.add('flex')
+    if (selectedRadio) {
+      const contentId = `content-${selectedRadio.id}`
+      const content = document.getElementById(contentId)
+      if (content) {
+        content.classList.remove('hidden')
+        content.classList.add('flex')
+      }
     }
   }
   const buttons = document.querySelectorAll('input[name="options"]')
@@ -265,7 +273,10 @@
     button.addEventListener('change', toggleContent)
   })
 
-  toggleContent()
+  // Only run if elements exist
+  if (buttons.length > 0) {
+    toggleContent()
+  }
 
   setTimeout(function () {
     var successMessage = document.getElementById('notification-message')
