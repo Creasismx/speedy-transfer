@@ -452,8 +452,9 @@
       return true;
     }
 
-    const pf = el('paypal-form');
-    const sf = el('stripe-form');
+    // Reuse existing reference or re-query if needed (but duplicated const is invalid)
+    // const pf = el('paypal-form'); // Already declared above
+    // const sf = el('stripe-form'); // Already declared above
 
     if (pf) {
       pf.addEventListener('submit', function (e) {
