@@ -151,23 +151,15 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="bg-purple-50 rounded-lg p-4">
                                     <div class="text-sm text-purple-600 font-medium mb-1">Pickup Location</div>
-                                    <div class="text-gray-800 font-semibold">{{
-                                        order_data.return_trip.pickup_location_name|default:"Not specified"|safe }}
-                                    </div>
-                                    <div class="text-sm text-gray-600">{{
-                                        order_data.return_trip.datetime|format_date|default:"Not specified" }}</div>
-                                    <div class="text-sm text-gray-600">{{
-                                        order_data.return_trip.datetime|format_time|default:"Not specified" }}</div>
+                                    <div class="text-gray-800 font-semibold">{{ order_data.return_trip.pickup_location_name|default:"Not specified"|safe }}</div>
+                                    <div class="text-sm text-gray-600">{{ order_data.return_trip.datetime|format_date|default:"Not specified" }}</div>
+                                    <div class="text-sm text-gray-600">{{ order_data.return_trip.datetime|format_time|default:"Not specified" }}</div>
                                 </div>
                                 <div class="bg-orange-50 rounded-lg p-4">
                                     <div class="text-sm text-orange-600 font-medium mb-1">Dropoff Location</div>
-                                    <div class="text-gray-800 font-semibold">{{
-                                        order_data.return_trip.dropoff_location_name|default:"Not specified"|safe }}
-                                    </div>
-                                    <div class="text-sm text-gray-600">{{
-                                        order_data.return_trip.datetime|format_date|default:"Not specified" }}</div>
-                                    <div class="text-sm text-gray-600">{{
-                                        order_data.return_trip.datetime|format_time|default:"Not specified" }}</div>
+                                    <div class="text-gray-800 font-semibold">{{ order_data.return_trip.dropoff_location_name|default:"Not specified"|safe }}</div>
+                                    <div class="text-sm text-gray-600">{{ order_data.return_trip.datetime|format_date|default:"Not specified" }}</div>
+                                    <div class="text-sm text-gray-600">{{ order_data.return_trip.datetime|format_time|default:"Not specified" }}</div>
                                 </div>
                             </div>
                         </div>
