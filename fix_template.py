@@ -1,4 +1,7 @@
-{% extends "./base.html" %}
+
+import os
+
+content = r"""{% extends "./base.html" %}
 {% load static %}
 {% load date_filters %}
 
@@ -369,4 +372,10 @@
     </div>
 </section>
 {% endif %}
-{% endblock content %}
+{% endblock content %}"""
+
+target_file = r"c:\Users\adolf\Documents\speedy-transfer\templates\speedy_app\payment_success_v2.html"
+
+with open(target_file, 'w', encoding='utf-8') as f:
+    f.write(content)
+print(f"Successfully overwrote {target_file}")
