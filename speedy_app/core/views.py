@@ -184,7 +184,7 @@ class ResultsView(TemplateView):
         if not car_type_id:
             print("ERROR: No car_type_id provided")
             
-        if pickup_location_id and car_type_id:
+        if pickup_location_id:
             try:
                 # Get the pickup hotel to find its zone_id
                 print(f"Looking for pickup hotel with ID: {pickup_location_id}")
@@ -225,9 +225,12 @@ class ResultsView(TemplateView):
                     rates = Rate.objects.select_related('car', 'car__car_type').filter(
                         zone_id=zone_id,
                         travel_type=travel_type_db
-                    ).filter(
-                        models.Q(car__car_type__code=car_type_id)
                     )
+                    
+                    if car_type_id:
+                        rates = rates.filter(
+                            models.Q(car__car_type__code__iexact=car_type_id)
+                        )
                 
                 print(f"Found {rates.count()} rates")
 
@@ -406,8 +409,8 @@ class ResultsView(TemplateView):
                             'image_url': image_url,
                             'price': base_rate.price,  # Use first rate's price
                             'travel_type': base_rate.travel_type,  # Use first rate's travel type
-                            'departure_date': context['pickup_datetime'].split('T')[0] if context['pickup_datetime'] else '',
-                            'departure_time': context['pickup_datetime'].split('T')[1] if context['pickup_datetime'] else '',
+                            'departure_date': context['pickup_datetime'].replace('T', ' ').split(' ')[0] if context['pickup_datetime'] else '',
+                            'departure_time': (context['pickup_datetime'].replace('T', ' ').split(' ')[1] if len(context['pickup_datetime'].replace('T', ' ').split(' ')) > 1 else '') if context['pickup_datetime'] else '',
                             'availability_status': 'available',
                             'total_fleet_size': total_cards,
                             'is_fleet_vehicle': total_cards > 1,
