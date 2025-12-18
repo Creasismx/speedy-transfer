@@ -827,27 +827,84 @@ def payment_failed(request):
     return render(request, 'speedy_app/payment_failed.html')
 
 def payment_success(request):
-    # On successful payment, attempt to send booking emails using stored order
-    order_data = None
-    booking_id = None
-    
     try:
-        order_json = request.session.get('order_json')
-        if order_json:
-            order = json.loads(order_json)
-            order_data = order
-            # Add payment method information
-            order['payment_method'] = 'Stripe'
-            # Create booking record in database
-            booking = create_booking_record(order, request)
-            if booking:
+        # On successful payment, attempt to send booking emails using stored order
+        order_data = None
+        booking_id = request.GET.get('booking_id')
+        session_id = request.GET.get('session_id')
+        
+        from .utils import booking_to_order_data
+        from .models import Booking
+        
+        print(f"✅ Payment Success View. Booking ID: {booking_id}, Session ID: {session_id}")
+    
+        # Strategy 1: Use Booking ID from URL (Preferred / New Flow)
+        if booking_id:
+            try:
+                booking = Booking.objects.get(id=booking_id)
+                # Update status
+                booking.payment_method = 'STRIPE'
+                booking.save()
+                
+                # Create payment record
+                create_payment_record(booking, 'STRIPE', booking.total_amount)
+                
+                # Reconstruct order_data
+                order_data = booking_to_order_data(booking)
                 booking_id = booking.id
-                # Create Payment record for reports
-                create_payment_record(booking, 'STRIPE', order.get('total', 0))
-                # Send booking emails with booking ID
-                send_booking_email(order, request, booking_id=booking_id)
-                send_booking_email(order, request, booking_id=booking_id, test_recipients=True)
-            # Don't delete session data yet - we need it for display
+                
+                # Send emails
+                print(f"📧 Ready to send emails. Order Data exists: {bool(order_data)}")
+                if order_data:
+                    print(f"📧 Calling send_booking_email for Customer...")
+                    send_booking_email(order_data, request, booking_id=booking_id)
+                    print(f"📧 Calling send_booking_email for Admin...")
+                    send_booking_email(order_data, request, booking_id=booking_id, test_recipients=True)
+                else:
+                    print("❌ Order Data is None, cannot send emails.")
+                    
+            except Booking.DoesNotExist:
+                print(f"❌ Booking {booking_id} not found in DB")
+            except Exception as e:
+                 print(f"❌ Error processing booking {booking_id}: {e}")
+    
+        # Strategy 2: Fallback to Session (Old Flow - likely to fail if session lost)
+        if not order_data:
+            try:
+                order_json = request.session.get('order_json')
+                if order_json:
+                    print("⚠️ Using session fallback for payment success")
+                    order = json.loads(order_json)
+                    order_data = order
+                    order['payment_method'] = 'Stripe'
+                    # Check if we need to create booking (if not passed in URL)
+                    if not booking_id:
+                        booking, _ = create_booking_record(order, request)
+                        if booking:
+                            booking_id = booking.id
+                            create_payment_record(booking, 'STRIPE', order.get('total', 0))
+                            print(f"📧 (Fallback) Calling send_booking_email for Customer...")
+                            send_booking_email(order, request, booking_id=booking_id)
+                            print(f"📧 (Fallback) Calling send_booking_email for Admin...")
+                            send_booking_email(order, request, booking_id=booking_id, test_recipients=True)
+            except Exception as e:
+                print(f"❌ Error in session fallback: {e}")
+    
+        # Don't delete session data yet - we need it for display if strategy 2 was used
+        
+        # Check if order_data is still None, try generic display
+        if not order_data and booking_id:
+             # Minimal context if reconstruction failed but ID exists
+             pass
+    
+        context = {
+            'session_id': session_id,
+            'order_data': order_data,
+            'booking_id': booking_id, # Ensure ID is passed to template
+        }
+        
+        # Use v2 template for better success page
+        return render(request, 'speedy_app/payment_success_v2.html', context)
     except Exception as e:
         print(f"Error during payment_success handling: {e}")
         import traceback
@@ -890,11 +947,24 @@ def create_checkout_session(request):
             line_items = []
             customer_email = None
             
+            # NEW STRATEGY: Create Booking record BEFORE Stripe session
+            booking_id = None
             if order_json:
                 try:
                     # Persist order for later email sending on success
                     request.session['order_json'] = order_json
                     order = json.loads(order_json)
+                    order['payment_method'] = 'STRIPE_PENDING'
+                    
+                    # Create booking immediately
+                    booking, booking_err = create_booking_record(order, request)
+                    if booking:
+                        booking_id = booking.id
+                        print(f"✅ Pre-payment Stripe Booking created: {booking_id}")
+                    elif booking_err:
+                        print(f"⚠️ Stripe Booking creation failed: {booking_err}")
+                        return redirect(f"{cancel_absolute}?error={quote(str(booking_err))}")
+
                     customer = order.get('customer', {})
                     customer_email = customer.get('email')
                     for item in order.get('items', []):
@@ -914,7 +984,8 @@ def create_checkout_session(request):
                             },
                             'quantity': 1
                         })
-                except Exception:
+                except Exception as e:
+                    print(f"Error preparing Stripe booking: {e}")
                     line_items = []
 
             if not line_items:
@@ -932,8 +1003,14 @@ def create_checkout_session(request):
                         'quantity': 1
                     }
                 ]
+            
+            # Add booking_id to success URL
+            success_url_final = f"{success_absolute}?session_id={{CHECKOUT_SESSION_ID}}"
+            if booking_id:
+                success_url_final += f"&booking_id={booking_id}"
+
             checkout_session = stripe.checkout.Session.create(
-                success_url=f"{success_absolute}?session_id={{CHECKOUT_SESSION_ID}}",
+                success_url=success_url_final,
                 cancel_url=cancel_absolute,
                 payment_method_types=['card'],
                 mode='payment',

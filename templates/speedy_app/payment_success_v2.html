@@ -75,8 +75,7 @@
                             <div>
                                 <span class="text-sm font-medium text-gray-500">City:</span>
                                 <p class="text-gray-800">
-                                    {{ order_data.customer.city }}{% if order_data.customer.zip %}, {{
-                                    order_data.customer.zip }}{% endif %}
+                                    {{ order_data.customer.city }} {{ order_data.customer.zip }}
                                 </p>
                             </div>
                             {% endif %}
@@ -214,8 +213,7 @@
                             <div class="text-sm text-gray-600">{{ item.date }} - {{ item.time }}</div>
                         </div>
                         <div class="text-right">
-                            <div class="font-semibold text-gray-800">{{ item.unit_amount|format_currency:item.currency
-                                }}</div>
+                            <div class="font-semibold text-gray-800">{{ item.unit_amount }} {{ item.currency }}</div>
                             <div class="text-sm text-gray-600">1 unit</div>
                         </div>
                     </div>
@@ -224,13 +222,11 @@
                     <div class="pt-4">
                         <div class="flex justify-between items-center py-2">
                             <span class="text-lg font-medium text-gray-700">Subtotal:</span>
-                            <span class="text-lg font-semibold text-gray-800">{{
-                                order_data.subtotal|format_currency:order_data.items.0.currency }}</span>
+                            <span class="text-lg font-semibold text-gray-800">{{ order_data.subtotal }}</span>
                         </div>
                         <div class="flex justify-between items-center py-2">
                             <span class="text-xl font-bold text-gray-800">Total:</span>
-                            <span class="text-2xl font-bold text-blue-600">{{
-                                order_data.total|format_currency:order_data.items.0.currency }}</span>
+                            <span class="text-2xl font-bold text-blue-600">{{ order_data.total }}</span>
                         </div>
                     </div>
                 </div>
