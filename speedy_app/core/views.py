@@ -1382,7 +1382,7 @@ def send_booking_email(order, request, booking_id=None, test_recipients=False):
     try:
         # Log email attempt
         print(f"📧 Attempting to send booking email (booking_id={booking_id}, test_recipients={test_recipients})")
-        print(f"📧 Email settings: HOST={settings.EMAIL_HOST}, PORT={settings.EMAIL_PORT}, USER={settings.EMAIL_HOST_USER}")
+        
         # Pull structured fields
         customer = order.get('customer', {}) or {}
         guest_name = customer.get('name') or 'Guest'
@@ -1431,6 +1431,9 @@ def send_booking_email(order, request, booking_id=None, test_recipients=False):
         elif trip_type.lower() == 'oneway':
             trip_type_display = 'One Way'
         
+        # Use CID for logo
+        logo_cid = 'logo_speedy'
+        
         html_body = f"""
         <!DOCTYPE html>
         <html lang="en">
@@ -1452,11 +1455,15 @@ def send_booking_email(order, request, booking_id=None, test_recipients=False):
         </head>
         <body>
             <div class="container">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="cid:{logo_cid}" alt="Speedy Transfers" style="max-width: 200px; height: auto;">
+                </div>
                 <div class="greeting">
                     <h2>Booking Confirmation</h2>
                     <p>Dear {guest_name},</p>
                     <p>Thank you for choosing Speedy Transfer! Your booking has been confirmed. Please find your booking details below.</p>
                 </div>
+                <!-- Rest of the email content -->
                 <div style="background-color: #f0f8ff; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
                     <p style="margin: 0; font-size: 18px;"><strong>Booking Reference: {booking_reference}</strong></p>
                     <p style="margin: 5px 0 0; color: #666; font-size: 14px;">Please keep this reference number for your records</p>
@@ -1611,6 +1618,41 @@ def send_booking_email(order, request, booking_id=None, test_recipients=False):
 
         msg = EmailMultiAlternatives(subject, text_body, from_email, recipient_list)
         msg.attach_alternative(html_body, "text/html")
+        
+        # Embed logo image
+        try:
+            from email.mime.image import MIMEImage
+            from django.contrib.staticfiles import finders
+            import os
+
+            # Try to find the image using staticfiles finders
+            logo_path = None
+            
+            # Development/Production specific paths
+            possible_paths = [
+                os.path.join(settings.BASE_DIR, 'config', 'static', 'images', 'Copia-de-logos-Mesa-de-trabajo-1-01.png'),
+                os.path.join(settings.BASE_DIR, 'static', 'images', 'Copia-de-logos-Mesa-de-trabajo-1-01.png'),
+                finders.find('images/Copia-de-logos-Mesa-de-trabajo-1-01.png'),
+            ]
+            
+            for path in possible_paths:
+                if path and os.path.exists(path):
+                    logo_path = path
+                    break
+            
+            if logo_path:
+                with open(logo_path, 'rb') as f:
+                    logo_data = f.read()
+                    logo_image = MIMEImage(logo_data)
+                    logo_image.add_header('Content-ID', f'<{logo_cid}>')
+                    logo_image.add_header('Content-Disposition', 'inline', filename='logo.png')
+                    msg.attach(logo_image)
+                    print(f"✅ Logo embedded successfully from: {logo_path}")
+            else:
+                print("⚠️ Could not find logo image for embedding")
+                
+        except Exception as img_err:
+            print(f"⚠️ Error embedding logo: {img_err}")
         
         try:
             # Explicitly set fail_silently=False to catch and log errors
