@@ -62,20 +62,20 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "speedy_app.core",
-    # "channels",
+    "channels",
     "rest_framework",
     "corsheaders",
-    # "chat",
+    "chat",
     "reports",
 ]
 
 # Channels Configuration
-# ASGI_APPLICATION = 'config.asgi.application'
-# CHANNEL_LAYERS = {
-#     "default": {
-#        "BACKEND": "channels.layers.InMemoryChannelLayer"
-#     }
-# }
+ASGI_APPLICATION = 'config.asgi.application'
+CHANNEL_LAYERS = {
+    "default": {
+       "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 # Allow all hosts for development
 DEBUG = True
