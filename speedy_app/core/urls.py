@@ -2,9 +2,10 @@
 
 from django.urls import path
 
+from . import views
 from .views import LandingView, ResultsView, SummaryView, contact_form_view,\
     CheckoutView, create_payment, execute_payment, payment_failed, create_checkout_session, payment_success,\
-    mock_stripe_checkout, mock_payment_success, twilio_whatsapp_webhook, send_whatsapp_endpoint
+    mock_stripe_checkout, mock_payment_success, twilio_whatsapp_webhook, send_whatsapp_endpoint, test_upload, test_upload
 
 app_name = 'core'
 
@@ -27,6 +28,7 @@ urlpatterns = [
     # Twilio WhatsApp endpoints
     path('twilio/whatsapp/webhook/', twilio_whatsapp_webhook, name='twilio_whatsapp_webhook'),
     path('twilio/whatsapp/send/', send_whatsapp_endpoint, name='twilio_whatsapp_send'),
+    path('test_upload/', views.test_upload, name='test_upload'),
     # Note: Reports URLs are handled by the dedicated 'reports' app (see config/urls.py)
     # Admin reports are available at /admin/reports/
     #path('paypal/create/', PaypalPaymentView.as_view(), name='ordercreate'),

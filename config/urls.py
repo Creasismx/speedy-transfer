@@ -12,7 +12,7 @@ urlpatterns = [
 	# Reporting panel with separate login/dashboard
 	path('reports/', include('reports.urls', namespace='reports')),
 	# Chat system URLs
-	path('chat/', include('chat.urls', namespace='chat')),
+	# path('chat/', include('chat.urls', namespace='chat')),
 	# Serve a minimal inline SVG as a favicon so browsers don't hit a 404 for /favicon.ico
 	path('favicon.ico', lambda request: HttpResponse(
 		'<?xml version="1.0" encoding="utf-8"?>\n'
@@ -25,5 +25,6 @@ urlpatterns = [
 
 # Serve static and media files during development
 if settings.DEBUG:
-	urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-	urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_URL) # Corrected MEDIA_URL here
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

@@ -1672,3 +1672,28 @@ def send_booking_email(order, request, booking_id=None, test_recipients=False):
         print(f"❌ Error in booking email function: {e}")
         import traceback
         traceback.print_exc()
+
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def test_upload(request):
+    if request.method == 'POST':
+        try:
+            if 'image' in request.FILES:
+                image = request.FILES['image']
+                print(f"✅ Test upload received: {image.name} ({image.size} bytes)")
+                
+                # Try saving it to a temp Certificate
+                from .models import Certificate
+                cert = Certificate(title="Test Upload View", image=image)
+                cert.save()
+                print(f"✅ Saved to Certificate ID: {cert.id}")
+                return HttpResponse(f"Upload successful. ID: {cert.id}")
+            else:
+                return HttpResponse("No image file in request", status=400)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return HttpResponse(f"Error: {str(e)}", status=500)
+            
+    return HttpResponse("Send a POST request with 'image' file", status=405)
