@@ -24,18 +24,18 @@ def apply_multipart_fix():
     import cgi
     import sys
     
-    # Check if we are on Python 3.13+
-    if sys.version_info >= (3, 13):
-        original_valid_boundary = getattr(cgi, 'valid_boundary', None)
+    # Remove version check to ensure it applies if needed
+    original_valid_boundary = getattr(cgi, 'valid_boundary', None)
+    
+    if original_valid_boundary:
+        def valid_boundary_wrapper(s, *args, **kwargs):
+            if isinstance(s, bytes):
+                try:
+                    s = s.decode('ascii')
+                except Exception:
+                    pass # Let the original function handle it (or fail)
+            return original_valid_boundary(s, *args, **kwargs)
         
-        if original_valid_boundary:
-            def valid_boundary_wrapper(s, *args, **kwargs):
-                if isinstance(s, bytes):
-                    try:
-                        s = s.decode('ascii')
-                    except Exception:
-                        pass # Let the original function handle it (or fail)
-                return original_valid_boundary(s, *args, **kwargs)
-            
-            cgi.valid_boundary = valid_boundary_wrapper
-            logger.info("Applied monkey-patch to cgi.valid_boundary for Python 3.13 compatibility.")
+        cgi.valid_boundary = valid_boundary_wrapper
+        print("Applied monkey-patch to cgi.valid_boundary for compatibility.")
+        logger.info("Applied monkey-patch to cgi.valid_boundary for compatibility.")

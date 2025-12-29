@@ -25,6 +25,13 @@ env_path = os.path.join(BASE_DIR, '.env')
 if os.path.exists(env_path):
     load_dotenv(env_path)
 
+# Apply runtime patches for Python 3.13 compatibility
+try:
+    from speedy_app.core.monkey_patches import apply_multipart_fix
+    apply_multipart_fix()
+except ImportError:
+    pass
+
 from django.core.wsgi import get_wsgi_application
 
 # Ensure DJANGO_SETTINGS_MODULE is set
