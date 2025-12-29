@@ -28,9 +28,9 @@ class CertificateAdmin(admin.ModelAdmin):
         ('Display Settings', {
             'fields': ('display_order', 'icon_color')
         }),
-        ('Icon', {
-            'fields': ('icon_svg',),
-            'description': 'Enter the SVG path element (the "d" attribute value). Example: M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'
+        ('Icon or Image', {
+            'fields': ('image', 'icon_svg'),
+            'description': 'Upload an image (JPG/PNG) OR enter an SVG path. If an image is provided, it will be used instead of the SVG.'
         }),
     )
 

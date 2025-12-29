@@ -54,7 +54,7 @@ TEMPLATES = [
 # Application definition
 
 INSTALLED_APPS = [
-    'whitenoise.runserver_nostatic',
+    # 'whitenoise.runserver_nostatic',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -62,20 +62,20 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "speedy_app.core",
-    "channels",
+    # "channels",
     "rest_framework",
     "corsheaders",
-    "chat",
+    # "chat",
     "reports",
 ]
 
 # Channels Configuration
-ASGI_APPLICATION = 'config.asgi.application'
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
-}
+# ASGI_APPLICATION = 'config.asgi.application'
+# CHANNEL_LAYERS = {
+#     "default": {
+#        "BACKEND": "channels.layers.InMemoryChannelLayer"
+#     }
+# }
 
 # Allow all hosts for development
 DEBUG = True
@@ -136,13 +136,14 @@ DATABASE_ROUTERS = ['reports.router.ReportsRouter']
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 MIDDLEWARE = [
+    # "speedy_app.core.middleware.DebugMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
-    "django.middleware.gzip.GZipMiddleware",
+    # "whitenoise.middleware.WhiteNoiseMiddleware",
+    # "django.middleware.gzip.GZipMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
+    # "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    # "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -278,4 +279,11 @@ else:
 EMAIL_SSL_CERTVERIFY = False
 
 # The default sender for emails if not specified in send_mail().
+# The default sender for emails if not specified in send_mail().
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'info@speedytransfers.mx')
+
+# Increase max upload size to 10MB (default is 2.5MB)
+# This helps prevent "Bad Request (400)" errors when uploading high-res images
+DATA_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024  # 50 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024  # 50 MB
+

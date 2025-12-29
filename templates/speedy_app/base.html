@@ -40,6 +40,7 @@
   <!-- End Meta Pixel Code -->
 
   <!-- Chat Widget Styles -->
+  <!--
   <style>
     #chatWidgetContainer {
       transition: all 0.3s ease-in-out;
@@ -65,6 +66,7 @@
       }
     }
   </style>
+  -->
 </head>
 
 <body>
@@ -96,6 +98,7 @@
   {% include './includes/footer.html' %}
 
   <!-- Chat Widget JavaScript -->
+  <!--
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const chatButton = document.getElementById('chatButton');
@@ -156,10 +159,11 @@
       });
     });
   </script>
+  -->
 
   <!-- Chat Widget -->
+  <!--
   <div id="chatWidgetContainer" class="fixed bottom-4 right-4 z-50">
-    <!-- Chat Button -->
     <button id="chatButton"
       class="flex items-center bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 shadow-lg transform transition-transform duration-200 hover:scale-105 text-lg font-medium">
       <svg class="w-8 h-8 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -169,14 +173,12 @@
       Need Help?
     </button>
 
-    <!-- Chat Window -->
     <div id="chatWindow"
       class="hidden fixed bottom-20 right-4 w-96 h-[32rem] bg-white rounded-lg shadow-2xl overflow-hidden border border-gray-200 transform transition-all duration-300">
-      <iframe id="chatFrame" src="{% url 'chat:chat_widget' %}" class="w-full h-full border-none" allow="microphone"
-        loading="lazy">
-      </iframe>
+      
     </div>
   </div>
+  -->
 </body>
 
 {% block extra_js %}
