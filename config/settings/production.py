@@ -6,10 +6,14 @@ from .settings import *
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Temporarily enable debug for troubleshooting
-DEBUG = True
+DEBUG = False
 
 # Allow hosts (set via environment variable in production)
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
+
+# Increase max upload size to 50MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024
 
 # Add logging configuration
 LOGGING = {
@@ -27,10 +31,13 @@ LOGGING = {
 }
 
 # Static files (CSS, JavaScript, Images)
+# Use /assets/ to match local development settings
+STATIC_URL = '/assets/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATIC_URL = '/static/'
+
+TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates')
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(TEMPLATE_PATH, 'assets'),
 ]
 
 # Use WhiteNoise for static files
@@ -124,4 +131,4 @@ CHANNEL_LAYERS = {
 
 # CORS settings - configure specific origins via environment if needed
 CORS_ALLOWED_ORIGINS = []
-CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_ALLOW_ALL = True # Allow all to avoid 400 errors during debug/prod transition
