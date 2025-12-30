@@ -20,17 +20,19 @@
             {% for cert in certificates %}
             <div
                 class="bg-white rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300 flex flex-col items-center justify-center text-center">
+                {% if cert.image %}
+                <div class="w-48 h-48 flex items-center justify-center mb-4">
+                    <img src="{{ cert.image.url }}" alt="{{ cert.title }}" class="w-full h-full object-contain">
+                </div>
+                {% else %}
                 <div class="w-20 h-20 rounded-full flex items-center justify-center mb-4 overflow-hidden"
                     style="background-color: {{ cert.icon_color|default:'#4abbc1' }};">
-                    {% if cert.image %}
-                    <img src="{{ cert.image.url }}" alt="{{ cert.title }}" class="w-full h-full object-cover">
-                    {% else %}
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24"
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ cert.icon_svg }}" />
                     </svg>
-                    {% endif %}
                 </div>
+                {% endif %}
                 <h3 class="font-semibold text-gray-800 mb-2">{{ cert.title }}</h3>
                 {% if cert.description %}
                 <p class="text-sm text-gray-600">{{ cert.description }}</p>
