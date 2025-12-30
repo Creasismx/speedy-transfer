@@ -46,7 +46,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Use WhiteNoise for static files
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Switched to non-manifest storage to avoid errors with missing references which can break admin icons
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Ensure WhiteNoise can find files
 WHITENOISE_ROOT = STATIC_ROOT
