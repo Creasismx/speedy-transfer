@@ -2,6 +2,13 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+import collections
+import collections.abc
+
+# Monkey patch for Python 3.10+ compatibility with older libraries (like django-jet)
+if not hasattr(collections, 'MutableSet'):
+    collections.MutableSet = collections.abc.MutableSet
+
 
 try:
 	import pymysql
