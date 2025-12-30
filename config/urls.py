@@ -7,6 +7,8 @@ from django.conf.urls.static import static
 from django.http import HttpResponse
 
 urlpatterns = [
+    path('jet/', include('jet.urls', 'jet')),  # Django Jet URLs
+    path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),  # Django Jet Dashboard URLs
     path('admin/', admin.site.urls),
 	path('', include('speedy_app.core.urls', namespace='core')),
 	# Reporting panel with separate login/dashboard
