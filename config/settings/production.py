@@ -74,6 +74,8 @@ TEMPLATES = [
 # Override INSTALLED_APPS to remove development-only apps
 INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
+    'jet.dashboard',
+    'jet',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
