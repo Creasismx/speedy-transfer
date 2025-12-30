@@ -9,6 +9,13 @@ https://docs.djangoproject.com/en/3.2/howto/deployment/wsgi/
 
 import os
 import sys
+import collections
+import collections.abc
+
+# Monkey patch for Python 3.10+ compatibility
+if not hasattr(collections, 'MutableSet'):
+    collections.MutableSet = collections.abc.MutableSet
+
 import pymysql
 from pathlib import Path
 

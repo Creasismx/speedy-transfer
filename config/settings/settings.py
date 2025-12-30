@@ -17,6 +17,13 @@ import pymysql
 pymysql.install_as_MySQLdb()
 
 import os
+import collections
+import collections.abc
+
+# Monkey patch for Python 3.10+ compatibility
+if not hasattr(collections, 'MutableSet'):
+    collections.MutableSet = collections.abc.MutableSet
+
 from pathlib import Path
 from dotenv import load_dotenv
 
