@@ -25,11 +25,14 @@ urlpatterns = [
 		'</svg>', content_type='image/svg+xml')),
 ]
 
-# Serve static and media files during development
-if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+from django.views.static import serve
+from django.urls import re_path
 
-# Always serve media files (uploaded content) from Django in this setup
-# This ensures images work in both development and production without external server config
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve static and media files manually to ensure they work in all environments
+# (including 'runserver' with DEBUG=False where they are normally disabled)
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    re_path(r'^assets/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
+    re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
+]
 
