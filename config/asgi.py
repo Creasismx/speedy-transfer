@@ -1,5 +1,12 @@
 import os
 import logging
+import collections
+import collections.abc
+
+# Monkey patch for Python 3.10+ compatibility
+if not hasattr(collections, 'MutableSet'):
+    collections.MutableSet = collections.abc.MutableSet
+
 from django.core.asgi import get_asgi_application
 
 # Configure logging
