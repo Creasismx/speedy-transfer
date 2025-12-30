@@ -2,11 +2,20 @@ import os
 from dotenv import load_dotenv
 from .settings import *
 from pathlib import Path
-BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Fix: Point to project root (settings -> config -> speedy-transfer)
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Load environment variables
-print(BASE_DIR)
-load_dotenv(os.path.join(BASE_DIR, '../.env'))
+print(f"BASE_DIR: {BASE_DIR}")
+load_dotenv(os.path.join(BASE_DIR, '.env'))
+
+# Add Jet Dashboard and Jet to installed apps (must be before django.contrib.admin)
+INSTALLED_APPS = [
+    'jet.dashboard',
+    'jet',
+] + INSTALLED_APPS
 
 DEBUG = True
 
