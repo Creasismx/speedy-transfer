@@ -39,18 +39,18 @@ if settings.PAYPAL_CLIENT_ID and settings.PAYPAL_SECRET and \
    settings.PAYPAL_SECRET not in ['', 'your_paypal_secret']:
     try:
         paypalrestsdk.configure({
-            "mode": "sandbox",  # Change to "live" for production
+            "mode": settings.PAYPAL_MODE,  # "sandbox" or "live"
             "client_id": settings.PAYPAL_CLIENT_ID,
             "client_secret": settings.PAYPAL_SECRET,
         })
         paypal_configured = True
-        print("✅ PayPal configured successfully")
+        print("PayPal configured successfully")
         print(f"PayPal Client ID: {settings.PAYPAL_CLIENT_ID[:20]}...")
     except Exception as e:
-        print(f"❌ Error configuring PayPal: {e}")
+        print(f"Error configuring PayPal: {e}")
         paypal_configured = False
 else:
-    print("⚠️ PayPal credentials not found or invalid")
+    print("PayPal credentials not found or invalid")
 
 
 # Optional: define your return/cancel URLs here or in settings
