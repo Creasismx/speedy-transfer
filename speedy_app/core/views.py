@@ -59,8 +59,8 @@ def get_or_create_web_profile():
     the 'Billing' landing page (Guest Checkout / Credit Card first).
     """
     try:
-        # Define the profile we want
-        profile_name = "SpeedyTransfers_GuestCheckout_v1"
+        # Define the profile we want (version 2)
+        profile_name = "SpeedyTransfers_GuestCheckout_v2"
         
         # Check if it already exists to avoid creating duplicates
         existing_profiles = paypalrestsdk.WebProfile.all()
@@ -68,20 +68,21 @@ def get_or_create_web_profile():
             if profile.name == profile_name:
                 return profile.id
         
-        # Create new profile
+        # Create new profile - Optimized for Guest Checkout
         web_profile = paypalrestsdk.WebProfile({
             "name": profile_name,
             "presentation": {
                 "brand_name": "Speedy Transfers",
-                "locale_code": "US"
+                "locale_code": "US",
+                #"logo_image": "https://www.speedytransfers.mx/static/images/logo.png" # Optional if you have a hosted logo
             },
             "input_fields": {
                 "allow_note": True,
-                "no_shipping": 1, 
-                "address_override": 1
+                "no_shipping": 0, # Allow shipping address to be collected/edited
+                "address_override": 0 # Do NOT force the address we send, allow user to edit it (crucial for Guest Checkout)
             },
             "flow_config": {
-                "landing_page_type": "Billing", # This Forces Guest Checkout / Credit Card view
+                "landing_page_type": "Billing", # Forces Guest Checkout / Credit Card view
                 "bank_txn_pending_url": "https://www.speedytransfers.mx/"
             }
         })
@@ -94,6 +95,7 @@ def get_or_create_web_profile():
             return None
     except Exception as e:
         print(f"Exception creating Web Profile: {e}")
+        # Fallback: Just return None so payment can proceed with default settings
         return None
 
 
@@ -753,11 +755,8 @@ def create_payment(request):
             "intent": "sale",
             "payer": {
                 "payment_method": "paypal",
-                "payer_info": {
-                    "email": customer_email,
-                    "first_name": first_name,
-                    "last_name": last_name,
-                } if customer_email else None
+                # REMOVED payer_info to prevent PayPal from detecting existing accounts
+                # and forcing login. This helps Guest Checkout appear.
             },
             "redirect_urls": {
                 "return_url": ex_url,
