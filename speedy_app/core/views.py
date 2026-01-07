@@ -23,6 +23,7 @@ from django.templatetags.static import static
 from urllib.parse import quote
 import os
 import json
+import uuid  # Added for unique request IDs
 from django.db import models
 
 #For sending mail uppong form submission
@@ -51,6 +52,49 @@ if settings.PAYPAL_CLIENT_ID and settings.PAYPAL_SECRET and \
         paypal_configured = False
 else:
     print("PayPal credentials not found or invalid")
+
+def get_or_create_web_profile():
+    """
+    Creates or retrieves a PayPal Web Experience Profile that forces
+    the 'Billing' landing page (Guest Checkout / Credit Card first).
+    """
+    try:
+        # Define the profile we want
+        profile_name = "SpeedyTransfers_GuestCheckout_v1"
+        
+        # Check if it already exists to avoid creating duplicates
+        existing_profiles = paypalrestsdk.WebProfile.all()
+        for profile in existing_profiles:
+            if profile.name == profile_name:
+                return profile.id
+        
+        # Create new profile
+        web_profile = paypalrestsdk.WebProfile({
+            "name": profile_name,
+            "presentation": {
+                "brand_name": "Speedy Transfers",
+                "locale_code": "US"
+            },
+            "input_fields": {
+                "allow_note": True,
+                "no_shipping": 1, 
+                "address_override": 1
+            },
+            "flow_config": {
+                "landing_page_type": "Billing", # This Forces Guest Checkout / Credit Card view
+                "bank_txn_pending_url": "https://www.speedytransfers.mx/"
+            }
+        })
+        
+        if web_profile.create():
+            print(f"Created Web Profile: {web_profile.id}")
+            return web_profile.id
+        else:
+            print(f"Error creating Web Profile: {web_profile.error}")
+            return None
+    except Exception as e:
+        print(f"Exception creating Web Profile: {e}")
+        return None
 
 
 # Optional: define your return/cancel URLs here or in settings
@@ -729,6 +773,7 @@ def create_payment(request):
                     "custom": str(booking_id) if booking_id else "" # Also store in custom field
                 }
             ],
+            "experience_profile_id": get_or_create_web_profile() # Use the Guest Checkout Profile
         })
         
         if payment.create():
