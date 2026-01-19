@@ -750,8 +750,8 @@ def create_payment(request):
             "transactions": [
                 {
                     "amount": {
-                        "total": amount_total,  # Total amount in USD
-                        "currency": "USD",
+                        "total": amount_total,  # Total amount 
+                        "currency": "MXN", # Changed to MXN for testing domestic payments
                     },
                     "description": description,
                     "custom": str(booking_id) if booking_id else "" # Also store in custom field
