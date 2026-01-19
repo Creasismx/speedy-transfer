@@ -59,13 +59,14 @@ def get_or_create_web_profile():
     the 'Billing' landing page (Guest Checkout / Credit Card first).
     """
     try:
-        # Define the profile we want (version 2)
-        profile_name = "SpeedyTransfers_GuestCheckout_v2"
+        # Define the profile we want (version 3 - Force update)
+        profile_name = "SpeedyTransfers_GuestCheckout_v3"
         
         # Check if it already exists to avoid creating duplicates
         existing_profiles = paypalrestsdk.WebProfile.all()
         for profile in existing_profiles:
             if profile.name == profile_name:
+                print(f"✅ Found existing Web Profile v3: {profile.id}")
                 return profile.id
         
         # Create new profile - Optimized for Guest Checkout
@@ -78,23 +79,24 @@ def get_or_create_web_profile():
             },
             "input_fields": {
                 "allow_note": True,
-                "no_shipping": 0, # Allow shipping address to be collected/edited
-                "address_override": 0 # Do NOT force the address we send, allow user to edit it (crucial for Guest Checkout)
+                "no_shipping": 1, # Set to 1: No shipping address required (Digital goods/Services) - helps Guest Checkout
+                "address_override": 0 # 0: Allow user to edit address
             },
             "flow_config": {
                 "landing_page_type": "Billing", # Forces Guest Checkout / Credit Card view
-                "bank_txn_pending_url": "https://www.speedytransfers.mx/"
+                "bank_txn_pending_url": "https://www.speedytransfers.mx/",
+                "user_action": "commit" # Shows 'Pay Now' instead of 'Continue', sometimes streamlines the flow
             }
         })
         
         if web_profile.create():
-            print(f"Created Web Profile: {web_profile.id}")
+            print(f"✅ Created New Web Profile v3: {web_profile.id}")
             return web_profile.id
         else:
-            print(f"Error creating Web Profile: {web_profile.error}")
+            print(f"❌ Error creating Web Profile: {web_profile.error}")
             return None
     except Exception as e:
-        print(f"Exception creating Web Profile: {e}")
+        print(f"❌ Exception creating Web Profile: {e}")
         # Fallback: Just return None so payment can proceed with default settings
         return None
 
