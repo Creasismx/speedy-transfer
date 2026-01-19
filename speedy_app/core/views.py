@@ -753,13 +753,16 @@ def create_payment(request):
                         "total": amount_total,  # Total amount 
                         "currency": "MXN", # Changed to MXN for testing domestic payments
                     },
-                    "description": description,
+                    "description": description + " [MXN CODE VERIFIED]", # Modified to PROVE code reload
                     "custom": str(booking_id) if booking_id else "" # Also store in custom field
                 }
             ],
             "experience_profile_id": get_or_create_web_profile() # Use the Guest Checkout Profile
         })
         
+        # DEBUG: Print exact payload sent
+        print(f"🔍 DEBUG PAYPAL REQUEST: Amount={amount_total} Currency=MXN")
+
         if payment.create():
             print("✅ PayPal payment created successfully")
             
