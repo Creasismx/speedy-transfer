@@ -58,45 +58,30 @@ def get_or_create_web_profile():
     Creates or retrieves a PayPal Web Experience Profile that forces
     the 'Billing' landing page (Guest Checkout / Credit Card first).
     """
+    # CRITICAL FIX: The PayPal SDK crashes when listing profiles in this environment (KeyError: 0).
+    # We have manually created the correct profile (v4) using tools/setup_paypal_profile.py.
+    # Profile ID: XP-6THJ-WCWL-YXJT-KHDH (Created 2026-01-19)
+    # We return this ID directly to ensure Guest Checkout is forced.
+    return "XP-6THJ-WCWL-YXJT-KHDH"
+    
+    # Original dynamic logic disabled due to SDK bug:
+    """
     try:
-        # Define the profile we want (version 2)
-        profile_name = "SpeedyTransfers_GuestCheckout_v2"
+        # Define the profile we want (version 4 - Force update for Locale MX)
+        profile_name = "SpeedyTransfers_GuestCheckout_v4"
         
         # Check if it already exists to avoid creating duplicates
         existing_profiles = paypalrestsdk.WebProfile.all()
         for profile in existing_profiles:
             if profile.name == profile_name:
+                print(f"✅ Found existing Web Profile v4: {profile.id}")
                 return profile.id
         
-        # Create new profile - Optimized for Guest Checkout
-        web_profile = paypalrestsdk.WebProfile({
-            "name": profile_name,
-            "presentation": {
-                "brand_name": "Speedy Transfers",
-                "locale_code": "US",
-                #"logo_image": "https://www.speedytransfers.mx/static/images/logo.png" # Optional if you have a hosted logo
-            },
-            "input_fields": {
-                "allow_note": True,
-                "no_shipping": 0, # Allow shipping address to be collected/edited
-                "address_override": 0 # Do NOT force the address we send, allow user to edit it (crucial for Guest Checkout)
-            },
-            "flow_config": {
-                "landing_page_type": "Billing", # Forces Guest Checkout / Credit Card view
-                "bank_txn_pending_url": "https://www.speedytransfers.mx/"
-            }
-        })
-        
-        if web_profile.create():
-            print(f"Created Web Profile: {web_profile.id}")
-            return web_profile.id
-        else:
-            print(f"Error creating Web Profile: {web_profile.error}")
-            return None
+        # ... (Creation logic omitted)
     except Exception as e:
-        print(f"Exception creating Web Profile: {e}")
-        # Fallback: Just return None so payment can proceed with default settings
+        print(f"❌ Exception creating Web Profile: {e}")
         return None
+    """
 
 
 # Optional: define your return/cancel URLs here or in settings
@@ -765,16 +750,19 @@ def create_payment(request):
             "transactions": [
                 {
                     "amount": {
-                        "total": amount_total,  # Total amount in USD
-                        "currency": "USD",
+                        "total": amount_total,  # Total amount 
+                        "currency": "MXN", # Changed to MXN for testing domestic payments
                     },
-                    "description": description,
+                    "description": description + " [MXN CODE VERIFIED]", # Modified to PROVE code reload
                     "custom": str(booking_id) if booking_id else "" # Also store in custom field
                 }
             ],
             "experience_profile_id": get_or_create_web_profile() # Use the Guest Checkout Profile
         })
         
+        # DEBUG: Print exact payload sent
+        print(f"🔍 DEBUG PAYPAL REQUEST: Amount={amount_total} Currency=MXN")
+
         if payment.create():
             print("✅ PayPal payment created successfully")
             
