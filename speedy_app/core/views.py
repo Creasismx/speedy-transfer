@@ -59,14 +59,14 @@ def get_or_create_web_profile():
     the 'Billing' landing page (Guest Checkout / Credit Card first).
     """
     try:
-        # Define the profile we want (version 3 - Force update)
-        profile_name = "SpeedyTransfers_GuestCheckout_v3"
+        # Define the profile we want (version 4 - Force update for Locale MX)
+        profile_name = "SpeedyTransfers_GuestCheckout_v4"
         
         # Check if it already exists to avoid creating duplicates
         existing_profiles = paypalrestsdk.WebProfile.all()
         for profile in existing_profiles:
             if profile.name == profile_name:
-                print(f"✅ Found existing Web Profile v3: {profile.id}")
+                print(f"✅ Found existing Web Profile v4: {profile.id}")
                 return profile.id
         
         # Create new profile - Optimized for Guest Checkout
@@ -74,7 +74,7 @@ def get_or_create_web_profile():
             "name": profile_name,
             "presentation": {
                 "brand_name": "Speedy Transfers",
-                "locale_code": "US",
+                "locale_code": "MX", # Changed to MX to match user region
                 #"logo_image": "https://www.speedytransfers.mx/static/images/logo.png" # Optional if you have a hosted logo
             },
             "input_fields": {
@@ -90,7 +90,7 @@ def get_or_create_web_profile():
         })
         
         if web_profile.create():
-            print(f"✅ Created New Web Profile v3: {web_profile.id}")
+            print(f"✅ Created New Web Profile v4: {web_profile.id}")
             return web_profile.id
         else:
             print(f"❌ Error creating Web Profile: {web_profile.error}")
