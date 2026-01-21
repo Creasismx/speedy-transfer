@@ -4,220 +4,267 @@
 
 {% block content %}
 <style>
-    body, html {
+    body,
+    html {
         margin: 0;
         padding: 0;
         height: 100%;
         overflow: hidden;
         background-color: white !important;
     }
+
     .messages-container {
         height: calc(100vh - 120px);
         overflow-y: auto;
     }
+
     .chat-body {
         transition: all 0.3s ease;
     }
+
     .chat-body.minimized {
         display: none;
     }
+
     .header-btn {
         cursor: pointer;
         padding: 4px 8px;
         border-radius: 4px;
         transition: background-color 0.2s;
     }
+
     .header-btn:hover {
         background-color: rgba(255, 255, 255, 0.2);
     }
 </style>
-    <div class="flex flex-col h-screen">
-        <!-- Chat Header -->
-        <div class="bg-indigo-600 text-white p-4 flex justify-between items-center">
-            <h1 class="text-lg font-semibold">Support Chat</h1>
-            <div class="flex items-center space-x-3">
-                <div id="connectionStatus" class="text-sm px-2 py-1 rounded bg-indigo-500">
-                    Connecting...
-                </div>
-                <button id="agentBtn" class="header-btn" title="Talk to Human">
-                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                </button>
-                <button id="minimizeBtn" class="header-btn" title="Minimize">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                    </svg>
-                </button>
-                <button id="closeBtn" class="header-btn" title="Close">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+<div class="flex flex-col h-screen">
+    <!-- Chat Header -->
+    <div class="bg-indigo-600 text-white p-4 flex justify-between items-center">
+        <h1 class="text-lg font-semibold">Support Chat</h1>
+        <div class="flex items-center space-x-3">
+            <div id="connectionStatus" class="text-sm px-2 py-1 rounded bg-indigo-500">
+                Connecting...
             </div>
-        </div>
-
-        <!-- Chat Body (Messages + Input) -->
-        <div id="chatBody" class="chat-body flex-1 flex flex-col">
-            <!-- Messages Container -->
-            <div id="messages" class="messages-container p-4 space-y-3 bg-gray-50">
-                <div class="text-center text-gray-500 text-sm py-2">
-                    Welcome to support chat
-                </div>
-            </div>
-
-            <!-- Message Input -->
-            <div class="border-t bg-white p-4">
-                <form id="chatForm" class="flex space-x-2">
-                    <input type="text"
-                           id="messageInput"
-                           class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                           placeholder="Type your message..."
-                           required>
-                    <button type="submit"
-                            class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                        Send
-                    </button>
-                </form>
-            </div>
+            <button id="agentBtn" class="header-btn" title="Talk to Human">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+            </button>
+            <button id="minimizeBtn" class="header-btn" title="Minimize">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                </svg>
+            </button>
+            <button id="closeBtn" class="header-btn" title="Close">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Chat widget initializing...');
+    <!-- Chat Body (Messages + Input) -->
+    <div id="chatBody" class="chat-body flex-1 flex flex-col">
+        <!-- Messages Container -->
+        <div id="messages" class="messages-container p-4 space-y-3 bg-gray-50">
+            <div class="text-center text-gray-500 text-sm py-2">
+                Welcome to support chat
+            </div>
+        </div>
 
-            let chatSocket = null;
-            const messages = document.getElementById('messages');
-            const chatForm = document.getElementById('chatForm');
-            const messageInput = document.getElementById('messageInput');
-            const connectionStatus = document.getElementById('connectionStatus');
-            const chatBody = document.getElementById('chatBody');
-            const minimizeBtn = document.getElementById('minimizeBtn');
-            const closeBtn = document.getElementById('closeBtn');
-            const agentBtn = document.getElementById('agentBtn');
-            let isMinimized = false;
+        <!-- Message Input -->
+        <div class="border-t bg-white p-4">
+            <form id="chatForm" class="flex space-x-2">
+                <input type="text" id="messageInput"
+                    class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    placeholder="Type your message..." required>
+                <button type="submit"
+                    class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    Send
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
 
-            console.log('Minimize button:', minimizeBtn);
-            console.log('Close button:', closeBtn);
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('Chat widget initializing...');
 
-            // Listen for visibility changes (when parent reopens the widget)
-            window.addEventListener('message', function(event) {
-                console.log('Widget received message:', event.data);
-                if (event.data.type === 'chatOpened') {
-                    console.log('Chat reopened, showing content');
-                    // Show the content when reopened
-                    isMinimized = false;
-                    chatBody.classList.remove('minimized');
-                    minimizeBtn.innerHTML = `
+        let chatSocket = null;
+        const messages = document.getElementById('messages');
+        const chatForm = document.getElementById('chatForm');
+        const messageInput = document.getElementById('messageInput');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const chatBody = document.getElementById('chatBody');
+        const minimizeBtn = document.getElementById('minimizeBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const agentBtn = document.getElementById('agentBtn');
+        let isMinimized = false;
+
+        console.log('Minimize button:', minimizeBtn);
+        console.log('Close button:', closeBtn);
+
+        // Listen for visibility changes (when parent reopens the widget)
+        window.addEventListener('message', function (event) {
+            console.log('Widget received message:', event.data);
+            if (event.data.type === 'chatOpened') {
+                console.log('Chat reopened, showing content');
+                // Show the content when reopened
+                isMinimized = false;
+                chatBody.classList.remove('minimized');
+                minimizeBtn.innerHTML = `
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
                         </svg>
                     `;
-                    minimizeBtn.title = "Minimize";
+                minimizeBtn.title = "Minimize";
+            }
+        });
+
+        // Request Agent Button
+        if (agentBtn) {
+            agentBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (confirm('Do you want to speak with a live agent?')) {
+                    if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+                        chatSocket.send(JSON.stringify({
+                            'command': 'request_agent',
+                            'message': '/request_agent',
+                            'sender_type': 'customer'
+                        }));
+                        appendMessage('System', 'Requesting a live agent...');
+                    } else {
+                        alert('Not connected to chat service.');
+                    }
                 }
             });
-            
-            // Request Agent Button
-            if (agentBtn) {
-                agentBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (confirm('Do you want to speak with a live agent?')) {
-                        if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
-                             chatSocket.send(JSON.stringify({
-                                'command': 'request_agent',
-                                'message': '/request_agent',
-                                'sender_type': 'customer'
-                            }));
-                            appendMessage('System', 'Requesting a live agent...');
-                        } else {
-                            alert('Not connected to chat service.');
-                        }
+        }
+
+        // Minimize button functionality
+        if (minimizeBtn) {
+            minimizeBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Minimize button clicked');
+
+                // Always notify parent if in iframe
+                try {
+                    if (window.parent && window.parent !== window) {
+                        console.log('Sending chatMinimized message to parent');
+                        window.parent.postMessage({ type: 'chatMinimized' }, '*');
                     }
-                });
-            }
+                } catch (err) {
+                    console.error('Error sending message to parent:', err);
+                }
 
-            // Minimize button functionality
-            if (minimizeBtn) {
-                minimizeBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Minimize button clicked');
+                // Also handle standalone mode - toggle visibility
+                isMinimized = !isMinimized;
+                chatBody.classList.toggle('minimized');
 
-                    // Always notify parent if in iframe
-                    try {
-                        if (window.parent && window.parent !== window) {
-                            console.log('Sending chatMinimized message to parent');
-                            window.parent.postMessage({ type: 'chatMinimized' }, '*');
-                        }
-                    } catch (err) {
-                        console.error('Error sending message to parent:', err);
-                    }
-
-                    // Also handle standalone mode - toggle visibility
-                    isMinimized = !isMinimized;
-                    chatBody.classList.toggle('minimized');
-
-                    // Change minimize button icon
-                    if (isMinimized) {
-                        minimizeBtn.innerHTML = `
+                // Change minimize button icon
+                if (isMinimized) {
+                    minimizeBtn.innerHTML = `
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
                             </svg>
                         `;
-                        minimizeBtn.title = "Expand";
-                    } else {
-                        minimizeBtn.innerHTML = `
+                    minimizeBtn.title = "Expand";
+                } else {
+                    minimizeBtn.innerHTML = `
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
                             </svg>
                         `;
-                        minimizeBtn.title = "Minimize";
+                    minimizeBtn.title = "Minimize";
+                }
+            });
+            console.log('Minimize event listener attached');
+        } else {
+            console.error('Minimize button not found!');
+        }
+
+        // Close button functionality
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Close button clicked');
+
+                // Close WebSocket connection
+                if (chatSocket) {
+                    chatSocket.close();
+                }
+
+                // Always notify parent if in iframe
+                try {
+                    if (window.parent && window.parent !== window) {
+                        console.log('Sending chatClosed message to parent');
+                        window.parent.postMessage({ type: 'chatClosed' }, '*');
                     }
-                });
-                console.log('Minimize event listener attached');
-            } else {
-                console.error('Minimize button not found!');
-            }
+                } catch (err) {
+                    console.error('Error sending message to parent:', err);
+                }
 
-            // Close button functionality
-            if (closeBtn) {
-                closeBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Close button clicked');
+                // Also handle standalone mode - hide the entire widget
+                document.body.style.display = 'none';
+            });
+            console.log('Close event listener attached');
+        } else {
+            console.error('Close button not found!');
+        }
 
-                    // Close WebSocket connection
-                    if (chatSocket) {
-                        chatSocket.close();
-                    }
-
-                    // Always notify parent if in iframe
-                    try {
-                        if (window.parent && window.parent !== window) {
-                            console.log('Sending chatClosed message to parent');
-                            window.parent.postMessage({ type: 'chatClosed' }, '*');
-                        }
-                    } catch (err) {
-                        console.error('Error sending message to parent:', err);
-                    }
-
-                    // Also handle standalone mode - hide the entire widget
-                    document.body.style.display = 'none';
-                });
-                console.log('Close event listener attached');
-            } else {
-                console.error('Close button not found!');
-            }
-
-            function updateConnectionStatus(status, isError = false) {
-                connectionStatus.textContent = status;
-                connectionStatus.className = `text-sm px-2 py-1 rounded ${
-                    isError ? 'bg-red-500' : 'bg-green-500'
+        function updateConnectionStatus(status, isError = false) {
+            connectionStatus.textContent = status;
+            connectionStatus.className = `text-sm px-2 py-1 rounded ${isError ? 'bg-red-500' : 'bg-green-500'
                 }`;
-            }
+        }
 
-            console.log('Initializing chat widget...');
+        console.log('Initializing chat widget...');
+
+        // Check for existing chat session
+        const storedRoomId = localStorage.getItem('chatRoomId');
+
+        if (storedRoomId) {
+            console.log('Found existing chat room:', storedRoomId);
+            // Verify if the room still exists/is valid by trying to fetch its details or just connecting
+            // For simplicity/speed, we'll verify via API first to avoid WS errors
+            fetch(`/chat/api/rooms/${storedRoomId}/`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Room not found');
+                })
+                .then(data => {
+                    if (data.status !== 'closed') {
+                        connectWebSocket(storedRoomId);
+                        // Load history
+                        loadChatHistory(storedRoomId);
+                    } else {
+                        // If closed, create new
+                        createChatRoom();
+                    }
+                })
+                .catch(err => {
+                    console.log('Existing room invalid or closed, creating new one...');
+                    localStorage.removeItem('chatRoomId');
+                    createChatRoom();
+                });
+        } else {
+            createChatRoom();
+        }
+
+        function createChatRoom() {
             // Create a new chat room when the page loads
             fetch('/chat/api/rooms/', {
                 method: 'POST',
@@ -231,135 +278,152 @@
                     status: 'open'
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Chat room created:', data);
-                connectWebSocket(data.id);
-            })
-            .catch(error => {
-                console.error('Error creating chat room:', error);
-                updateConnectionStatus('Connection Error', true);
-                appendMessage('System', 'Error connecting to chat service.');
-            });
-
-            function connectWebSocket(roomId) {
-                // Get the current hostname and port
-                // Get the current hostname - don't use port when going through nginx
-    const hostname = window.location.host; // This includes port if needed, or just hostname
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    
-    // Construct WebSocket URL - no port needed when going through nginx
-    const wsUrl = `${protocol}//${hostname}/ws/chat/${roomId}/`;
-    console.log('WebSocket URL:', wsUrl);
-                
-                // Add error event listener to window
-                window.addEventListener('error', function(e) {
-                    console.error('Global error:', e.message);
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Chat room created:', data);
+                    localStorage.setItem('chatRoomId', data.id);
+                    connectWebSocket(data.id);
+                })
+                .catch(error => {
+                    console.error('Error creating chat room:', error);
                     updateConnectionStatus('Connection Error', true);
+                    appendMessage('System', 'Error connecting to chat service.');
                 });
-                
-                console.log('Attempting to connect to WebSocket:', wsUrl);
-                updateConnectionStatus('Connecting...', false);
-                
-                try {
-                    if (chatSocket && chatSocket.readyState !== WebSocket.CLOSED) {
-                        console.log('Closing existing connection...');
-                        chatSocket.close();
+        }
+
+        function loadChatHistory(roomId) {
+            fetch(`/chat/api/messages/?chat_room=${roomId}`, {
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        messages.innerHTML = ''; // Clear welcome message
+                        data.forEach(msg => {
+                            appendMessage(msg.sender_type, msg.content);
+                        });
                     }
-                    
-                    console.log('Creating new WebSocket connection...');
-                    chatSocket = new WebSocket(wsUrl);
-                    console.log('WebSocket object created successfully');
+                })
+                .catch(err => console.error("Error loading history:", err));
+        }
 
-                    chatSocket.onopen = function() {
-                        console.log('WebSocket connection established');
-                        updateConnectionStatus('Connected');
-                        appendMessage('System', 'Connected to chat service. How can we help you?');
-                    };
+        function connectWebSocket(roomId) {
+            // Get the current hostname and port
+            // Get the current hostname - don't use port when going through nginx
+            const hostname = window.location.host; // This includes port if needed, or just hostname
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 
-                    // Add detailed error logging
-                    window.onerror = function(msg, url, line) {
-                        console.error('Window Error:', msg, 'at', url, ':', line);
-                    };
+            // Construct WebSocket URL - no port needed when going through nginx
+            const wsUrl = `${protocol}//${hostname}/ws/chat/${roomId}/`;
+            console.log('WebSocket URL:', wsUrl);
 
-                    chatSocket.onmessage = function(e) {
-                        console.log('Message received:', e.data);
-                        try {
-                            const data = JSON.parse(e.data);
-                            appendMessage(data.sender_type || 'ai', data.message);
-                        } catch (error) {
-                            console.error('Error parsing message:', error);
-                            appendMessage('System', 'Error receiving message. Please try again.');
-                        }
-                    };
-
-                    chatSocket.onclose = function(e) {
-                        console.log('WebSocket connection closed:', e);
-                        updateConnectionStatus('Reconnecting...', true);
-                        setTimeout(() => connectWebSocket(roomId), 3000);
-                    };
-
-                    chatSocket.onerror = function(e) {
-                        console.error('WebSocket error:', e);
-                        updateConnectionStatus('Connection Error', true);
-                    };
-                } catch (error) {
-                    console.error('Error creating WebSocket:', error);
-                    updateConnectionStatus('Connection Error', true);
-                }
-            }
-
-            chatForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const message = messageInput.value.trim();
-                
-                if (message && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
-                    chatSocket.send(JSON.stringify({
-                        'message': message,
-                        'sender_type': 'customer'
-                    }));
-                    messageInput.value = '';
-                } else {
-                    appendMessage('System', 'Could not send message. Please check your connection.');
-                }
+            // Add error event listener to window
+            window.addEventListener('error', function (e) {
+                console.error('Global error:', e.message);
+                updateConnectionStatus('Connection Error', true);
             });
 
-            function appendMessage(sender, content) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `group flex ${sender === 'customer' ? 'justify-end' : 'justify-start'}`;
-                
-                const bubble = document.createElement('div');
-                bubble.className = `max-w-[85%] px-4 py-2 rounded-lg ${
-                    sender === 'customer' 
-                        ? 'bg-indigo-600 text-white rounded-br-none' 
-                        : sender === 'System'
-                            ? 'bg-gray-200 text-gray-700'
-                            : sender === 'ai'
+            console.log('Attempting to connect to WebSocket:', wsUrl);
+            updateConnectionStatus('Connecting...', false);
+
+            try {
+                if (chatSocket && chatSocket.readyState !== WebSocket.CLOSED) {
+                    console.log('Closing existing connection...');
+                    chatSocket.close();
+                }
+
+                console.log('Creating new WebSocket connection...');
+                chatSocket = new WebSocket(wsUrl);
+                console.log('WebSocket object created successfully');
+
+                chatSocket.onopen = function () {
+                    console.log('WebSocket connection established');
+                    updateConnectionStatus('Connected');
+                    appendMessage('System', 'Connected to chat service. How can we help you?');
+                };
+
+                // Add detailed error logging
+                window.onerror = function (msg, url, line) {
+                    console.error('Window Error:', msg, 'at', url, ':', line);
+                };
+
+                chatSocket.onmessage = function (e) {
+                    console.log('Message received:', e.data);
+                    try {
+                        const data = JSON.parse(e.data);
+                        appendMessage(data.sender_type || 'ai', data.message);
+                    } catch (error) {
+                        console.error('Error parsing message:', error);
+                        appendMessage('System', 'Error receiving message. Please try again.');
+                    }
+                };
+
+                chatSocket.onclose = function (e) {
+                    console.log('WebSocket connection closed:', e);
+                    updateConnectionStatus('Reconnecting...', true);
+                    setTimeout(() => connectWebSocket(roomId), 3000);
+                };
+
+                chatSocket.onerror = function (e) {
+                    console.error('WebSocket error:', e);
+                    updateConnectionStatus('Connection Error', true);
+                };
+            } catch (error) {
+                console.error('Error creating WebSocket:', error);
+                updateConnectionStatus('Connection Error', true);
+            }
+        }
+
+        chatForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+
+            if (message && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+                chatSocket.send(JSON.stringify({
+                    'message': message,
+                    'sender_type': 'customer'
+                }));
+                messageInput.value = '';
+            } else {
+                appendMessage('System', 'Could not send message. Please check your connection.');
+            }
+        });
+
+        function appendMessage(sender, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `group flex ${sender === 'customer' ? 'justify-end' : 'justify-start'}`;
+
+            const bubble = document.createElement('div');
+            bubble.className = `max-w-[85%] px-4 py-2 rounded-lg ${sender === 'customer'
+                    ? 'bg-indigo-600 text-white rounded-br-none'
+                    : sender === 'System'
+                        ? 'bg-gray-200 text-gray-700'
+                        : sender === 'ai'
                             ? 'bg-blue-100 text-blue-900 rounded-bl-none'
                             : 'bg-gray-100 text-gray-900 rounded-bl-none'
                 }`;
-                bubble.textContent = content;
-                
-                messageDiv.appendChild(bubble);
-                messages.appendChild(messageDiv);
-                messages.scrollTop = messages.scrollHeight;
-            }
+            bubble.textContent = content;
 
-            // Helper function to get CSRF token
-            function getCookie(name) {
-                let cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    const cookies = document.cookie.split(';');
-                    for (let i = 0; i < cookies.length; i++) {
-                        const cookie = cookies[i].trim();
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
+            messageDiv.appendChild(bubble);
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
                     }
                 }
-                return cookieValue;
             }
-        });
-    </script>
+            return cookieValue;
+        }
+    });
+</script>
 {% endblock %}
