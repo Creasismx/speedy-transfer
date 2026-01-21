@@ -49,13 +49,13 @@ class ChatRoomViewSet(viewsets.ModelViewSet):
         if self.request.user.is_authenticated:
             try:
                 agent = ChatAgent.objects.get(user=self.request.user)
-                # Filter to show only chatrooms assigned to this agent
-                queryset = queryset.filter(agent=agent)
+                # Filter to show chats assigned to this agent OR unassigned (open) chats
+                queryset = queryset.filter(Q(agent=agent) | Q(status='open'))
             except ChatAgent.DoesNotExist:
                 # If user is not an agent, return empty queryset
                 queryset = ChatRoom.objects.none()
         
-        # Filter by status if provided
+        # Filter by status if provided (allow partial filtering)
         status_filter = self.request.query_params.get('status', None)
         if status_filter:
             queryset = queryset.filter(status=status_filter)
