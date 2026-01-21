@@ -24,19 +24,26 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.accept()
             print("Connection accepted")
 
-            # Send and save welcome message
-            welcome_message = 'Hello! I\'m the virtual assistant for Speedy Transfer. How can I help you today?'
-            await self.save_message(welcome_message, 'ai')
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'chat_message',
-                    'message': welcome_message,
-                    'sender_type': 'ai',
-                    'timestamp': timezone.now().isoformat()
-                }
-            )
-            print("Welcome message sent and saved")
+            print("Connection accepted")
+
+            # Check if this is a new chat or reconnection
+            if not await self.has_messages():
+                # Send and save welcome message only for new chats
+                welcome_message = 'Hello! I\'m the virtual assistant for Speedy Transfer. How can I help you today?'
+                await self.save_message(welcome_message, 'ai')
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'chat_message',
+                        'message': welcome_message,
+                        'sender_type': 'ai',
+                        'timestamp': timezone.now().isoformat()
+                    }
+                )
+                print("Welcome message sent and saved")
+            else:
+                print("Reconnected to existing chat")
+
         except Exception as e:
             print(f"Error in connect: {str(e)}")
             raise
@@ -46,7 +53,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
-        )
+        ) 
+    
+    @database_sync_to_async
+    def has_messages(self):
+        chat_room = ChatRoom.objects.get(id=int(self.room_name))
+        return chat_room.messages.exists()
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
