@@ -39,6 +39,11 @@
                 <div id="connectionStatus" class="text-sm px-2 py-1 rounded bg-indigo-500">
                     Connecting...
                 </div>
+                <button id="agentBtn" class="header-btn" title="Talk to Human">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </button>
                 <button id="minimizeBtn" class="header-btn" title="Minimize">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
@@ -90,6 +95,7 @@
             const chatBody = document.getElementById('chatBody');
             const minimizeBtn = document.getElementById('minimizeBtn');
             const closeBtn = document.getElementById('closeBtn');
+            const agentBtn = document.getElementById('agentBtn');
             let isMinimized = false;
 
             console.log('Minimize button:', minimizeBtn);
@@ -111,6 +117,25 @@
                     minimizeBtn.title = "Minimize";
                 }
             });
+            
+            // Request Agent Button
+            if (agentBtn) {
+                agentBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (confirm('Do you want to speak with a live agent?')) {
+                        if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+                             chatSocket.send(JSON.stringify({
+                                'command': 'request_agent',
+                                'message': '/request_agent',
+                                'sender_type': 'customer'
+                            }));
+                            appendMessage('System', 'Requesting a live agent...');
+                        } else {
+                            alert('Not connected to chat service.');
+                        }
+                    }
+                });
+            }
 
             // Minimize button functionality
             if (minimizeBtn) {

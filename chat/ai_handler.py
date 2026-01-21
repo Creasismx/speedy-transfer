@@ -43,4 +43,5 @@ class ChatAIHandler:
 
         except Exception as e:
             print(f"Error in AI response generation: {str(e)}")
-            return "Sorry, there's a technical issue. An agent will assist you shortly."
+            # Return None to signal failure so the consumer can trigger handoff
+            return None

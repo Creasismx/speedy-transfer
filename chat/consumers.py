@@ -67,26 +67,93 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }
         )
 
+        # Handle explicit request for an agent
+        if message == '/request_agent' or text_data_json.get('command') == 'request_agent':
+            await self.trigger_agent_handoff(reason="Customer requested a live agent.")
+            return
+
         # Generate and send AI response if no agent is assigned
         if sender_type == 'customer':
             chat_room = await self.get_chat_room()
-            if not chat_room.agent:
+            # Only use AI if no agent is assigned and chat is open
+            if not chat_room.agent and chat_room.status != 'closed':
                 # Get conversation history for context
                 history = await self.get_chat_history()
+                
                 # Get AI response
                 ai_response = await self.ai_handler.get_ai_response(message, history)
-                # Save AI response to database
-                await self.save_message(ai_response, 'ai')
-                # Send AI response to room group
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'chat_message',
-                        'message': ai_response,
-                        'sender_type': 'ai',
-                        'timestamp': timezone.now().isoformat()
-                    }
-                )
+                
+                if ai_response:
+                    # Save AI response to database
+                    await self.save_message(ai_response, 'ai')
+                    # Send AI response to room group
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            'type': 'chat_message',
+                            'message': ai_response,
+                            'sender_type': 'ai',
+                            'timestamp': timezone.now().isoformat()
+                        }
+                    )
+                else:
+                    # AI Failed (e.g. Quota exceeded) - Trigger Automatic Handoff
+                    print("AI failed to generate response. Triggering handoff.")
+                    await self.trigger_agent_handoff(reason="AI service unavailable (technical issue).")
+
+    async def trigger_agent_handoff(self, reason="Assistance required"):
+        """
+        Notify the user that an agent is being requested and send email notification.
+        """
+        fallback_msg = "I'm connecting you to a live agent who can better assist you. Please wait a moment..."
+        
+        await self.save_message(fallback_msg, 'system')
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'chat_message',
+                'message': fallback_msg,
+                'sender_type': 'System',
+                'timestamp': timezone.now().isoformat()
+            }
+        )
+        
+        # Notify Admin/Agents via Email
+        await self.notify_admins_email(reason)
+
+    @database_sync_to_async
+    def notify_admins_email(self, reason):
+        try:
+            from django.core.mail import send_mail
+            from django.conf import settings
+            
+            chat_room = ChatRoom.objects.get(id=int(self.room_name))
+            subject = f"New Chat Request: {chat_room.customer_name}"
+            message = f"""
+            Customer {chat_room.customer_name} ({chat_room.customer_email}) is requesting assistance.
+            
+            Reason: {reason}
+            Chat ID: {chat_room.id}
+            
+            Please log in to the agent portal to reply.
+            """
+            
+            print(f"Sending email notification to {settings.DEFAULT_FROM_EMAIL}...")
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [settings.DEFAULT_FROM_EMAIL], # Send to admin/support email
+                fail_silently=False,
+            )
+            print("Email notification sent.")
+            
+            # Update status to open/pending if not already
+            chat_room.status = 'open'
+            chat_room.save()
+            
+        except Exception as e:
+            print(f"Error sending email notification: {e}")
 
     async def chat_message(self, event):
         # Send message to WebSocket
