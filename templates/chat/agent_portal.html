@@ -108,23 +108,19 @@
         // Auto-failover to claim/assign the chat if it's open
         if (currentStatus === 'open') {
             try {
-                // We need the agent ID first, but for now we can rely on the backend determining the agent from request.user
-                // Ideally we should pass the agent id, but views.py assign_agent might need modification or we accept implicit
-                // Let's check views.py assign_agent... it expects agent_id in body.
-                // We can get our own agent id from the page context or fetch it.
-                // Simplified: Just fetch "my_chats" to get ID or...
-                // Actually, let's just proceed to join. The best UX is to explicitly "Claim". 
-                // For now, let's just connect. If the user replies, we can assign? 
-                // Better: Add a "Claim" call.
+                // Claim the chat for the current agent
+                await fetch(`/chat/api/rooms/${roomId}/assign_agent/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({}) // Backend will infer agent from request.user
+                });
 
-                // Fetch current agent info first if we don't have it? 
-                // Let's skip auto-claim for this iteration to avoid complexity errors, just show the chat.
-                // But user wants "chat1" to be default.
+                // Refresh the list to show it as Assigned
+                fetchActiveChats();
 
-                // Actually, let's try to assign it using the API if we have the ID.
-                // Since we don't easily have our own Agent ID here without another fetch, 
-                // I'll just Open the WebSocket. 
-                // Wait, I can make a helper to claim.
             } catch (e) {
                 console.error("Auto-claim failed", e);
             }
@@ -215,8 +211,8 @@
 
         const msgContent = document.createElement('div');
         msgContent.className = `inline-block p-3 rounded-lg ${data.sender_type === 'agent'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-gray-100 text-gray-900'
+            ? 'bg-indigo-600 text-white'
+            : 'bg-gray-100 text-gray-900'
             }`;
         msgContent.textContent = data.message;
 
