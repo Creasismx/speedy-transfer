@@ -68,11 +68,16 @@ class ChatRoomViewSet(viewsets.ModelViewSet):
         agent_id = request.data.get('agent_id')
         
         try:
-            agent = ChatAgent.objects.get(id=agent_id, is_available=True)
+            if agent_id:
+                agent = ChatAgent.objects.get(id=agent_id, is_available=True)
+            else:
+                # Fallback to the current user's agent profile
+                agent = ChatAgent.objects.get(user=request.user, is_available=True)
+
             chat_room.agent = agent
             chat_room.status = 'assigned'
             chat_room.save()
-            return Response({'status': 'agent assigned'})
+            return Response({'status': 'agent assigned', 'agent_name': agent.user.username})
         except ChatAgent.DoesNotExist:
             return Response(
                 {'error': 'Agent not found or not available'}, 
