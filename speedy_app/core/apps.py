@@ -17,7 +17,7 @@ class CoreConfig(AppConfig):
 
         # Import admin modules to ensure all models are registered
         # This must happen in ready() to ensure all apps are loaded first
-        import chat.admin  # noqa
+        # import chat.admin  # noqa (Commenting out for WhatsApp switch)
         # Import and apply the admin URL wrapper after all registrations are complete
         from speedy_app.core.admin import get_admin_urls
         from django.contrib import admin
