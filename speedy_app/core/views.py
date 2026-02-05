@@ -517,6 +517,12 @@ def contact_form_view(request):
     with both a plain text and a well-formatted HTML body.
     """
     if request.method == "POST":
+        # HONEYPOT CHECK: If this hidden field is filled, it's a bot.
+        if request.POST.get("website_url"):
+            print("SPAM DETECTED: Honeypot 'website_url' was filled. Silently ignoring.")
+            messages.success(request, "Your message has been sent successfully!")
+            return redirect(reverse('core:home_view'))
+
         name = request.POST.get("name")
         email = request.POST.get("email")
         phone = request.POST.get("phone")
