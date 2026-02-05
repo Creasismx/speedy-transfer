@@ -17,12 +17,16 @@
             <div>
               <input type="text" id="whatsapp_number" name="whatsapp_number" class="w-full px-3 py-2 border-b border-[#F2F2F2] bg-transparent placeholder-[#F2F2F2] text-white focus:outline-none focus:ring-0" placeholder="WhatsApp number (optional)">
             </div>
-            <div>
+          <div>
               <select id="preferred_contact_method" name="preferred_contact_method" class="w-full px-3 py-2 border-b border-[#F2F2F2] bg-transparent text-white">
                 <option value="email">Email</option>
                 <option value="phone">Phone</option>
                 <option value="whatsapp">WhatsApp</option>
               </select>
+            </div>
+            <!-- Honeypot field: robots will fill this, humans will not see it -->
+            <div style="position: absolute; left: -5000px;" aria-hidden="true">
+              <input type="text" name="website_url" tabindex="-1" value="" autocomplete="off">
             </div>
             <div>
               <input type="text" id="country" name="country" class="w-full px-3 py-2 border-b border-[#F2F2F2] bg-transparent placeholder-[#F2F2F2] text-white focus:outline-none focus:ring-0" placeholder="Country" required>
