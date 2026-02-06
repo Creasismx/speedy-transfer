@@ -12,6 +12,7 @@ A Django-based transfer booking application that allows users to book transporta
 - **Admin Interface**: Django admin with Jet admin theme
 - **Responsive Design**: Modern UI with Tailwind CSS
 - **Email Notifications**: Automated email system for bookings
+- **AI Chat (Disabled)**: AI-powered chat system currently disabled in favor of direct WhatsApp support (Code preserved for future use)
 
 ## Project Structure
 

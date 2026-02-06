@@ -1,22 +1,27 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Speedy Transfer - Premium Transportation{% endblock %}</title>
-    <meta name="description" content="Safe, reliable, and premium airport transfers in Puerto Vallarta and Riviera Nayarit.">
-    
+    <meta name="description"
+        content="Safe, reliable, and premium airport transfers in Puerto Vallarta and Riviera Nayarit.">
+
     {% load static %}
     <link href="{% static 'css/index.css' %}" rel="stylesheet">
     {% block extra_css %}{% endblock %}
 </head>
+
 <body class="flex-col min-h-screen">
     <!-- Header -->
     <header class="main-header">
         <div class="container py-4 flex items-center justify-between">
             <a href="{% url 'core:landing_page' %}" class="flex items-center gap-2">
                 <!-- Placeholder Logo -->
-                <span style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--primary);">Speedy Transfer</span>
+                <span
+                    style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--primary);">Speedy
+                    Transfer</span>
             </a>
             <nav class="hidden md:flex gap-4">
                 <a href="{% url 'core:landing_page' %}" class="nav-link">Home</a>
@@ -37,7 +42,8 @@
         <div class="container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
                 <h4 class="mb-2">Speedy Transfer</h4>
-                <p style="color: #94a3b8; font-size: 0.9rem;">Your trusted partner for airport transfers and private transportation.</p>
+                <p style="color: #94a3b8; font-size: 0.9rem;">Your trusted partner for airport transfers and private
+                    transportation.</p>
             </div>
             <div>
                 <h4 class="mb-2">Quick Links</h4>
@@ -57,8 +63,9 @@
         </div>
     </footer>
 
-    {% include 'chat/include/chat_button.html' %}
-    
+    {# {% include 'chat/include/chat_button.html' %} #} <!-- Chat disabled -->
+
     {% block extra_js %}{% endblock %}
 </body>
+
 </html>
