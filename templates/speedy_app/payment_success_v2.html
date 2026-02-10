@@ -151,15 +151,23 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="bg-purple-50 rounded-lg p-4">
                                     <div class="text-sm text-purple-600 font-medium mb-1">Pickup Location</div>
-                                    <div class="text-gray-800 font-semibold">{{ order_data.return_trip.pickup_location_name|default:"Not specified"|safe }}</div>
-                                    <div class="text-sm text-gray-600">{{ order_data.return_trip.datetime|format_date|default:"Not specified" }}</div>
-                                    <div class="text-sm text-gray-600">{{ order_data.return_trip.datetime|format_time|default:"Not specified" }}</div>
+                                    <div class="text-gray-800 font-semibold">{{
+                                        order_data.return_trip.pickup_location_name|default:"Not specified"|safe }}
+                                    </div>
+                                    <div class="text-sm text-gray-600">{{
+                                        order_data.return_trip.datetime|format_date|default:"Not specified" }}</div>
+                                    <div class="text-sm text-gray-600">{{
+                                        order_data.return_trip.datetime|format_time|default:"Not specified" }}</div>
                                 </div>
                                 <div class="bg-orange-50 rounded-lg p-4">
                                     <div class="text-sm text-orange-600 font-medium mb-1">Dropoff Location</div>
-                                    <div class="text-gray-800 font-semibold">{{ order_data.return_trip.dropoff_location_name|default:"Not specified"|safe }}</div>
-                                    <div class="text-sm text-gray-600">{{ order_data.return_trip.datetime|format_date|default:"Not specified" }}</div>
-                                    <div class="text-sm text-gray-600">{{ order_data.return_trip.datetime|format_time|default:"Not specified" }}</div>
+                                    <div class="text-gray-800 font-semibold">{{
+                                        order_data.return_trip.dropoff_location_name|default:"Not specified"|safe }}
+                                    </div>
+                                    <div class="text-sm text-gray-600">{{
+                                        order_data.return_trip.datetime|format_date|default:"Not specified" }}</div>
+                                    <div class="text-sm text-gray-600">{{
+                                        order_data.return_trip.datetime|format_time|default:"Not specified" }}</div>
                                 </div>
                             </div>
                         </div>
@@ -217,8 +225,21 @@
                             <span class="text-lg font-semibold text-gray-800">{{ order_data.subtotal }}</span>
                         </div>
                         <div class="flex justify-between items-center py-2">
-                            <span class="text-xl font-bold text-gray-800">Total:</span>
                             <span class="text-2xl font-bold text-blue-600">{{ order_data.total }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-t border-gray-100 mt-2">
+                            <span class="text-lg font-medium text-gray-700">Payment Method:</span>
+                            <span class="text-lg font-semibold text-gray-800">
+                                {% if order_data.payment_method == 'CASH_ON_ARRIVAL' %}
+                                Cash on Arrival
+                                {% elif order_data.payment_method == 'PAYPAL' %}
+                                PayPal
+                                {% elif order_data.payment_method == 'STRIPE' %}
+                                Stripe
+                                {% else %}
+                                {{ order_data.payment_method|default:"N/A" }}
+                                {% endif %}
+                            </span>
                         </div>
                     </div>
                 </div>
