@@ -893,26 +893,34 @@ def payment_success(request):
         if booking_id:
             try:
                 booking = Booking.objects.get(id=booking_id)
-                # Update status
-                booking.payment_method = 'STRIPE'
-                booking.save()
                 
-                # Create payment record
-                create_payment_record(booking, 'STRIPE', booking.total_amount)
-                
-                # Reconstruct order_data
-                order_data = booking_to_order_data(booking)
-                booking_id = booking.id
-                
-                # Send emails
-                print(f"📧 Ready to send emails. Order Data exists: {bool(order_data)}")
-                if order_data:
-                    print(f"📧 Calling send_booking_email for Customer...")
-                    send_booking_email(order_data, request, booking_id=booking_id)
-                    print(f"📧 Calling send_booking_email for Admin...")
-                    send_booking_email(order_data, request, booking_id=booking_id, test_recipients=True)
+                # Check if this is a Cash booking (skip Stripe updates and duplicate emails)
+                if booking.payment_method == 'CASH_ON_ARRIVAL':
+                    print(f"✅ Displaying success page for CASH booking {booking_id}")
+                    # Reconstruct order_data for display only
+                    order_data = booking_to_order_data(booking)
+                    booking_id = booking.id
                 else:
-                    print("❌ Order Data is None, cannot send emails.")
+                    # Update status (Default to Stripe for this view)
+                    booking.payment_method = 'STRIPE'
+                    booking.save()
+                    
+                    # Create payment record
+                    create_payment_record(booking, 'STRIPE', booking.total_amount)
+                    
+                    # Reconstruct order_data
+                    order_data = booking_to_order_data(booking)
+                    booking_id = booking.id
+                    
+                    # Send emails (Only for Stripe, as Cash sends immediately)
+                    print(f"📧 Ready to send emails. Order Data exists: {bool(order_data)}")
+                    if order_data:
+                        print(f"📧 Calling send_booking_email for Customer...")
+                        send_booking_email(order_data, request, booking_id=booking_id)
+                        print(f"📧 Calling send_booking_email for Admin...")
+                        send_booking_email(order_data, request, booking_id=booking_id, test_recipients=True)
+                    else:
+                        print("❌ Order Data is None, cannot send emails.")
                     
             except Booking.DoesNotExist:
                 print(f"❌ Booking {booking_id} not found in DB")
