@@ -326,9 +326,20 @@ class ResultsView(TemplateView):
                                 image_url = raw_value
                             else:
                                 basename = os.path.basename(raw_value)
-                                # Fix: Normalize .jpeg to .jpg
+                                # Fix: Normalize .jpeg to .jpg and enforce correct casing
                                 base_name_only, ext = os.path.splitext(basename)
-                                if not ext or ext.lower() == '.jpeg':
+                                
+                                # Map of lowercase names to correct filesystem names
+                                known_corrections = {
+                                    'van_dark': 'Van_Dark.jpg',
+                                    'small_sprinter': 'Small_Sprinter.jpg',
+                                    'large_sprinter': 'Large_Sprinter.jpg',
+                                }
+                                lower_base = base_name_only.lower()
+                                
+                                if lower_base in known_corrections:
+                                    basename = known_corrections[lower_base]
+                                elif not ext or ext.lower() == '.jpeg':
                                     basename = f"{base_name_only}.jpg"
                                 image_url = static(f"images/cars/{quote(basename)}")
 
