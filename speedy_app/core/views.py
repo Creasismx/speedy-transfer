@@ -326,8 +326,10 @@ class ResultsView(TemplateView):
                                 image_url = raw_value
                             else:
                                 basename = os.path.basename(raw_value)
-                                if "." not in basename:
-                                    basename = f"{basename}.jpg"
+                                # Fix: Normalize .jpeg to .jpg
+                                base_name_only, ext = os.path.splitext(basename)
+                                if not ext or ext.lower() == '.jpeg':
+                                    basename = f"{base_name_only}.jpg"
                                 image_url = static(f"images/cars/{quote(basename)}")
 
                     # Name-based defaults
