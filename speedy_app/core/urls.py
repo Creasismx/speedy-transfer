@@ -15,9 +15,10 @@ urlpatterns = [
     path('summary/', SummaryView.as_view(), name="summary_view"),
     path('checkout/', CheckoutView.as_view(), name="checkout_view"),
     path('contact/', contact_form_view, name='contact-form'),
-    path('create_payment/', create_payment, name='create_payment'),
+    path('create-payment/', views.create_payment, name='create_payment'),
+    path('create-cash-payment/', views.create_cash_payment, name='create_cash_payment'),
     path('create_checkout_session/', create_checkout_session, name='create_checkout_session'),
-    path('execute_payment/', execute_payment, name='execute_payment'),
+    path('execute-payment/', views.execute_payment, name='execute_payment'),
     path('payment_failed/', payment_failed, name='payment_failed'),
     path('payment_success/', payment_success, name='payment_success'),
     # Backwards-compatible aliases expected by some tests

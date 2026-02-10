@@ -1745,3 +1745,58 @@ def test_upload(request):
             return HttpResponse(f"Error: {str(e)}", status=500)
             
     return HttpResponse("Send a POST request with 'image' file", status=405)
+
+
+@csrf_exempt
+def create_cash_payment(request):
+    """
+    Handles "Pay with Cash" requests. 
+    Creates a booking with status CASH_ON_ARRIVAL and returns success JSON.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+        
+    try:
+        data = json.loads(request.body)
+        order_json = data.get('order_json')
+        
+        if not order_json:
+             return JsonResponse({'error': 'No order data provided'}, status=400)
+             
+        order = json.loads(order_json)
+        
+        # Force payment method to CASH_ON_ARRIVAL
+        order['payment_method'] = 'CASH_ON_ARRIVAL'
+        
+        # Create Booking
+        booking, error = create_booking_record(order, request)
+        
+        if error:
+            return JsonResponse({'error': f"Booking failed: {error}"}, status=400)
+            
+        if booking:
+            # Create Payment Record (Status: Pending/Cash)
+            # We use the total amount from the order
+            total_amount = order.get('total', 0)
+            create_payment_record(booking, 'CASH_ON_ARRIVAL', total_amount)
+            
+            # Send Emails
+            # Reconstruct order_data from booking to ensure consistency
+            from .utils import booking_to_order_data
+            order_data = booking_to_order_data(booking)
+            
+            if order_data:
+                send_booking_email(order_data, request, booking_id=booking.id)
+                send_booking_email(order_data, request, booking_id=booking.id, test_recipients=True)
+            
+            # Return success URL
+            success_url = reverse('core:payment_success') + f"?booking_id={booking.id}"
+            return JsonResponse({'success': True, 'redirect_url': success_url})
+            
+        return JsonResponse({'error': 'Unknown error creating booking'}, status=500)
+
+    except Exception as e:
+        print(f"Error processing cash payment: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'error': str(e)}, status=500)

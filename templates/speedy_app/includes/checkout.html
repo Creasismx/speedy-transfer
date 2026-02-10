@@ -241,6 +241,18 @@
                   Pay with Card
                 </button>
               </form>
+
+              <!-- Cash Payment Option -->
+              <button id="cash-button" type="button"
+                class="btn w-full bg-[#22c55e] hover:bg-[#16a34a] text-white border-0 font-bold shadow-md transition-all flex items-center justify-center gap-2 mt-3">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z">
+                  </path>
+                </svg>
+                Pay with Cash
+              </button>
             </div>
           </div>
 
@@ -498,6 +510,57 @@
           return false;
         }
         if (el('c-payment-method')) el('c-payment-method').textContent = 'Stripe';
+      });
+    }
+
+    // Cash Payment Handler
+    const cashBtn = el('cash-button');
+    if (cashBtn) {
+      cashBtn.addEventListener('click', function () {
+        if (!validateBillingForm()) {
+          alert('Please fill in all required billing details before paying.');
+          return;
+        }
+
+        refreshHiddenOrder();
+
+        if (el('c-payment-method')) el('c-payment-method').textContent = 'Cash on Arrival';
+
+        // Disable button to prevent double submit
+        const originalText = cashBtn.innerHTML;
+        cashBtn.disabled = true;
+        cashBtn.innerHTML = '<span class="loading loading-spinner loading-sm"></span> Processing...';
+
+        const order = buildOrder();
+        // Get CSRF token from inputs or cookie
+        const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        const csrfToken = csrfInput ? csrfInput.value : '';
+
+        fetch("{% url 'core:create_cash_payment' %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+          },
+          body: JSON.stringify({ order_json: JSON.stringify(order) })
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success && data.redirect_url) {
+              window.location.href = data.redirect_url;
+            } else {
+              alert('Error creating booking: ' + (data.error || 'Unknown error'));
+              console.error('Server Error:', data);
+              cashBtn.disabled = false;
+              cashBtn.innerHTML = originalText;
+            }
+          })
+          .catch(error => {
+            console.error('Network Error:', error);
+            alert('Network error. Please try again.');
+            cashBtn.disabled = false;
+            cashBtn.innerHTML = originalText;
+          });
       });
     }
 
