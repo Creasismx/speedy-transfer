@@ -4,6 +4,29 @@
 
 {% block content %}
 <!-- Payment Success Hero Section -->
+<!-- 
+    MARKETING CONVERSION TRACKING 
+    Place your Google Analytics / Facebook Pixel purchase events here.
+    Available variables:
+    - Order Value: {{ order_data.total }}
+    - Currency: {{ order_data.currency|default:'USD' }}
+    - Transaction ID: {{ booking_id }}
+-->
+<script>
+    console.log("Conversion Event Ready: Purchase {{ booking_id }} | Value: {{ order_data.total }} {{ order_data.currency|default:'USD' }}");
+    
+    // Example Facebook Pixel Purchase Event (Uncomment and add your Pixel ID in base.html)
+    // fbq('track', 'Purchase', {value: {{ order_data.total }}, currency: '{{ order_data.currency|default:'USD' }}'});
+    
+    // Example Google Ads Conversion (Uncomment and replace with your IDs)
+    // gtag('event', 'conversion', {
+    //      'send_to': 'AW-CONVERSION_ID/LABEL',
+    //      'value': {{ order_data.total }},
+    //      'currency': '{{ order_data.currency|default:'USD' }}',
+    //      'transaction_id': '{{ booking_id }}'
+    // });
+</script>
+
 <section class="bg-gradient-to-br from-green-50 to-blue-50 py-16">
     <div class="container mx-auto px-4 text-center">
         <!-- Success Icon -->

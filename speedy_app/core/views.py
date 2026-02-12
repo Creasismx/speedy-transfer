@@ -1307,7 +1307,16 @@ def create_booking_record(order, request):
             total_amount=order.get('total', 0),
             currency=order.get('currency', 'USD'),
             payment_method=order.get('payment_method', ''),
-            trip_type=order.get('trip_type', 'oneway')
+            trip_type=order.get('trip_type', 'oneway'),
+
+            # Marketing / Tracking - Retrieved from Session
+            utm_source=request.session.get('marketing_attribution', {}).get('utm_source'),
+            utm_medium=request.session.get('marketing_attribution', {}).get('utm_medium'),
+            utm_campaign=request.session.get('marketing_attribution', {}).get('utm_campaign'),
+            utm_term=request.session.get('marketing_attribution', {}).get('utm_term'),
+            utm_content=request.session.get('marketing_attribution', {}).get('utm_content'),
+            gclid=request.session.get('marketing_attribution', {}).get('gclid'),
+            fbclid=request.session.get('marketing_attribution', {}).get('fbclid'),
         )
         
         print(f"✅ Booking record created successfully: ID {booking.id}")

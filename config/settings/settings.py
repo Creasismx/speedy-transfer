@@ -148,6 +148,7 @@ MIDDLEWARE = [
     # "whitenoise.middleware.WhiteNoiseMiddleware",
     # "django.middleware.gzip.GZipMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "speedy_app.core.middleware.MarketingMiddleware",  # Extract UTM params from URL
     # "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     # "django.middleware.csrf.CsrfViewMiddleware",
