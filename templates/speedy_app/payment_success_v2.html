@@ -38,10 +38,18 @@
 
         <!-- Success Message -->
         <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+            {% if order_data.payment_method == 'CASH_ON_ARRIVAL' %}
+            Reservation Successful!
+            {% else %}
             Payment Successful!
+            {% endif %}
         </h1>
         <p class="text-xl text-gray-600 mb-8">
-            Your booking has been confirmed. Thank you for choosing Speedy Transfer!
+            {% if order_data.payment_method == 'CASH_ON_ARRIVAL' %}
+            Thank you for your reservation!<br>Your booking has been confirmed.
+            {% else %}
+            Thank you for your purchase!<br>Your booking has been confirmed.
+            {% endif %}
         </p>
 
         <!-- Booking Reference -->
@@ -413,4 +421,35 @@
     </div>
 </section>
 {% endif %}
+
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Determine message based on payment method
+        const isCash = "{% if order_data.payment_method == 'CASH_ON_ARRIVAL' %}true{% else %}false{% endif %}" === "true";
+        
+        let title = "Payment Successful!";
+        let text = "Thank you for your purchase! Your booking is confirmed.";
+        let icon = "success";
+        let confirmButtonText = "View Reservation";
+        
+        if (isCash) {
+            title = "Reservation Successful!";
+            text = "Thank you for your reservation! Your booking is confirmed.";
+        }
+        
+        Swal.fire({
+            title: title,
+            text: text,
+            icon: icon,
+            confirmButtonText: confirmButtonText,
+            confirmButtonColor: '#2563EB', // Blue-600
+            allowOutsideClick: false,
+            allowEscapeKey: false
+        });
+    });
+</script>
+
 {% endblock content %}
