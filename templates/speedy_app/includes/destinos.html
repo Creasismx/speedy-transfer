@@ -10,80 +10,63 @@
         style="font-family: var(--font-display); color: var(--text-main);">Available Destinations</h2>
     </div>
 
-    <!-- Filter Buttons (Simplified for visual update) -->
-    <div class="flex justify-center md:justify-end gap-4 mb-8">
-      <label class="cursor-pointer">
-        <input type="radio" name="options" class="peer sr-only" id="vallarta" checked />
-        <span
-          class="px-6 py-2 rounded-lg bg-slate-100 text-slate-600 peer-checked:bg-primary peer-checked:text-white transition-all font-medium border border-transparent peer-checked:border-primary block"
-          style="--tw-bg-opacity: 1; background-color: var(--bg-alt); color: var(--text-muted);">Vallarta</span>
-        <style>
-          .peer:checked+span {
-            background-color: var(--primary);
-            color: white;
-          }
-        </style>
-      </label>
-      <label class="cursor-pointer">
-        <input type="radio" name="options" class="peer sr-only" id="bahia" />
-        <span
-          class="px-6 py-2 rounded-lg bg-slate-100 text-slate-600 peer-checked:bg-primary peer-checked:text-white transition-all font-medium border border-transparent peer-checked:border-primary block"
-          style="--tw-bg-opacity: 1; background-color: var(--bg-alt); color: var(--text-muted);">Bahia de
-          Banderas</span>
-      </label>
-    </div>
+    <!-- 3-column grid: one column per destination zone -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-    <!-- Content Grid (Replacing Swiper with simple Grid for verified stability, can revert/enhance later) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      <!-- Card 1 -->
-      <div class="card overflow-hidden group p-0 border-0 shadow-md hover:shadow-xl transition-shadow">
-        <div class="relative h-48 overflow-hidden">
-          <img src="{% static 'images/destinos1.png' %}"
-            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Hotel Zone">
-          <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
-        </div>
-        <div class="p-4">
-          <h3 class="text-xl font-bold" style="color: var(--text-main);">Hotel Zone</h3>
-          <p class="text-sm mt-1" style="color: var(--text-muted);">Puerto Vallarta</p>
+      <!-- ===== PUERTO VALLARTA ===== -->
+      <div class="flex flex-col">
+        <h3 class="text-lg font-bold mb-4 pb-2 border-b-2" style="color: var(--primary); border-color: var(--primary);">
+          Puerto Vallarta</h3>
+        <div class="card overflow-hidden group p-0 border-0 shadow-md hover:shadow-xl transition-shadow flex-1">
+          <div class="relative h-64 overflow-hidden">
+            <img src="{% static 'images/destinos1.png' %}"
+              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              alt="Puerto Vallarta">
+            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+          </div>
+          <div class="p-4">
+            <h4 class="text-xl font-bold" style="color: var(--text-main);">Hotel Zone</h4>
+            <p class="text-sm mt-1" style="color: var(--text-muted);">Puerto Vallarta</p>
+          </div>
         </div>
       </div>
 
-      <!-- Card 2 -->
-      <div class="card overflow-hidden group p-0 border-0 shadow-md hover:shadow-xl transition-shadow">
-        <div class="relative h-48 overflow-hidden">
-          <img src="{% static 'images/destinos2.png' %}"
-            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Mismaloya">
-        </div>
-        <div class="p-4">
-          <h3 class="text-xl font-bold" style="color: var(--text-main);">Mismaloya</h3>
-          <p class="text-sm mt-1" style="color: var(--text-muted);">South Shore</p>
-        </div>
-      </div>
-
-      <!-- Card 3 -->
-      <div class="card overflow-hidden group p-0 border-0 shadow-md hover:shadow-xl transition-shadow">
-        <div class="relative h-48 overflow-hidden">
-          <img src="{% static 'images/destinos3.png' %}"
-            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-            alt="Marina Vallarta">
-        </div>
-        <div class="p-4">
-          <h3 class="text-xl font-bold" style="color: var(--text-main);">Marina Vallarta</h3>
-          <p class="text-sm mt-1" style="color: var(--text-muted);">Exclusive Area</p>
+      <!-- ===== RIVIERA NAYARIT ===== -->
+      <div class="flex flex-col">
+        <h3 class="text-lg font-bold mb-4 pb-2 border-b-2" style="color: var(--primary); border-color: var(--primary);">
+          Riviera Nayarit</h3>
+        <div class="card overflow-hidden group p-0 border-0 shadow-md hover:shadow-xl transition-shadow flex-1">
+          <div class="relative h-64 overflow-hidden">
+            <img src="{% static 'images/destinos2.png' %}"
+              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              alt="Riviera Nayarit">
+            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+          </div>
+          <div class="p-4">
+            <h4 class="text-xl font-bold" style="color: var(--text-main);">Nuevo Vallarta</h4>
+            <p class="text-sm mt-1" style="color: var(--text-muted);">Riviera Nayarit</p>
+          </div>
         </div>
       </div>
 
-      <!-- Card 4 -->
-      <div class="card overflow-hidden group p-0 border-0 shadow-md hover:shadow-xl transition-shadow">
-        <div class="relative h-48 overflow-hidden">
-          <img src="{% static 'images/destinos4.png' %}"
-            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Down Town">
-        </div>
-        <div class="p-4">
-          <h3 class="text-xl font-bold" style="color: var(--text-main);">Downtown</h3>
-          <p class="text-sm mt-1" style="color: var(--text-muted);">Cultural Center</p>
+      <!-- ===== PUNTA DE MITA ===== -->
+      <div class="flex flex-col">
+        <h3 class="text-lg font-bold mb-4 pb-2 border-b-2" style="color: var(--primary); border-color: var(--primary);">
+          Punta de Mita</h3>
+        <div class="card overflow-hidden group p-0 border-0 shadow-md hover:shadow-xl transition-shadow flex-1">
+          <div class="relative h-64 overflow-hidden">
+            <img src="{% static 'images/destinos3.png' %}"
+              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              alt="Punta de Mita">
+            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+          </div>
+          <div class="p-4">
+            <h4 class="text-xl font-bold" style="color: var(--text-main);">Punta de Mita</h4>
+            <p class="text-sm mt-1" style="color: var(--text-muted);">Exclusive Area</p>
+          </div>
         </div>
       </div>
+
     </div>
   </div>
 </section>
