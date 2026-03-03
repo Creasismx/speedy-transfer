@@ -114,6 +114,7 @@
   </main>
   {% with url_name=request.resolver_match.url_name %}
   {% if url_name != "results_view" and url_name != "summary_view" and url_name != "checkout_view" %}
+  {% include './includes/faq.html' %}
   {% include './includes/contactanos.html' %}
   {% endif %}
   {% endwith %}
@@ -333,6 +334,19 @@
       successMessage.style.display = 'none'
     }
   }, 3000) // 3 seconds
+
+  // Show FAQ section when clicking on FAQ link
+  document.addEventListener('DOMContentLoaded', function () {
+    const faqLinks = document.querySelectorAll('a[href="#faq"]');
+    const faqSection = document.getElementById('faq');
+    if (faqLinks.length > 0 && faqSection) {
+      faqLinks.forEach(link => {
+        link.addEventListener('click', function (e) {
+          faqSection.classList.remove('hidden');
+        });
+      });
+    }
+  });
 </script>
 
 </html>
