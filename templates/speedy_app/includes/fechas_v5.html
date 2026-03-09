@@ -395,8 +395,32 @@
             enableTime: true,
             dateFormat: "Y-m-d H:i",
             minDate: "today",
+            defaultDate: new Date(),
             time_24hr: true,
             disableMobile: "true" // Force Flatpickr on mobile for consistency
         });
+
+        // Set defaults if no value is present
+        const searchForm = document.querySelector('form');
+        if (searchForm) {
+            // Default people to 2
+            const peopleInput = searchForm.querySelector('input[name="people"]');
+            if (peopleInput && !peopleInput.value) {
+                peopleInput.value = "2";
+            }
+
+            // Default pickup location to Aeropuerto
+            const pickupSelect = searchForm.querySelector('select[name="pickup_location"]');
+            if (pickupSelect && !pickupSelect.value) {
+                const options = pickupSelect.options;
+                for (let i = 0; i < options.length; i++) {
+                    const text = options[i].text.toLowerCase();
+                    if (text.includes("aeropuerto") || text.includes("airport")) {
+                        pickupSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
     });
 </script>
