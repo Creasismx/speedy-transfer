@@ -401,7 +401,8 @@
         });
 
         // Set defaults if no value is present
-        const searchForm = document.querySelector('form');
+        const searchFormContainer = document.querySelector('.search-bar-container form');
+        const searchForm = searchFormContainer || document.querySelector('form');
         if (searchForm) {
             // Default people to 2
             const peopleInput = searchForm.querySelector('input[name="people"]');
@@ -414,9 +415,12 @@
             if (pickupSelect && !pickupSelect.value) {
                 const options = pickupSelect.options;
                 for (let i = 0; i < options.length; i++) {
-                    const text = options[i].text.toLowerCase();
-                    if (text.includes("aeropuerto") || text.includes("airport")) {
+                    const text = options[i].text.toLowerCase().trim();
+                    // Avoid selecting the placeholder "Select Hotel / Airport"
+                    if ((text.includes("aeropuerto") || text.includes("airport")) && options[i].value !== "") {
                         pickupSelect.selectedIndex = i;
+                        // Trigger change event to update any potential UI plugins
+                        pickupSelect.dispatchEvent(new Event('change', { bubbles: true }));
                         break;
                     }
                 }
