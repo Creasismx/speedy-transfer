@@ -87,7 +87,7 @@
                 <div class="space-y-4">
                     {% if transfer_options %}
                     {% for option in transfer_options %}
-                    <div class="transfer-card card bg-white shadow-sm hover:shadow-md transition-all border border-slate-200 p-0 overflow-hidden cursor-pointer"
+                    <div class="transfer-card card bg-white transition-all duration-300 border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(14,116,144,0.15)] hover:border-primary/40 p-0 overflow-hidden cursor-pointer group hover:-translate-y-1"
                         data-transfer-id="{{ option.id }}" data-rate-id="{{ option.rate_id }}"
                         data-car-id="{{ option.car_id }}" data-unit-number="{{ option.unit_number }}"
                         data-vehicle-id="{{ option.id }}" data-car-capacity="{{ option.car_capacity }}"
@@ -119,22 +119,30 @@
                                             class="bg-blue-50 text-primary text-xs font-bold px-2 py-1 rounded uppercase">Private</span>
                                     </div>
 
-                                    <div class="flex items-center gap-4 text-sm text-gray-600 mb-4">
-                                        <div class="flex items-center gap-1">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="flex flex-wrap items-center gap-2 mb-4">
+                                        <div class="flex items-center gap-1 bg-slate-50 px-2 py-1.5 rounded-md text-xs font-semibold text-slate-600 border border-slate-200 shadow-sm transition-colors group-hover:border-primary/20">
+                                            <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
                                                 </path>
                                             </svg>
                                             <span>Max {{ option.car_capacity }} pax</span>
                                         </div>
-                                        <div class="flex items-center gap-1">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div class="flex items-center gap-1 bg-slate-50 px-2 py-1.5 rounded-md text-xs font-semibold text-slate-600 border border-slate-200 shadow-sm transition-colors group-hover:border-primary/20">
+                                            <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4">
                                                 </path>
                                             </svg>
                                             <span>Ample Luggage</span>
+                                        </div>
+                                        <div class="flex items-center gap-1 bg-slate-50 px-2 py-1.5 rounded-md text-xs font-semibold text-slate-600 border border-slate-200 shadow-sm transition-colors group-hover:border-primary/20">
+                                            <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                                                </path>
+                                            </svg>
+                                            <span>A/C Included</span>
                                         </div>
                                     </div>
                                 </div>
