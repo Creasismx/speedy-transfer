@@ -2,12 +2,10 @@
 <style>
     /* Local Overrides for the Premium Search Bar Look */
     .search-bar-container {
-        background: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        padding: 2rem;
+        /* Glassmorphism applied via index.css .glass-panel class */
+        border-radius: 12px;
+        padding: 2.5rem;
         margin-top: -5rem;
-        /* Overlap the hero */
         position: relative;
         z-index: 30;
     }
@@ -115,8 +113,8 @@
 
 <!-- Overlapping Search Bar -->
 <div class="container mx-auto px-4">
-    <div class="search-bar-container max-w-6xl mx-auto">
-        <h2 class="text-2xl font-bold mb-6 text-gray-800">Book Your Transfer</h2>
+    <div class="search-bar-container glass-panel max-w-6xl mx-auto">
+        <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center lg:text-left">Book Your Transfer</h2>
         <form action="{% url 'core:results_view' %}" method="get" class="w-full">
             {% with params=request.GET %}
 
@@ -262,7 +260,7 @@
 
                 <!-- Submit Button -->
                 <div class="form-group">
-                    <button type="submit" class="btn-search shadow-md">
+                    <button type="submit" class="btn-search shadow-md hover-lift">
                         Find a Transfer
                     </button>
                 </div>
