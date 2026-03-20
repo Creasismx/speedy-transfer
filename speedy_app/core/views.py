@@ -759,8 +759,7 @@ def create_payment(request):
             "intent": "sale",
             "payer": {
                 "payment_method": "paypal",
-                # REMOVED payer_info to prevent PayPal from detecting existing accounts
-                # and forcing login. This helps Guest Checkout appear.
+                **( {"payer_info": {"email": customer_email}} if customer_email else {} )
             },
             "redirect_urls": {
                 "return_url": ex_url,
