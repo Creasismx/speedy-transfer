@@ -103,7 +103,7 @@
   {% endif %}
   {% with url_name=request.resolver_match.url_name %}
   {% if url_name != "results_view" and url_name != "summary_view" and url_name != "checkout_view" %}
-  {% include './includes/hero.html' %}
+  <!-- Removed legacy hero, new design incorporates hero with search form -->
   {% endif %}
   {% endwith %}
 

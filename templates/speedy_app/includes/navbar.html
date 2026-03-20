@@ -1,85 +1,107 @@
 {% load static %}
 
-<div class="navbar bg-base-100 py-6 min-h-[6rem]">
-  <div class="navbar-start">
-    <div class="dropdown">
-      <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
-        </svg>
+<header class="bg-white/95 backdrop-blur-md sticky top-0 z-50 shadow-sm border-b border-slate-100 transition-all duration-300">
+  <div class="navbar container mx-auto px-4 sm:px-6 lg:px-14 py-2 lg:py-3 min-h-[6rem]">
+    
+    <!-- Mobile Menu Button & Logo -->
+    <div class="navbar-start w-full lg:w-1/4 flex justify-between lg:justify-start">
+      <div class="dropdown">
+        <div tabindex="0" role="button" class="btn btn-ghost lg:hidden -ml-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
+          </svg>
+        </div>
+        <ul tabindex="0" class="menu menu-md dropdown-content bg-white rounded-2xl z-[1] mt-4 w-60 p-4 shadow-2xl border border-slate-100 space-y-2">
+          <li>
+            <a href="#destinos" class="block px-4 py-3 text-slate-700 font-semibold hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors">
+              Destinations
+            </a>
+          </li>
+          <li>
+            <a href="#servicios" class="block px-4 py-3 text-slate-700 font-semibold hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors">
+              Services
+            </a>
+          </li>
+          <li>
+            <a href="#nosotros" class="block px-4 py-3 text-slate-700 font-semibold hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors">
+              About Us
+            </a>
+          </li>
+          <li>
+            <a href="#testimonios" class="block px-4 py-3 text-slate-700 font-semibold hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors">
+              Testimonials
+            </a>
+          </li>
+          <li>
+            <a href="#faq" class="block px-4 py-3 text-slate-700 font-semibold hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors">
+              FAQ
+            </a>
+          </li>
+          <li>
+            <a href="#contactanos" class="block px-4 py-3 text-slate-700 font-semibold hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors">
+              Contact Us
+            </a>
+          </li>
+        </ul>
       </div>
-      <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-        <li>
-          <a href="#destinos"
-            class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884] transition-all">
-            Destinations
-          </a>
-        </li>
-        <li>
-          <a href="#servicios"
-            class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884] transition-all">
-            Services
-          </a>
-        </li>
-        <li>
-          <a href="#nosotros"
-            class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884] transition-all">
-            About Us
-          </a>
-        </li>
-        <li>
-          <a href="#testimonios"
-            class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884] transition-all">
-            Testimonials
-          </a>
-        </li>
-        <li>
-          <a href="#faq"
-            class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884] transition-all">
-            FAQ
-          </a>
-        </li>
-        <li>
-          <a href="#contactanos"
-            class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884] transition-all">
-            Contact Us
-          </a>
-        </li>
 
+      <a href="{% url 'core:home_view' %}" class="flex-shrink-0 flex items-center gap-2 transition-transform hover:scale-[1.02]">
+        <img src="{% static 'images/Copia-de-logos-Mesa-de-trabajo-1-02.png' %}" alt="Logo de Speedy Transfers" class="h-14 md:h-16 lg:h-[75px] xl:h-[85px] w-auto object-contain drop-shadow-sm -ml-2">
+      </a>
+      
+      <!-- Ghost div to balance flex-between on mobile -->
+      <div class="w-12 lg:hidden"></div>
+    </div>
+
+    <!-- Desktop Menu Links -->
+    <div class="navbar-center hidden lg:flex w-2/4 justify-center">
+      <ul class="flex items-center gap-4 xl:gap-8">
+        <li>
+          <a href="#destinos" class="whitespace-nowrap text-[12px] xl:text-[13px] font-bold text-slate-700 hover:text-teal-600 transition-colors uppercase tracking-widest relative group inline-block py-2">
+            Destinations
+            <span class="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-full"></span>
+          </a>
+        </li>
+        <li>
+          <a href="#servicios" class="whitespace-nowrap text-[12px] xl:text-[13px] font-bold text-slate-700 hover:text-teal-600 transition-colors uppercase tracking-widest relative group inline-block py-2">
+            Services
+            <span class="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-full"></span>
+          </a>
+        </li>
+        <li>
+          <a href="#nosotros" class="whitespace-nowrap text-[12px] xl:text-[13px] font-bold text-slate-700 hover:text-teal-600 transition-colors uppercase tracking-widest relative group inline-block py-2">
+            About Us
+            <span class="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-full"></span>
+          </a>
+        </li>
+        <li>
+          <a href="#testimonios" class="whitespace-nowrap text-[12px] xl:text-[13px] font-bold text-slate-700 hover:text-teal-600 transition-colors uppercase tracking-widest relative group inline-block py-2">
+            Testimonials
+            <span class="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-full"></span>
+          </a>
+        </li>
+        <li>
+          <a href="#faq" class="whitespace-nowrap text-[12px] xl:text-[13px] font-bold text-slate-700 hover:text-teal-600 transition-colors uppercase tracking-widest relative group inline-block py-2">
+            FAQ
+            <span class="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-full"></span>
+          </a>
+        </li>
+        <li>
+          <a href="#contactanos" class="whitespace-nowrap text-[12px] xl:text-[13px] font-bold text-slate-700 hover:text-teal-600 transition-colors uppercase tracking-widest relative group inline-block py-2">
+            Contact
+            <span class="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-full"></span>
+          </a>
+        </li>
       </ul>
     </div>
-    <a href="{% url 'core:home_view' %}" class="btn btn-ghost text-2xl h-auto p-1">
-      <img src="{% static 'images/Copia-de-logos-Mesa-de-trabajo-1-02.png' %}" alt="Logo de Speedy Transfers"
-        class="h-12 md:h-24 w-auto">
-    </a>
-  </div>
-  <div class="navbar-center hidden lg:flex">
-    <ul class="menu menu-horizontal px-1 font-bold text-xl">
-      <li><a href="#destinos"
-          class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884] text-xl">Destinations</a>
-      </li>
-      <li><a href="#servicios"
-          class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884] text-xl">Services</a>
-      </li>
-      <li><a href="#nosotros"
-          class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884] text-xl">About
-          Us</a></li>
-      <li><a href="#testimonios"
-          class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884] text-xl">Testimonials</a>
-      </li>
-      <li><a href="#faq"
-          class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884] text-xl">FAQ</a>
-      </li>
-      <li><a href="#contactanos"
-          class="btn font-bold border-none shadow-none bg-transparent hover:bg-[#4abbc1] hover:text-white active:bg-[#047884] text-xl">Contact
-          Us</a></li>
 
-    </ul>
-  </div>
-  <div class="navbar-end">
-    <a href="{% url 'core:home_view' %}#fechas"
-      class="btn bg-[#4abbc1] hover:bg-[#047884] leading-[21px] gap-[10px] border-none text-white px-[40px] py-[20px] h-auto text-2xl">Find
-      a Transfer</a>
+    <!-- Desktop Action Button -->
+    <div class="navbar-end hidden lg:flex w-1/4 justify-end">
+      <a href="{% url 'core:home_view' %}#fechas"
+        class="inline-flex items-center justify-center bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-bold py-3 px-6 xl:px-8 rounded-full shadow-[0_8px_20px_rgba(20,184,166,0.25)] hover:shadow-[0_12px_25px_rgba(20,184,166,0.4)] hover:-translate-y-0.5 transition-all duration-300 text-[13px] xl:text-[14px] uppercase tracking-wider">
+        Find a Transfer
+      </a>
+    </div>
 
   </div>
-</div>
+</header>

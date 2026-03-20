@@ -1,0 +1,377 @@
+{% load static %}
+<style>
+    /* Premium Glassmorphism Overrides */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .form-control-glass {
+        display: block;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: #1e293b;
+        background-color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 8px;
+        transition: all 0.2s;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .form-control-glass:focus {
+        border-color: #2dd4bf;
+        outline: 0;
+        box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.3);
+    }
+
+    .form-label-glass {
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        text-transform: none;
+        letter-spacing: 0.02em;
+    }
+
+    .btn-search-glass {
+        background: linear-gradient(135deg, #2dd4bf 0%, #0d9488 100%);
+        border: none;
+        color: #fff;
+        padding: 0.75rem 1rem;
+        width: 100%;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        border-radius: 8px;
+        text-transform: uppercase;
+        transition: transform 0.2s, box-shadow 0.2s;
+        height: 46px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 14px rgba(45, 212, 191, 0.4);
+    }
+
+    .btn-search-glass:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(45, 212, 191, 0.6);
+    }
+
+    /* Custom Radio Styling mimicking the image */
+    .trip-options-glass {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        height: 46px; /* Align with inputs */
+    }
+
+    .trip-radio-label-glass {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #ffffff;
+        cursor: pointer;
+    }
+
+    .hero-section-premium {
+        position: relative;
+        min-height: 85vh; /* Large hero taking up most of screen */
+        background-image: url('{% static "images/background-hero.jpeg" %}');
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center bottom;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding-top: 5rem;
+        padding-bottom: 5rem;
+    }
+</style>
+
+<!-- Full Bleed Hero Section -->
+<section id="fechas" class="hero-section-premium relative">
+    <!-- Gradient Overlay mimicking the image (darker top, lighter bottom) -->
+    <div class="absolute inset-0 bg-gradient-to-b from-blue-900/60 via-blue-900/20 to-transparent"></div>
+
+    <div class="container mx-auto px-4 relative z-10">
+        <!-- Centered Hero Text -->
+        <div class="text-center mb-10 pt-8">
+            <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-tight tracking-tight drop-shadow-md">
+                Premium Transfers <br><span class="text-teal-300 drop-shadow-lg">Puerto Vallarta</span>
+            </h1>
+            <p class="text-lg md:text-xl text-white font-medium mb-2 max-w-2xl mx-auto drop-shadow-md">
+                Safe, Reliable & Comfortable Airport Transportation.
+            </p>
+            <p class="text-md md:text-lg text-white max-w-2xl mx-auto drop-shadow-md opacity-90">
+                Start your vacation stress-free the moment you arrive.
+            </p>
+        </div>
+
+        <!-- Glassmorphism Search Bar -->
+        <div class="max-w-6xl mx-auto">
+            <form action="{% url 'core:results_view' %}" method="get" class="w-full">
+                {% with params=request.GET %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Card 1: Date & Passengers -->
+                    <div class="glass-card p-5 lg:p-6 flex flex-col gap-5">
+                        <!-- Date & Time -->
+                        <div class="form-group-glass">
+                            <label class="form-label-glass">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                Pick-Up Date & Time
+                            </label>
+                            <input type="text" name="pickup_datetime" class="form-control-glass flatpickr-datetime text-gray-800 font-medium"
+                                value="{{ params.pickup_datetime }}" required placeholder="Select Date & Time" />
+                        </div>
+                        <!-- Passengers -->
+                        <div class="form-group-glass">
+                            <label class="form-label-glass">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                Passengers
+                            </label>
+                            <select name="people" class="form-control-glass text-gray-800 font-medium" required>
+                                <option value="1" {% if params.people == '1' %}selected{% endif %}>1 Person</option>
+                                <option value="2" {% if params.people == '2' or not params.people %}selected{% endif %}>2 People</option>
+                                <option value="3" {% if params.people == '3' %}selected{% endif %}>3 People</option>
+                                <option value="4" {% if params.people == '4' %}selected{% endif %}>4 People</option>
+                                <option value="5" {% if params.people == '5' %}selected{% endif %}>5 People</option>
+                                <option value="6" {% if params.people == '6' %}selected{% endif %}>6 People</option>
+                                <option value="7" {% if params.people == '7' %}selected{% endif %}>7 People</option>
+                                <option value="8" {% if params.people == '8' %}selected{% endif %}>8 People</option>
+                                <option value="9" {% if params.people == '9' %}selected{% endif %}>9+ People</option>
+                            </select>
+                        </div>
+
+                        <!-- Return Date & Time (Hidden for One Way) -->
+                        <div class="form-group-glass" id="return-date-container" style="display: none;">
+                            <label class="form-label-glass">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                Return Date & Time
+                            </label>
+                            <input type="text" name="return_datetime" id="return_datetime" class="form-control-glass flatpickr-datetime text-gray-800 font-medium"
+                                value="{{ params.return_datetime }}" placeholder="Select Return Date & Time" />
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Pickup & Vehicle -->
+                    <div class="glass-card p-5 lg:p-6 flex flex-col gap-5">
+                        <!-- Pickup Location -->
+                        <div class="form-group-glass">
+                            <label class="form-label-glass">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Pick-Up Location
+                            </label>
+                            <select name="pickup_location" class="form-control-glass text-gray-800 font-medium" required>
+                                {% if not params.pickup_location %}
+                                <option value="" disabled selected>Select Hotel / Airport</option>
+                                {% else %}
+                                <option value="" disabled>Select Hotel / Airport</option>
+                                {% endif %}
+
+                                {% for zone in zones_with_hotels %}
+                                <optgroup label="{{ zone.name }}">
+                                    {% for hotel in zone.hotels.all %}
+                                    {% with string_id=hotel.id|stringformat:"s" %}
+                                    {% ifequal params.pickup_location string_id %}
+                                    <option value="{{ hotel.id }}" selected>{{ hotel.name }}</option>
+                                    {% else %}
+                                    <option value="{{ hotel.id }}">{{ hotel.name }}</option>
+                                    {% endifequal %}
+                                    {% endwith %}
+                                    {% endfor %}
+                                </optgroup>
+                                {% endfor %}
+
+                                {% if hotels_without_zone %}
+                                <optgroup label="Other Locations">
+                                    {% for hotel in hotels_without_zone %}
+                                    {% with string_id=hotel.id|stringformat:"s" %}
+                                    {% ifequal params.pickup_location string_id %}
+                                    <option value="{{ hotel.id }}" selected>{{ hotel.name }}</option>
+                                    {% else %}
+                                    <option value="{{ hotel.id }}">{{ hotel.name }}</option>
+                                    {% endifequal %}
+                                    {% endwith %}
+                                    {% endfor %}
+                                </optgroup>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <!-- Car Type -->
+                        <div class="form-group-glass">
+                            <label class="form-label-glass">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                                Vehicle Type
+                            </label>
+                            <select name="car_type" class="form-control-glass text-gray-800 font-medium">
+                                <option value="" selected>Any Type</option>
+                                {% for code, name in car_types %}
+                                {% ifequal params.car_type code %}
+                                <option value="{{ code }}" selected>{{ name }}</option>
+                                {% else %}
+                                <option value="{{ code }}">{{ name }}</option>
+                                {% endifequal %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Drop-Off Location & Action -->
+                    <div class="glass-card p-5 lg:p-6 flex flex-col gap-5 justify-between">
+                        <!-- Dropoff Location -->
+                        <div class="form-group-glass flex-1">
+                            <label class="form-label-glass">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                Drop-Off Location
+                            </label>
+                            <select name="dropoff_location" class="form-control-glass text-gray-800 font-medium" required>
+                                {% if not params.dropoff_location %}
+                                <option value="" disabled selected>Select Hotel / Airport</option>
+                                {% else %}
+                                <option value="" disabled>Select Hotel / Airport</option>
+                                {% endif %}
+
+                                {% for zone in zones_with_hotels %}
+                                <optgroup label="{{ zone.name }}">
+                                    {% for hotel in zone.hotels.all %}
+                                    {% with string_id=hotel.id|stringformat:"s" %}
+                                    {% ifequal params.dropoff_location string_id %}
+                                    <option value="{{ hotel.id }}" selected>{{ hotel.name }}</option>
+                                    {% else %}
+                                    <option value="{{ hotel.id }}">{{ hotel.name }}</option>
+                                    {% endifequal %}
+                                    {% endwith %}
+                                    {% endfor %}
+                                </optgroup>
+                                {% endfor %}
+
+                                {% if hotels_without_zone %}
+                                <optgroup label="Other Locations">
+                                    {% for hotel in hotels_without_zone %}
+                                    {% with string_id=hotel.id|stringformat:"s" %}
+                                    {% ifequal params.dropoff_location string_id %}
+                                    <option value="{{ hotel.id }}" selected>{{ hotel.name }}</option>
+                                    {% else %}
+                                    <option value="{{ hotel.id }}">{{ hotel.name }}</option>
+                                    {% endifequal %}
+                                    {% endwith %}
+                                    {% endfor %}
+                                </optgroup>
+                                {% endif %}
+                            </select>
+                        </div>
+
+                        <!-- Action Row -->
+                        <div class="flex flex-col items-start gap-4 pt-2">
+                            <div class="trip-options-glass w-full justify-start gap-6">
+                                <label class="trip-radio-label-glass">
+                                    <input type="radio" name="trip_type" value="oneway" class="w-4 h-4 text-teal-500 bg-gray-100 border-gray-300 focus:ring-teal-500 focus:ring-2" 
+                                        {% if params.trip_type != 'roundtrip' %}checked{% endif %} />
+                                    <span>One Way</span>
+                                </label>
+                                <label class="trip-radio-label-glass">
+                                    <input type="radio" name="trip_type" value="roundtrip" class="w-4 h-4 text-teal-500 bg-gray-100 border-gray-300 focus:ring-teal-500 focus:ring-2"
+                                        {% if params.trip_type == 'roundtrip' %}checked{% endif %} />
+                                    <span>Round Trip</span>
+                                </label>
+                            </div>
+                            <div class="w-full">
+                                <button type="submit" class="btn-search-glass text-lg">
+                                    FIND A TRANSFER
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Trust icons below form -->
+                <div class="flex flex-wrap justify-center gap-6 md:gap-12 mt-8 text-white text-sm md:text-md font-medium">
+                    <div class="flex items-center gap-2 drop-shadow-md">
+                        <svg class="w-6 h-6" fill="white" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-1.998A11.954 11.954 0 0110 1.944zM10 18A9.976 9.976 0 005.412 15M5.412 15a9.982 9.982 0 01-1.096-2.5 10.038 10.038 0 011.096 2.5zm9.176 0A9.976 9.976 0 0110 18M14.588 15a10.038 10.038 0 001.096-2.5 9.982 9.982 0 00-1.096 2.5zM7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293z" clip-rule="evenodd"></path></svg>
+                        Professional Drivers
+                    </div>
+                    <div class="flex items-center gap-2 drop-shadow-md">
+                        <svg class="w-6 h-6" fill="white" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>
+                        On-Time Service
+                    </div>
+                    <div class="flex items-center gap-2 drop-shadow-md">
+                        <svg class="w-6 h-6" fill="white" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-1.998A11.954 11.954 0 0110 1.944z" clip-rule="evenodd"></path><path d="M5.5 11h9a1.5 1.5 0 000-3h-9a1.5 1.5 0 000 3z"></path></svg>
+                        Luxury Vehicles
+                    </div>
+                </div>
+
+                {% endwith %}
+            </form>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize Flatpickr
+        flatpickr(".flatpickr-datetime", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            minDate: "today",
+            defaultDate: new Date(),
+            time_24hr: true,
+            disableMobile: "true"
+        });
+
+        // Round Trip Toggle Logic
+        const tripRadios = document.querySelectorAll('input[name="trip_type"]');
+        const returnDateContainer = document.getElementById('return-date-container');
+        const returnDateInput = document.getElementById('return_datetime');
+
+        function toggleReturnDate() {
+            const selectedTripType = document.querySelector('input[name="trip_type"]:checked').value;
+            if (selectedTripType === 'roundtrip') {
+                returnDateContainer.style.display = 'block';
+                returnDateInput.setAttribute('required', 'required');
+            } else {
+                returnDateContainer.style.display = 'none';
+                returnDateInput.removeAttribute('required');
+                returnDateInput.value = ''; // clear value if switching back to one way
+            }
+        }
+
+        // Add event listeners to radios
+        tripRadios.forEach(radio => {
+            radio.addEventListener('change', toggleReturnDate);
+        });
+
+        // Initial toggle state
+        toggleReturnDate();
+
+        // Set defaults if no value is present
+
+        const searchFormContainer = document.querySelector('.hero-section-premium form');
+        const searchForm = searchFormContainer;
+        if (searchForm) {
+            // Default pickup location to Aeropuerto
+            const pickupSelect = searchForm.querySelector('select[name="pickup_location"]');
+            if (pickupSelect && !pickupSelect.value) {
+                const options = pickupSelect.options;
+                for (let i = 0; i < options.length; i++) {
+                    const text = options[i].text.toLowerCase().trim();
+                    if ((text.includes("aeropuerto") || text.includes("airport")) && options[i].value !== "") {
+                        pickupSelect.selectedIndex = i;
+                        pickupSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                        break;
+                    }
+                }
+            }
+        }
+    });
+</script>

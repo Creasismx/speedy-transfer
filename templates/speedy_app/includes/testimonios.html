@@ -1,128 +1,132 @@
 {% load static %}
-<section id="testimonios">
-<div class="justify-center my-10">
-    <p class="text-xl font-bold leading-9 text-center text-[#4abbc1] my-6">Testimonials</p>
-    <div class="my-6 relative">
-        <span class="absolute inset-0 text-[60px] md:text-[96px] text-[#E5E5E5] font-bold flex items-center bottom-[5rem] md:bottom-[3rem] justify-center opacity-50 z-0">
-            Testimonials
-        </span>
-        <!-- Texto principal (Available Destinations) -->
-        <p class="text-3xl md:text-5xl font-bold relative z-10 text-center text-gray-800">
-            Our Valuable & Trusted Clients
-        </p>
+<section id="testimonios" class="py-20 bg-slate-50 relative overflow-hidden">
+    <!-- Decorative background elements -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <div class="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-teal-100 opacity-50 blur-3xl"></div>
+        <div class="absolute top-1/2 -right-24 w-80 h-80 rounded-full bg-blue-100 opacity-50 blur-3xl"></div>
     </div>
-    <div class="container w-full lg:w-[80%] p-4 mx-auto">
-        <!-- Swiper container -->
-        <div class="swiper single-card-swiper w-full h-full">
-            <div class="swiper-wrapper">
 
-                <!-- Testimonial 1 -->
-                <div class="swiper-slide flex justify-center items-center text-center text-lg font-semibold bg-white rounded-lg h-full">
-                    <div class="flex lg:flex-row flex-col space-x-4 p-1 lg:p-6 lg:pl-10 bg-white border rounded-lg max-w-[90%] mx-auto">
-                        <!-- Testimonial Image -->
-                        <div class="items-center justify-center">
-                            <img src="{% static 'images/testimonio1.jpg' %}" alt="Imagen" class="max-w-[50%] lg:max-w-[100%] lg:w-full text-center m-auto object-contain justify-center">
-                            <p class="text-3xl font-bold text-gray-800 mt-2 text-center">David R. – California, USA</p>
-                        </div>
+    <div class="container mx-auto px-4 relative z-10">
+        <!-- Header -->
+        <div class="text-center mb-16">
+            <span class="text-teal-600 font-bold tracking-wider uppercase text-sm mb-2 block">Testimonials</span>
+            <h2 class="text-4xl md:text-5xl font-extrabold text-slate-800 tracking-tight drop-shadow-sm">
+                Our Valuable & Trusted Clients
+            </h2>
+            <div class="w-24 h-1.5 bg-gradient-to-r from-teal-400 to-teal-600 mx-auto mt-6 rounded-full shadow-sm"></div>
+        </div>
 
-                        <!-- Testimonial Content -->
-                        <div class="flex-1 flex items-center justify-center">
-                            <div class="text-center max-w-3xl w-[80%] mx-auto">
-                                <img src="{% static 'images/comillas1.png' %}" alt="Imagen" class="flex w-10 h-10 object-contain mb-4">
-                                <div class="w-full">
-                                    <p class="text-sm text-gray-600 mb-4 text-justify">
-                                        I booked with Speedy Transfers for a ride with my family, and it was the best decision. The driver was waiting for us upon arrival, helped with our luggage, and the trip was very safe. Excellent service and customer care. 100% recommended!
-                                    </p>
-                                    <img src="{% static 'images/comillas2.png' %}" alt="Imagen" class="flex w-10 h-10 object-contain ml-auto">
+        <!-- Carousel Container -->
+        <div class="max-w-6xl mx-auto relative px-4 md:px-16">
+            <div class="swiper single-card-swiper !pb-14">
+                <div class="swiper-wrapper">
+                    
+                    <!-- Testimonial 1 -->
+                    <div class="swiper-slide h-auto">
+                        <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100/60 overflow-hidden flex flex-col lg:flex-row h-full transition-shadow duration-300 hover:shadow-2xl hover:shadow-slate-300/50 group">
+                            <!-- Image Left -->
+                            <div class="lg:w-5/12 relative h-72 lg:h-auto overflow-hidden">
+                                <img src="{% static 'images/testimonio1.jpg' %}" alt="Client at Speedy Transfers" class="absolute inset-0 w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent lg:hidden"></div>
+                            </div>
+                            <!-- Content Right -->
+                            <div class="lg:w-7/12 p-8 md:p-12 flex flex-col justify-center relative bg-white">
+                                <!-- Big Quote Mark Watermark -->
+                                <svg class="absolute top-6 left-6 md:top-10 md:left-10 w-24 h-24 text-slate-100 transform -rotate-6" fill="currentColor" viewBox="0 0 32 32"><path d="M10 8c-3.3 0-6 2.7-6 6v10h10V14H8c0-2.2 1.8-4 4-4V8zm16 0c-3.3 0-6 2.7-6 6v10h10V14h-6c0-2.2 1.8-4 4-4V8z"></path></svg>
+                                
+                                <!-- Stars -->
+                                <div class="flex gap-1.5 mb-6 relative z-10">
+                                    <svg class="w-6 h-6 text-yellow-500 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-500 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-500 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-500 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-500 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                                 </div>
-                                <!-- Testimonial Stars -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="179" height="30" viewBox="0 0 179 30" fill="none" class="mx-auto">
-                                    <path d="M13.9841 0.691284L17.0151 10.365H26.8234L18.8883 16.3438L21.9192 26.0175L13.9841 20.0388L6.04903 26.0175L9.07997 16.3438L1.14487 10.365H10.9532L13.9841 0.691284Z" fill="#F5D112"/>
-                                    <path d="M53.9841 0.691284L57.0151 10.365H66.8234L58.8883 16.3438L61.9192 26.0175L53.9841 20.0388L46.049 26.0175L49.08 16.3438L41.1449 10.365H50.9532L53.9841 0.691284Z" fill="#F5D112"/>
-                                    <path d="M92.9841 0.691284L96.0151 10.365H105.823L97.8883 16.3438L100.919 26.0175L92.9841 20.0388L85.049 26.0175L88.08 16.3438L80.1449 10.365H89.9532L92.9841 0.691284Z" fill="#F5D112"/>
-                                    <path d="M127.984 0.691284L131.015 10.365H140.823L132.888 16.3438L135.919 26.0175L127.984 20.0388L120.049 26.0175L123.08 16.3438L115.145 10.365H124.953L127.984 0.691284Z" fill="#F5D112"/>
-                                    <path d="M165.209 1.1322L168.24 10.806H178.049L170.114 16.7847L173.144 26.4584L165.209 20.4797L157.274 26.4584L160.305 16.7847L152.37 10.806H162.178L165.209 1.1322Z" fill="#F5D112"/>
-                                </svg>
+                                
+                                <p class="text-xl md:text-2xl text-slate-700 italic leading-relaxed mb-8 relative z-10 font-medium">
+                                    "I booked with Speedy Transfers for a ride with my family, and it was the best decision. The driver was waiting for us upon arrival, helped with our luggage, and the trip was very safe. Excellent service and customer care. 100% recommended!"
+                                </p>
+                                
+                                <div class="mt-auto pt-6 flex items-center gap-4 relative z-10">
+                                    <div class="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 font-bold text-xl border-2 border-white shadow-sm">
+                                        D
+                                    </div>
+                                    <div>
+                                        <p class="text-lg font-bold text-slate-800 tracking-wide uppercase">David R.</p>
+                                        <p class="text-teal-600 font-medium text-sm">California, USA</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Testimonial 2 -->
-                <div class="swiper-slide flex justify-center items-center text-center text-lg font-semibold bg-white rounded-lg h-full">
-                    <div class="flex lg:flex-row flex-col space-x-4 p-1 lg:p-6 lg:pl-10 bg-white border rounded-lg max-w-[90%] mx-auto">
-                        <!-- Testimonial Image -->
-                        <div class="items-center justify-center">
-                            <img src="{% static 'images/testimonio2.jpg' %}" alt="Imagen" class="max-w-[50%] lg:max-w-[100%] lg:w-full text-center m-auto object-contain justify-center">
-                            <p class="text-3xl font-bold text-gray-800 mt-2 text-center">Sophie L. – Toronto, Canada</p>
-                        </div>
-
-                        <!-- Testimonial Content -->
-                        <div class="flex-1 flex items-center justify-center">
-                            <div class="text-center max-w-3xl w-[80%] mx-auto">
-                                <img src="{% static 'images/comillas1.png' %}" alt="Imagen" class="flex w-10 h-10 object-contain mb-4">
-                                <div class="w-full">
-                                    <p class="text-sm text-gray-600 mb-4 text-justify">
-                                        Fantastic service! My driver was on time, very friendly, and the car was spotless. It made my arrival in Puerto Vallarta so much easier and stress-free. I will definitely use Speedy Transfers again on my next trip!
-                                    </p>
-                                    <img src="{% static 'images/comillas2.png' %}" alt="Imagen" class="flex w-10 h-10 object-contain ml-auto">
+                    <!-- Testimonial 2 -->
+                    <div class="swiper-slide h-auto">
+                        <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100/60 overflow-hidden flex flex-col lg:flex-row h-full transition-shadow duration-300 hover:shadow-2xl hover:shadow-slate-300/50 group">
+                            <!-- Image Left -->
+                            <div class="lg:w-5/12 relative h-72 lg:h-auto overflow-hidden">
+                                <img src="{% static 'images/testimonio2.jpg' %}" alt="Client at Speedy Transfers" class="absolute inset-0 w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent lg:hidden"></div>
+                            </div>
+                            <!-- Content Right -->
+                            <div class="lg:w-7/12 p-8 md:p-12 flex flex-col justify-center relative bg-white">
+                                <!-- Big Quote Mark Watermark -->
+                                <svg class="absolute top-6 left-6 md:top-10 md:left-10 w-24 h-24 text-slate-100 transform -rotate-6" fill="currentColor" viewBox="0 0 32 32"><path d="M10 8c-3.3 0-6 2.7-6 6v10h10V14H8c0-2.2 1.8-4 4-4V8zm16 0c-3.3 0-6 2.7-6 6v10h10V14h-6c0-2.2 1.8-4 4-4V8z"></path></svg>
+                                
+                                <!-- Stars -->
+                                <div class="flex gap-1.5 mb-6 relative z-10">
+                                    <svg class="w-6 h-6 text-yellow-500 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-500 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-500 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-500 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-500 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                                 </div>
-                                <!-- Testimonial Stars -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="179" height="30" viewBox="0 0 179 30" fill="none" class="mx-auto">
-                                    <path d="M13.9841 0.691284L17.0151 10.365H26.8234L18.8883 16.3438L21.9192 26.0175L13.9841 20.0388L6.04903 26.0175L9.07997 16.3438L1.14487 10.365H10.9532L13.9841 0.691284Z" fill="#F5D112"/>
-                                    <path d="M53.9841 0.691284L57.0151 10.365H66.8234L58.8883 16.3438L61.9192 26.0175L53.9841 20.0388L46.049 26.0175L49.08 16.3438L41.1449 10.365H50.9532L53.9841 0.691284Z" fill="#F5D112"/>
-                                    <path d="M92.9841 0.691284L96.0151 10.365H105.823L97.8883 16.3438L100.919 26.0175L92.9841 20.0388L85.049 26.0175L88.08 16.3438L80.1449 10.365H89.9532L92.9841 0.691284Z" fill="#F5D112"/>
-                                    <path d="M127.984 0.691284L131.015 10.365H140.823L132.888 16.3438L135.919 26.0175L127.984 20.0388L120.049 26.0175L123.08 16.3438L115.145 10.365H124.953L127.984 0.691284Z" fill="#F5D112"/>
-                                    <path d="M165.209 1.1322L168.24 10.806H178.049L170.114 16.7847L173.144 26.4584L165.209 20.4797L157.274 26.4584L160.305 16.7847L152.37 10.806H162.178L165.209 1.1322Z" fill="#F5D112"/>
-                                </svg>
+                                
+                                <p class="text-xl md:text-2xl text-slate-700 italic leading-relaxed mb-8 relative z-10 font-medium">
+                                    "Fantastic service! My driver was on time, very friendly, and the car was spotless. It made my arrival in Puerto Vallarta so much easier and stress-free. I will definitely use Speedy Transfers again on my next trip!"
+                                </p>
+                                
+                                <div class="mt-auto pt-6 flex items-center gap-4 relative z-10">
+                                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl border-2 border-white shadow-sm">
+                                        S
+                                    </div>
+                                    <div>
+                                        <p class="text-lg font-bold text-slate-800 tracking-wide uppercase">Sophie L.</p>
+                                        <p class="text-teal-600 font-medium text-sm">Toronto, Canada</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
 
+                <!-- Custom Modern Navigation Arrows (Visible) -->
+                <button class="swiper-button-prev absolute top-1/2 -mt-7 left-0 md:-left-4 lg:-left-6 z-20 w-12 h-12 md:w-14 md:h-14 bg-white rounded-full shadow-xl border border-slate-100 flex items-center justify-center text-teal-600 hover:bg-teal-50 hover:scale-105 transition-all outline-none focus:outline-none after:content-none group">
+                    <svg class="w-5 h-5 md:w-6 md:h-6 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+                <button class="swiper-button-next absolute top-1/2 -mt-7 right-0 md:-right-4 lg:-right-6 z-20 w-12 h-12 md:w-14 md:h-14 bg-white rounded-full shadow-xl border border-slate-100 flex items-center justify-center text-teal-600 hover:bg-teal-50 hover:scale-105 transition-all outline-none focus:outline-none after:content-none group">
+                    <svg class="w-5 h-5 md:w-6 md:h-6 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+
+                <!-- Pagination for Mobile -->
+                <div class="swiper-pagination !bottom-0 pb-2"></div>
             </div>
-<!-- Botón "next" -->
-<svg class="swiper-button-next top-1/2 transform -translate-y-1/2 right-10 z-10 transition-transform duration-300 ease-in-out active:scale-95" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 86 86" fill="none" style="width: 80px; height: 80px;">
-    <g filter="url(#filter0_d_0_320)">
-        <circle cx="42.5215" cy="39.0648" r="31.5" fill="#4abbc1"/>
-    </g>
-    <path d="M42.4811 55.8356C49.7052 51.4702 56.9136 46.5329 64.6813 43.1151C65.9272 42.5669 67.5329 42.0232 68.5704 41.0895C70.0167 39.7879 59.3612 32.9714 57.9564 31.934C56.7447 31.0392 42.4811 18.4495 42.4811 22.2923C42.4811 24.4629 42.6235 33.9595 40.2935 33.9595C32.7236 33.9595 25.2673 33.2303 17.6882 33.2303C15.3577 33.2303 15.5005 41.1322 15.5005 43.4392C15.5005 45.279 14.8486 47.0852 17.121 47.0852C22.1174 47.0852 27.1138 47.0852 32.1102 47.0852C32.873 47.0852 43.4891 46.1103 43.6154 47.2473C43.8443 49.3077 41.9065 54.7972 41.0227 56.5648" stroke="white" stroke-width="5" stroke-linecap="round"/>
-    <defs>
-        <filter id="filter0_d_0_320" x="0.0214844" y="0.564819" width="85" height="85" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-            <feOffset dy="4"/>
-            <feGaussianBlur stdDeviation="5.5"/>
-            <feComposite in2="hardAlpha" operator="out"/>
-            <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
-            <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_320"/>
-            <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_320" result="shape"/>
-        </filter>
-    </defs>
-</svg>
-
-<!-- Botón "prev" -->
-<svg class="swiper-button-prev top-1/2 transform -translate-y-1/2 left-10 z-10 transition-transform duration-300 ease-in-out active:scale-95" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 86 86" fill="none" style="width: 80px; height: 80px;">
-    <g filter="url(#filter0_d_0_293)">
-        <circle cx="31.5" cy="31.5" r="31.5" transform="matrix(-1 0 0 1 74.0214 7.56482)" fill="#4abbc1"/>
-    </g>
-    <path d="M42.2369 24.3107C34.8477 28.7759 27.4745 33.8261 19.5293 37.322C18.2549 37.8828 16.6125 38.4388 15.5513 39.3939C14.0719 40.7253 24.971 47.6976 26.4079 48.7587C27.6473 49.674 42.2369 62.5514 42.2369 58.6208C42.2369 56.4006 42.0913 46.6868 44.4745 46.6868C52.2175 46.6868 59.8442 47.4327 67.5965 47.4327C69.9803 47.4327 69.8342 39.3502 69.8342 36.9905C69.8342 35.1087 70.501 33.2612 68.1767 33.2612C63.0661 33.2612 57.9555 33.2612 52.8449 33.2612C52.0646 33.2612 41.2059 34.2584 41.0767 33.0954C40.8425 30.9879 42.8247 25.3729 43.7287 23.5649" stroke="white" stroke-width="5" stroke-linecap="round"/>
-    <defs>
-        <filter id="filter0_d_0_293" x="0.0214233" y="0.564819" width="85" height="85" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-            <feOffset dy="4"/>
-            <feGaussianBlur stdDeviation="5.5"/>
-            <feComposite in2="hardAlpha" operator="out"/>
-            <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
-            <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_293"/>
-            <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_293" result="shape"/>
-        </filter>
-    </defs>
-</svg>
-
-            <div class="swiper-pagination hidden lg:block"></div>
         </div>
     </div>
-</div>
+    
+    <style>
+        /* Arrow overrides to prevent Swiper default coloring from messing up custom arrows */
+        .swiper-button-prev::after,
+        .swiper-button-next::after {
+            display: none !important;
+        }
+        .swiper-pagination-bullet-active {
+            background-color: #0d9488 !important; /* teal-600 */
+        }
+        #testimonios .swiper-button-next,
+        #testimonios .swiper-button-prev {
+            display: flex !important;
+        }
+    </style>
 </section>

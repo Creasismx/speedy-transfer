@@ -1,0 +1,474 @@
+{% load static %}
+<style>
+    /* Premium Glassmorphism for Results */
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.90);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+    }
+    
+    /* The sidebar is bright white in the screenshot */
+    .glass-sidebar {
+        background: rgba(255, 255, 255, 0.98);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .transfer-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .transfer-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .transfer-card.selected {
+        border: 2px solid #2dd4bf;
+        box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.2), 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-select {
+        background: #0d9488;
+        color: white;
+        transition: all 0.2s;
+    }
+    
+    .btn-select:hover {
+        background: #0f766e;
+    }
+
+    .btn-continue {
+        background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+        color: white;
+        font-weight: 700;
+        text-transform: none;
+        box-shadow: 0 4px 14px rgba(20, 184, 166, 0.4);
+        border: none;
+        transition: transform 0.2s;
+    }
+
+    .btn-continue:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(20, 184, 166, 0.6);
+    }
+
+    .page-background {
+        background-image: url('{% static "images/background-hero.jpeg" %}');
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center bottom;
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+</style>
+
+<section id="results" class="page-background pt-24 pb-16 relative">
+    <div class="absolute inset-0 bg-gradient-to-b from-blue-900/40 via-blue-900/10 to-transparent pointer-events-none"></div>
+    
+    <div class="container mx-auto px-4 relative z-10">
+        
+        <!-- Header -->
+        <div class="mb-8 text-white">
+            <h1 class="text-4xl md:text-5xl font-bold mb-2 drop-shadow-md">
+                <span class="text-orange-400">🔥</span> Select Your Vehicle
+            </h1>
+            <p class="text-lg opacity-90 drop-shadow-sm font-medium">Great airport transfers begin here. Choose the perfect vehicle for your trip.</p>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-8 items-start">
+
+            <!-- Left Column: Results List -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <div class="flex items-center">
+                    <span class="glass-panel px-4 py-2 font-semibold text-gray-800 text-sm inline-flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-teal-500"></div>
+                        {{ transfer_options|length }} options available
+                    </span>
+                </div>
+
+                <div class="space-y-5">
+                    {% if transfer_options %}
+                        {% for option in transfer_options %}
+                        <div class="transfer-card glass-panel overflow-hidden flex flex-col md:flex-row p-4 gap-4"
+                            data-transfer-id="{{ option.id }}" data-rate-id="{{ option.rate_id }}"
+                            data-car-id="{{ option.car_id }}" data-unit-number="{{ option.unit_number }}"
+                            data-vehicle-id="{{ option.id }}" data-car-capacity="{{ option.car_capacity }}"
+                            data-travel-type="{{ option.travel_type }}" data-price="{{ option.price }}"
+                            data-image-url="{{ option.image_url }}" data-departure-date="{{ option.departure_date }}"
+                            data-departure-time="{{ option.departure_time }}">
+
+                            <!-- Image -->
+                            <div class="w-full md:w-1/3 relative rounded-xl overflow-hidden shadow-inner">
+                                {% if option.unit_number == 1 %}
+                                <div class="absolute top-2 left-2 z-10 bg-orange-400 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm">
+                                    ⭐ POPULAR
+                                </div>
+                                {% endif %}
+                                {% if option.image_url %}
+                                <img src="{{ option.image_url }}" alt="{{ option.car_name }}"
+                                    class="w-full h-48 md:h-full object-cover"
+                                    onerror="this.src='https://placehold.co/400x300/e2e8f0/64748b?text={{ option.car_name|urlencode }}'; this.onerror=null;">
+                                {% else %}
+                                <div class="w-full h-48 md:h-full flex items-center justify-center bg-gray-200 text-gray-400">
+                                    <span class="text-sm font-medium">No Image</span>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Content -->
+                            <div class="flex-1 flex flex-col justify-between py-1 px-2">
+                                <div>
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h2 class="card-title text-2xl font-bold text-gray-800">{{ option.car_name }}</h2>
+                                        <span class="text-indigo-600 bg-indigo-50 px-2 py-1 rounded font-bold text-xs border border-indigo-100 uppercase tracking-wider">Private</span>
+                                    </div>
+
+                                    <!-- Features grid -->
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <div class="flex items-center gap-1.5 bg-teal-50/50 text-teal-800 px-2 py-1 rounded-md text-xs font-bold border border-teal-100">
+                                            <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                            Max {{ option.car_capacity }} Pax
+                                        </div>
+                                        <div class="flex items-center gap-1.5 bg-teal-50/50 text-teal-800 px-2 py-1 rounded-md text-xs font-bold border border-teal-100">
+                                            <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                                            Large Luggage
+                                        </div>
+                                        <div class="flex items-center gap-1.5 bg-teal-50/50 text-teal-800 px-2 py-1 rounded-md text-xs font-bold border border-teal-100">
+                                            <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                                            A/C Included
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between items-end border-t border-gray-100 pt-3 mt-auto">
+                                    <div class="flex flex-col">
+                                        <span class="text-xs text-gray-400 line-through">${{ option.price|add:"25" }}</span>
+                                        <div class="flex items-center gap-1">
+                                            <svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                            <span class="text-sm font-bold text-emerald-600">Save $25</span>
+                                        </div>
+                                        <div class="text-xs text-gray-400 mt-1">Unit #{{ option.unit_number|stringformat:"03d" }}</div>
+                                    </div>
+
+                                    <div class="text-right flex flex-col items-end">
+                                        <div class="flex items-end gap-1 mb-2">
+                                            <span class="text-3xl font-black text-gray-800 price-value" data-debug-price="{{ option.price }}">${{ option.price }}</span>
+                                            <span class="text-sm font-bold text-gray-500 mb-1">USD</span>
+                                        </div>
+                                        <button class="btn-select px-6 py-2 rounded-lg font-bold shadow-md w-full sm:w-auto text-sm">Select Vehicle</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="glass-panel p-8 text-center">
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">No transfer options found</h3>
+                            <p class="text-gray-600">{{ no_rates_message|default:"Please verify your pickup/dropoff locations and passenger count." }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Right Column: Sticky Summary -->
+            <div class="lg:col-span-1">
+                <div class="sticky top-28 space-y-4">
+                    
+                    <div class="glass-sidebar p-6 lg:p-8">
+                        <h3 class="text-xl font-bold text-gray-800 border-b border-gray-200 pb-4 mb-5 flex items-center gap-2">
+                            <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Trip Details
+                        </h3>
+
+                        <div class="space-y-5 text-sm">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-bold text-gray-800">
+                                        {% if request.GET.trip_type %}{{ request.GET.trip_type|title }}{% else %}One Way{% endif %}
+                                    </p>
+                                    <p class="text-gray-500 text-xs mt-1">
+                                        {% if request.GET.pickup_datetime %}{{ request.GET.pickup_datetime }}{% else %}-{% endif %}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Pick Up</span>
+                                <p class="font-semibold text-gray-800 text-md truncate mt-0.5">
+                                    {% if request.GET.pickup_location %}{{ request.GET.pickup_location }}{% else %}Not selected{% endif %}
+                                </p>
+                            </div>
+
+                            <div>
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Drop Off</span>
+                                <p class="font-semibold text-gray-800 text-md truncate mt-0.5">
+                                    {% if request.GET.dropoff_location %}{{ request.GET.dropoff_location }}{% else %}Not selected{% endif %}
+                                </p>
+                            </div>
+
+                            <div class="flex justify-between items-center border-t border-b border-gray-100 py-4 my-2">
+                                <div>
+                                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Passengers</span>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <p class="font-bold text-gray-800 text-lg">
+                                            {% if request.GET.people %}{{ request.GET.people }}{% else %}0{% endif %}
+                                        </p>
+                                        <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Total Price</span>
+                                    <div class="flex items-end gap-1 mt-1 justify-end">
+                                        <p class="font-black text-gray-800 text-2xl" id="summary-total-price">$0</p>
+                                        <span class="font-bold text-gray-500 text-sm mb-1">USD</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-center gap-1 text-emerald-600 bg-emerald-50 rounded-lg p-2 mt-2">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                <span class="font-bold text-xs">Free Cancellation</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <div id="selection-status" class="text-xs font-bold text-gray-500 mb-3 text-center uppercase tracking-wider">
+                                Select vehicles to continue
+                            </div>
+                            <!-- IMPORTANT: href changed from summary_view to checkout_view -->
+                            <a href="{% url 'core:checkout_view' %}" 
+                                class="book-btn btn-continue w-full block text-center rounded-xl py-4 shadow-lg opacity-50 pointer-events-none text-lg">
+                                Continue Checkout &rarr;
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        
+        <!-- Trust Footer on Results -->
+        <div class="mt-12 flex flex-wrap justify-center gap-8 md:gap-16 text-white text-md font-bold drop-shadow-md">
+            <div class="flex items-center gap-2">
+                <div class="bg-emerald-500 flex items-center justify-center rounded-full w-6 h-6">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                Instant Confirmation
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="bg-blue-500 flex items-center justify-center rounded-full w-6 h-6">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                </div>
+                Free Cancellation
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="bg-teal-500 flex items-center justify-center rounded-full w-6 h-6">
+                    <span class="text-white text-xs leading-none">VIP</span>
+                </div>
+                Fixed Price Guarantee
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Reuse exact same logic but updated formatting
+        const transferCards = document.querySelectorAll('.transfer-card');
+        const bookButton = document.querySelector('.book-btn');
+        const selectionStatus = document.getElementById('selection-status');
+        const summaryTotalPrice = document.getElementById('summary-total-price');
+
+        let selectedTransfers = [];
+
+        function toInt(value, fallback) {
+            const n = parseInt(value, 10);
+            return isNaN(n) ? (fallback ?? 0) : n;
+        }
+
+        function collectFechasData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const dates = {
+                pickup_datetime: urlParams.get('pickup_datetime') || '',
+                pickup_location_id: urlParams.get('pickup_location') || '',
+                pickup_location_name: urlParams.get('pickup_location') || 'Selected Location',
+                dropoff_location_id: urlParams.get('dropoff_location') || '',
+                dropoff_location_name: urlParams.get('dropoff_location') || 'Selected Location',
+                people: urlParams.get('people') || 0,
+                trip_type: urlParams.get('trip_type') || 'oneway',
+                car_type_value: urlParams.get('car_type') || ''
+            };
+            return dates;
+        }
+
+        function getRequiredPassengers() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return toInt(urlParams.get('people'), 0);
+        }
+
+        function isSingleSelectionRequired() {
+            const requiredPassengers = getRequiredPassengers();
+            if (selectedTransfers.length === 0) return false;
+            const firstCapacity = toInt(selectedTransfers[0].car_capacity, 0);
+            return requiredPassengers > 0 && firstCapacity > 0 && requiredPassengers <= firstCapacity;
+        }
+
+        function updateBookButtonState() {
+            const requiredPassengers = getRequiredPassengers();
+            const totalCapacity = selectedTransfers.reduce((sum, t) => sum + (toInt(t.car_capacity, 0)), 0);
+            const totalVehicles = selectedTransfers.length;
+            const covered = requiredPassengers > 0 ? totalCapacity >= requiredPassengers : totalVehicles > 0;
+            
+            // Calculate Total Price
+            const totalPrice = selectedTransfers.reduce((sum, t) => sum + t.price_numeric, 0);
+            if(summaryTotalPrice) {
+                summaryTotalPrice.textContent = "$" + totalPrice;
+            }
+
+            const singleMode = isSingleSelectionRequired();
+            if (singleMode && selectedTransfers.length > 1) {
+                const keepId = selectedTransfers[0]?.id;
+                selectedTransfers = keepId ? selectedTransfers.filter(t => t.id === keepId) : [];
+                transferCards.forEach(card => {
+                    const cardId = card.getAttribute('data-transfer-id');
+                    if (cardId !== keepId) {
+                        card.classList.remove('selected');
+                        card.querySelector('.btn-select').textContent = 'Select Vehicle';
+                        card.querySelector('.btn-select').classList.remove('bg-gray-800', 'text-white');
+                        card.querySelector('.btn-select').classList.add('btn-select');
+                    }
+                });
+            }
+
+            if (selectionStatus) {
+                if (singleMode) {
+                    selectionStatus.textContent = requiredPassengers > 0 ? `Must cover ${requiredPassengers} pax` : 'Select a vehicle';
+                } else {
+                    selectionStatus.textContent = requiredPassengers > 0 ? `Capacity: ${totalCapacity}/${requiredPassengers}` : `Selected ${totalVehicles} vehicle${totalVehicles === 1 ? '' : 's'}`;
+                }
+            }
+
+            if (!bookButton) return;
+            // Preserved Checkout URL!
+            const currentHref = bookButton.getAttribute('href') || "{% url 'core:checkout_view' %}";
+            if (!bookButton.getAttribute('data-original-href')) {
+                bookButton.setAttribute('data-original-href', currentHref);
+            }
+
+            if (covered && totalPrice > 0) {
+                bookButton.classList.remove('btn-disabled');
+                bookButton.style.pointerEvents = 'auto';
+                bookButton.style.opacity = '1';
+                bookButton.innerHTML = `Continue with Selection &rarr;`;
+                const originalHref = bookButton.getAttribute('data-original-href');
+                if (originalHref) {
+                    bookButton.setAttribute('href', originalHref);
+                }
+            } else {
+                bookButton.classList.add('btn-disabled');
+                bookButton.style.pointerEvents = 'none';
+                bookButton.style.opacity = '0.5';
+                bookButton.innerHTML = `Continue Checkout &rarr;`;
+                bookButton.removeAttribute('href');
+            }
+        }
+
+        updateBookButtonState();
+
+        transferCards.forEach((card, index) => {
+            card.addEventListener('click', function () {
+                const transferId = this.getAttribute('data-transfer-id') || `vehicle_${index}`;
+                const existingIndex = selectedTransfers.findIndex(t => t.id === transferId);
+
+                const cardTitle = this.querySelector('.card-title')?.textContent || 'Unknown Vehicle';
+                const priceNumeric = parseFloat(this.getAttribute('data-price') || '0');
+                const rateId = this.getAttribute('data-rate-id') || transferId;
+                const carId = this.getAttribute('data-car-id') || '';
+                const unitNumber = this.getAttribute('data-unit-number') || '1';
+                const imageUrl = this.getAttribute('data-image-url') || '';
+                const carCapacity = toInt(this.getAttribute('data-car-capacity') || '0', 0);
+                const travelType = this.getAttribute('data-travel-type') || '';
+                const departureDate = this.getAttribute('data-departure-date') || '';
+                const departureTime = this.getAttribute('data-departure-time') || '';
+                
+                const btnSelect = this.querySelector('.btn-select');
+
+                const singleMode = isSingleSelectionRequired();
+
+                if (singleMode) {
+                    if (existingIndex >= 0) {
+                        // Deselect if already selected to allow picking something else if needed
+                        this.classList.remove('selected');
+                        if (btnSelect) {
+                            btnSelect.textContent = 'Select Vehicle';
+                        }
+                        selectedTransfers = [];
+                    } else {
+                        transferCards.forEach(c => {
+                            c.classList.remove('selected');
+                            const b = c.querySelector('.btn-select');
+                            if(b) b.textContent = 'Select Vehicle';
+                        });
+                        selectedTransfers = [];
+                        this.classList.add('selected');
+                        if(btnSelect) btnSelect.textContent = 'Selected ✓';
+                        
+                        selectedTransfers.push({
+                            id: transferId, rate_id: rateId, car_id: carId, unit_number: unitNumber,
+                            name: cardTitle, price_text: `$${priceNumeric} USD`, price_numeric: isNaN(priceNumeric) ? 0 : priceNumeric,
+                            currency: 'USD', date: departureDate, time: departureTime, image_url: imageUrl,
+                            car_capacity: carCapacity, travel_type: travelType, quantity: 1, selection_type: 'single_vehicle'
+                        });
+                    }
+                } else {
+                    if (existingIndex >= 0) {
+                        this.classList.remove('selected');
+                        if(btnSelect) btnSelect.textContent = 'Select Vehicle';
+                        selectedTransfers.splice(existingIndex, 1);
+                    } else {
+                        this.classList.add('selected');
+                        if(btnSelect) btnSelect.textContent = 'Selected ✓';
+                        selectedTransfers.push({
+                            id: transferId, rate_id: rateId, car_id: carId, unit_number: unitNumber,
+                            name: cardTitle, price_text: `$${priceNumeric} USD`, price_numeric: isNaN(priceNumeric) ? 0 : priceNumeric,
+                            currency: 'USD', date: departureDate, time: departureTime, image_url: imageUrl,
+                            car_capacity: carCapacity, travel_type: travelType, quantity: 1, selection_type: 'multi_vehicle'
+                        });
+                    }
+                }
+                updateBookButtonState();
+            });
+        });
+
+        if (bookButton) {
+            bookButton.addEventListener('click', function (e) {
+                const requiredPassengers = getRequiredPassengers();
+                const totalCapacity = selectedTransfers.reduce((sum, t) => sum + (toInt(t.car_capacity, 0)), 0);
+                const covered = requiredPassengers > 0 ? totalCapacity >= requiredPassengers : selectedTransfers.length > 0;
+
+                if (!covered || !this.getAttribute('href')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+
+                // Collect and Save
+                try {
+                    const fd = collectFechasData();
+                    sessionStorage.setItem('selectedTransfers', JSON.stringify(selectedTransfers));
+                    if (selectedTransfers.length > 0) sessionStorage.setItem('selectedTransfer', JSON.stringify(selectedTransfers[0]));
+                    sessionStorage.setItem('fechasData', JSON.stringify(fd));
+                } catch (err) { console.error(err); }
+
+                return true;
+            });
+        }
+    });
+</script>
