@@ -775,7 +775,7 @@ def create_payment(request):
                     "custom": str(booking_id) if booking_id else "" # Also store in custom field
                 }
             ],
-            "experience_profile_id": get_or_create_web_profile() # Use the Guest Checkout Profile
+            # "experience_profile_id": get_or_create_web_profile() # Temporarily disabled to prevent merchant loop
         })
         
         if payment.create():
