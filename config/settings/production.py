@@ -98,7 +98,7 @@ DATABASES = {
         'NAME': os.getenv('DB_NAME', 'speedy'),
         'USER': os.getenv('DB_USER', 'speedy_user'),
         'PASSWORD': os.getenv('DB_PASSWORD', '71Du$1WJ>bvv]iw'),
-        'HOST': os.getenv('DB_HOST', '45.82.72.136'),
+        'HOST': os.getenv('DB_HOST', '145.223.120.195'),
         'PORT': os.getenv('DB_PORT', '3306'),
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
@@ -110,7 +110,7 @@ DATABASES = {
         'NAME': os.getenv('DB_NAME', 'speedy'),
         'USER': os.getenv('DB_USER', 'speedy_user'),
         'PASSWORD': os.getenv('DB_PASSWORD', '71Du$1WJ>bvv]iw'),
-        'HOST': os.getenv('DB_HOST', '45.82.72.136'),
+        'HOST': os.getenv('DB_HOST', '145.223.120.195'),
         'PORT': os.getenv('DB_PORT', '3306'),
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
@@ -123,7 +123,7 @@ DATABASES = {
 DATABASE_ROUTERS = ['reports.router.ReportsRouter']
 
 # Security settings
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True

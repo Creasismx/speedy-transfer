@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Remote server details
-REMOTE_HOST="45.82.72.136"
+REMOTE_HOST="145.223.120.195"
 REMOTE_USER="root"
 DEPLOY_DIR="/var/www/speedy-transfer"
 VENV_DIR="$DEPLOY_DIR/venv"

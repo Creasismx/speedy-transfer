@@ -4,9 +4,9 @@ import sys
 from pathlib import Path
 
 # SSH Configuration
-HOST = '45.82.72.136'
+HOST = '145.223.120.195'
 USERNAME = 'root'
-PASSWORD = '*Adolfo1971*#2013$20'
+PASSWORD = 'YEJ+o.77SasiG(Pj'
 REMOTE_DIR = '/var/www/speedy-transfer'
 
 def upload_file(sftp, local_path, remote_path):
@@ -32,7 +32,7 @@ def deploy():
 
         print("Preparing files...")
         local_dir = Path('.')
-        exclude = {'.git', '__pycache__', 'venv', '.pytest_cache'}
+        exclude = {'.git', '__pycache__', 'venv', '.pytest_cache', 'node_modules', '.vercel', 'staticfiles', 'static'}
 
         print("Uploading files...")
         for root, dirs, files in os.walk('.'):
