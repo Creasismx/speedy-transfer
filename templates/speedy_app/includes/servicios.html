@@ -1,51 +1,66 @@
 {% load static %}
 
-<section id="servicios" class="py-16 bg-slate-50">
-    <div class="container">
+<section id="servicios" class="py-20 bg-slate-50 relative overflow-hidden">
+    <!-- Decorative background element -->
+    <div class="absolute top-0 right-0 w-96 h-96 bg-teal-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 pointer-events-none transform translate-x-1/2 -translate-y-1/2"></div>
+    
+    <div class="container mx-auto px-4 relative z-10">
         <!-- Section Title -->
-        <div class="text-center md:text-left mb-12 relative">
-            <span class="absolute -top-6 left-0 text-6xl md:text-8xl font-bold opacity-5 select-none z-0"
-                style="color: var(--text-muted);">Services</span>
-            <h2 class="text-3xl md:text-5xl font-bold relative z-10"
-                style="font-family: var(--font-display); color: var(--text-main);">Our Transportation Services</h2>
+        <div class="text-center mb-16 relative">
+            <span class="text-teal-600 font-bold tracking-wider uppercase text-sm mb-2 block">What We Offer</span>
+            <h2 class="text-4xl md:text-5xl font-extrabold text-slate-800 tracking-tight drop-shadow-sm">
+                Premium Transportation Services
+            </h2>
+            <div class="w-24 h-1.5 bg-gradient-to-r from-teal-400 to-teal-600 mx-auto mt-6 rounded-full shadow-sm"></div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
             <!-- Service 1 (Long) -->
-            <div class="group relative overflow-hidden rounded-lg shadow-md h-80 md:col-span-2">
+            <div class="group relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 h-80 md:h-[400px] md:col-span-2 cursor-pointer bg-white">
                 <img src="{% static 'images/servicios1.jpeg' %}" alt="Puerto Vallarta Airport Transfers"
-                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                <div class="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/50 to-transparent">
-                    <h3 class="text-white text-2xl font-bold drop-shadow-md">Puerto Vallarta Airport Transfers</h3>
+                    class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110">
+                <div class="absolute inset-x-0 bottom-0 p-8 h-3/5 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent flex flex-col justify-end">
+                    <h3 class="text-white text-3xl font-extrabold drop-shadow-md mb-2 transform transition-transform duration-300 group-hover:-translate-y-2">Airport Transfers</h3>
+                    <p class="text-teal-300 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">Smooth, safe, and on-time arrival & departure.</p>
                 </div>
             </div>
 
             <!-- Service 2 (Short) -->
-            <div class="group relative overflow-hidden rounded-lg shadow-md h-80">
+            <div class="group relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 h-80 md:h-[400px] cursor-pointer bg-white">
                 <img src="{% static 'images/servicios2.jpeg' %}" alt="Private Transfers"
-                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                <div class="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/50 to-transparent">
-                    <h3 class="text-white text-2xl font-bold drop-shadow-md">Private Transfers</h3>
+                    class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110">
+                <div class="absolute inset-x-0 bottom-0 p-8 h-3/5 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent flex flex-col justify-end">
+                    <h3 class="text-white text-2xl font-extrabold drop-shadow-md mb-2 transform transition-transform duration-300 group-hover:-translate-y-2">Private Rides</h3>
+                    <p class="text-teal-300 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">Exclusive service anywhere in the bay.</p>
                 </div>
             </div>
 
             <!-- Service 3 (Short) -->
-            <div class="group relative overflow-hidden rounded-lg shadow-md h-80">
+            <div class="group relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 h-80 md:h-[400px] cursor-pointer bg-white">
                 <img src="{% static 'images/servicios3.jpeg' %}" alt="Private Driver"
-                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                <div class="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/50 to-transparent">
-                    <h3 class="text-white text-2xl font-bold drop-shadow-md">Private Driver</h3>
+                    class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110">
+                <div class="absolute inset-x-0 bottom-0 p-8 h-3/5 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent flex flex-col justify-end">
+                    <h3 class="text-white text-2xl font-extrabold drop-shadow-md mb-2 transform transition-transform duration-300 group-hover:-translate-y-2">Private Driver</h3>
+                    <p class="text-teal-300 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">Hourly service for total flexibility.</p>
                 </div>
             </div>
 
             <!-- Service 4 (Long) -->
-            <div class="group relative overflow-hidden rounded-lg shadow-md h-80 md:col-span-2">
+            <div class="group relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 h-80 md:h-[400px] md:col-span-2 cursor-pointer bg-white">
                 <img src="{% static 'images/servicios4.jpeg' %}" alt="Group Transfers"
-                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                <div class="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/50 to-transparent">
-                    <h3 class="text-white text-2xl font-bold drop-shadow-md">Group Transportation for Weddings</h3>
+                    class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110">
+                <div class="absolute inset-x-0 bottom-0 p-8 h-3/5 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent flex flex-col justify-end">
+                    <h3 class="text-white text-3xl font-extrabold drop-shadow-md mb-2 transform transition-transform duration-300 group-hover:-translate-y-2">Group & Weddings</h3>
+                    <p class="text-teal-300 font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">Spacious vans for your whole party.</p>
                 </div>
             </div>
+        </div>
+        
+        <div class="mt-14 text-center">
+            <a href="#fechas" class="inline-flex items-center justify-center bg-transparent border-2 border-teal-600 text-teal-700 hover:bg-teal-600 hover:text-white font-bold py-3 px-8 rounded-full transition-all duration-300 text-[14px] uppercase tracking-wider group">
+                Reserve Your Ride
+                <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </a>
         </div>
     </div>
 </section>
