@@ -17,14 +17,16 @@ A Django-based transfer booking application that allows users to book transporta
 ## Project Structure
 
 ```
-speedy-transfer-main/
+speedy-transfer/
 ├── app/                    # Main Django app
 ├── config/                 # Django configuration
 │   └── settings/          # Environment-specific settings
 ├── speedy_app/            # Core application
 │   └── core/              # Main business logic
-├── templates/             # HTML templates and static assets
-│   └── assets/            # CSS, JS, images, and fonts
+├── scripts/               # Maintenance and migration scripts
+│   └── legacy/            # Older utility scripts
+├── static/                # Static assets (Tailwind, JS, Images)
+├── templates/             # HTML templates
 ├── requirements.txt       # Python dependencies
 ├── manage.py             # Django management script
 └── docker-compose.yml    # Docker configuration
@@ -115,7 +117,7 @@ pip install -r requirements.txt
 
 ### **6. Install Frontend Dependencies**
 ```bash
-cd templates/assets
+cd static
 npm install
 ```
 
@@ -147,7 +149,7 @@ python manage.py collectstatic
 
 ### **9. Build Frontend Assets**
 ```bash
-cd templates/assets
+cd static
 npm run build
 # or for development with watch mode
 npm run watch
@@ -164,7 +166,21 @@ python manage.py livereload
 
 ### **11. Access the Application**
 - Main application: http://localhost:8000
+- Main application: http://localhost:8000
 - Admin interface: http://localhost:8000/admin
+
+---
+
+## Maintenance & Migration Scripts
+
+We have a dedicated `scripts/` folder with utilities for database management and migration:
+
+- **Adding First Priority Location**: `python scripts/add_airport.py` (Adds "AEROPUERTO" as first selection in booking forms)
+- **Check DB State**: `python scripts/check_db_state.py` (Verify connection and key data)
+- **Fix Asset Extensions**: `python scripts/fix_assets_v2.py` (Mass-update static references in templates)
+- **SSL Setup**: `python scripts/setup_ssl.py` (Configure Nginx/Certbot)
+
+Older or one-off scripts are stored in `scripts/legacy/`.
 
 ---
 
@@ -218,7 +234,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Install frontend dependencies
-cd templates/assets
+cd static
 npm install
 ```
 
@@ -260,7 +276,7 @@ venv\Scripts\activate.bat
 pip install -r requirements.txt
 
 # Install frontend dependencies
-cd templates/assets
+cd static
 npm install
 ```
 
@@ -286,7 +302,7 @@ python manage.py shell
 ### **Frontend Development**
 ```bash
 # Build assets
-cd templates/assets
+cd static
 npm run build
 
 # Watch for changes (development)
@@ -356,6 +372,11 @@ Configure a WSGI server like Gunicorn:
 gunicorn config.wsgi:application --bind 0.0.0.0:8000
 ```
 
+### **Server Migration (2025/2026)**
+The project was migrated to a new dedicated server. Key configurations for this environment are handled in:
+- `config/settings/production.py`: Contains the remote database credentials and production-specific middleware/security settings.
+- Environment variables should be synced using the `.env` template but specific to the production host.
+
 ## Troubleshooting
 
 ### **Common Issues**
@@ -377,7 +398,7 @@ gunicorn config.wsgi:application --bind 0.0.0.0:8000
 
 4. **Frontend Assets Not Building**
    - Ensure Node.js is installed
-   - Run `npm install` in `templates/assets`
+   - Run `npm install` in `static`
    - Check for build errors in console
 
 ## Contributing

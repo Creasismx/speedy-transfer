@@ -59,3 +59,12 @@ __pycache__/
 .vercel
 staticfiles/
 ssh_connect.ps1
+
+# Django Collected Static folders (Generated)
+static/admin/
+static/jet/
+static/jet.dashboard/
+static/rest_framework/
+static/range_filter/
+static/fonts/
+static/src/output.css
